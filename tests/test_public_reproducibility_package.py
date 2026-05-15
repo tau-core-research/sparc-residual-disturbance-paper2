@@ -239,6 +239,15 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_expanded_score_resolver_audit_v01.csv",
         PACKET / "things_vs_whisp_control_matrix_v01.csv",
         PACKET / "things_control_gate_decision_v01.csv",
+        PACKET / "things_table3_expanded_w_tau_eff_v01.md",
+        PACKET / "things_table3_expanded_w_tau_eff_point_trace_v01.csv",
+        PACKET / "things_table3_expanded_w_tau_eff_scores_v01.csv",
+        PACKET / "things_table3_expanded_w_tau_eff_summary_v01.csv",
+        PACKET / "things_table3_expanded_w_tau_eff_decision_v01.csv",
+        PACKET / "things_table3_expanded_control_readout_v01.md",
+        PACKET / "things_table3_expanded_control_readout_join_v01.csv",
+        PACKET / "things_table3_expanded_control_readout_metrics_v01.csv",
+        PACKET / "things_table3_expanded_control_readout_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -333,6 +342,8 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_whisp_expanded_w_tau_eff_readout_v01.py",
         STUDY / "evaluate_whisp_holwerda2011_morphology_readout_v01.py",
         STUDY / "make_things_expanded_resolver_control_gate_v01.py",
+        STUDY / "score_things_table3_expanded_w_tau_eff_v01.py",
+        STUDY / "evaluate_things_table3_expanded_control_readout_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2370,6 +2381,66 @@ def test_things_control_gate_does_not_absorb_whisp_direction():
     assert "does not fit coefficients" in text
     assert "THINGS non-circular controls do not reproduce the WHISP-positive direction" in text
     assert "non-WHISP resolved-HI replication" in text
+
+
+def test_things_table3_expanded_scoring_and_control_readout_remain_below_n15():
+    with (PACKET / "things_table3_expanded_w_tau_eff_scores_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        scores = list(csv.DictReader(handle))
+    assert len(scores) == 18
+    assert collections.Counter(row["ScoringStatus"] for row in scores) == {
+        "existing_score_retained": 8,
+        "newly_scored_from_rotmod": 5,
+        "excluded_no_rotmod": 5,
+    }
+    assert {
+        row["GalaxyName"]
+        for row in scores
+        if row["ScoringStatus"] == "newly_scored_from_rotmod"
+    } == {"NGC2841", "NGC2903", "NGC3521", "NGC6946", "NGC7793"}
+
+    with (PACKET / "things_table3_expanded_w_tau_eff_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        summary = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert summary["things_table3_total_rows"]["Value"] == "18"
+    assert summary["things_table3_resolved_w_tau_eff_rows"]["Value"] == "13"
+    assert summary["newly_scored_from_rotmod"]["Value"] == "5"
+    assert summary["excluded_no_rotmod"]["Value"] == "5"
+
+    with (PACKET / "things_table3_expanded_w_tau_eff_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["T3X01"]["Status"] == "expanded_but_still_below_N15"
+    assert decisions["T3X01"]["N"] == "13"
+    assert decisions["T3X02"]["Status"] == "no_refit_no_velocity_formula"
+
+    with (PACKET / "things_table3_expanded_control_readout_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "13"
+    assert metrics["pearson_Ar_vs_w_tau_score"]["Value"] == "-0.310471908"
+    assert metrics["spearman_Ar_vs_w_tau_score"]["Value"] == "-0.310866869"
+    assert metrics["auc_high_vs_low_Ar"]["Value"] == "0.345238095"
+    assert metrics["pearson_ArOverVmaxPercent_vs_w_tau_score"]["Value"] == "0.321831406"
+    assert metrics["auc_high_vs_low_ArOverVmaxPercent"]["Value"] == "0.702380952"
+
+    with (PACKET / "things_table3_expanded_control_readout_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        readout_decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert readout_decisions["T3R01"]["Status"] == "does_not_absorb_WHISP_direction"
+    assert readout_decisions["T3R01"]["N"] == "13"
+    assert readout_decisions["T3R02"]["Status"] == "control_only_below_N15"
+
+    text = (PACKET / "things_table3_expanded_control_readout_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not reproduce the WHISP-positive direction" in text
+    assert "below the N>=15 validation threshold" in text
 
 
 def test_public_package_is_english_only():
