@@ -241,6 +241,22 @@ python studies/sparc_residual_disturbance_inference_v01/make_external_source_acq
 
 This freezes public source URLs, required derived fields, and raw-data redistribution guardrails for the next expansion step.
 
+The structured external source metadata download is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/download_external_validation_sources_v01.py
+```
+
+This stores raw source pages and API metadata under `data/raw/` and writes only derived manifests into the public packet.
+
+The HALOGAS candidate moment-map download is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/download_halogas_candidate_moments_v01.py
+```
+
+This downloads only the candidate non-cube FITS products and verifies their MD5 checksums. Large HALOGAS cubes remain excluded from this step.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

@@ -161,6 +161,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "external_source_acquisition_plan_v01.md",
         PACKET / "external_source_acquisition_plan_v01.csv",
         PACKET / "external_source_required_fields_v01.csv",
+        PACKET / "external_source_download_manifest_v01.md",
+        PACKET / "external_source_download_manifest_v01.csv",
+        PACKET / "halogas_zenodo_file_index_v01.csv",
+        PACKET / "halogas_candidate_moment_downloads_v01.md",
+        PACKET / "halogas_candidate_moment_downloads_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -236,6 +241,8 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_external_validation_status_board_v01.py",
         STUDY / "make_expanded_external_validation_targets_v01.py",
         STUDY / "make_external_source_acquisition_plan_v01.py",
+        STUDY / "download_external_validation_sources_v01.py",
+        STUDY / "download_halogas_candidate_moments_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1372,6 +1379,71 @@ def test_external_source_acquisition_plan_freezes_sources_and_no_raw_data_policy
     assert "does not redistribute raw survey products" in text
     assert "does not open a velocity endpoint" in text
     assert "Raw FITS cubes or large survey products should remain outside" in text
+
+
+def test_external_source_download_manifest_is_structured_and_local_raw_only():
+    with (PACKET / "external_source_download_manifest_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 7
+    assert sum(row["Status"] == "downloaded" for row in rows) == 5
+    assert sum(row["Status"] == "failed" for row in rows) == 2
+    assert {row["PublicPacketUse"] for row in rows} == {"derived_index_only"}
+    assert all(row["LocalRawPath"].startswith("data/raw/") for row in rows)
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "raw_downloads_local_only_public_packet_derived_index_only"
+    }
+
+    with (PACKET / "halogas_zenodo_file_index_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        halogas = list(csv.DictReader(handle))
+    assert len(halogas) == 192
+    candidate_rows = [row for row in halogas if row["CandidateSPARCOverlap"]]
+    assert len(candidate_rows) == 40
+    assert {
+        row["CandidateSPARCOverlap"]
+        for row in candidate_rows
+        if row["CandidateSPARCOverlap"]
+    } == {"NGC2403", "NGC3198", "NGC4559", "NGC5055", "NGC5585"}
+    assert all(row["Checksum"].startswith("md5:") for row in halogas)
+
+    text = (PACKET / "external_source_download_manifest_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Raw downloaded files are stored under `data/raw/`" in text
+    assert "HALOGAS indexed files: 192" in text
+
+
+def test_halogas_candidate_moment_downloads_are_md5_verified_and_no_cubes():
+    with (PACKET / "halogas_candidate_moment_downloads_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 30
+    assert {row["GalaxyName"] for row in rows} == {
+        "NGC2403",
+        "NGC3198",
+        "NGC4559",
+        "NGC5055",
+        "NGC5585",
+    }
+    assert {row["Status"] for row in rows} == {"downloaded_verified"}
+    assert all("cube" not in row["FileName"].lower() for row in rows)
+    assert all(row["ExpectedChecksum"] == "md5:" + row["ActualMD5"] for row in rows)
+    assert all(row["ExpectedBytes"] == row["ActualBytes"] for row in rows)
+    assert {row["PublicPacketUse"] for row in rows} == {"derived_manifest_only"}
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "halogas_raw_fits_local_only_commit_derived_manifest_only"
+    }
+
+    text = (PACKET / "halogas_candidate_moment_downloads_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Large cubes are intentionally excluded" in text
+    assert "Verified files: 30" in text
+    assert "Verified bytes: 117547200" in text
 
 
 def test_public_package_is_english_only():
