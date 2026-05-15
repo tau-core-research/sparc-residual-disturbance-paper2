@@ -13,6 +13,9 @@
     "distance_resolution_environment_join_v01.csv",
     "distance_resolution_environment_join_v01.md",
     "distance_resolution_environment_metrics_v01.csv",
+    "expanded_external_validation_pass_fail_v01.csv",
+    "expanded_external_validation_targets_v01.csv",
+    "expanded_external_validation_targets_v01.md",
     "external_validation_status_board_v01.csv",
     "external_validation_status_board_v01.md",
     "external_validation_status_decision_v01.csv",
@@ -142,7 +145,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "expanded_non_whisp_external_validation_targets",
+  "paper2_next_gate": "expand_non_whisp_external_overlap",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -171,5 +174,6 @@
   "multivariable_no_velocity_stress_status": "observer_distance_candidate_stress_complete_no_velocity_endpoint",
   "observer_distance_hypothesis_gate_status": "hypothesis_frozen_external_validation_required",
   "observer_distance_whisp_external_validation_status": "small_source_family_validation_complete_no_velocity_endpoint",
-  "external_validation_status_board_status": "mixed_external_validation_status_complete_no_velocity_endpoint"
+  "external_validation_status_board_status": "mixed_external_validation_status_complete_no_velocity_endpoint",
+  "expanded_external_validation_targets_status": "target_plan_frozen_no_velocity_endpoint"
 }

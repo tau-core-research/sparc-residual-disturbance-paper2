@@ -225,6 +225,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_external_validation
 
 This board summarizes the WHISP, THINGS, LITTLE THINGS, and HALOGAS source-family status. It freezes the current decision as mixed support for the broad `W_tau_eff` direction, but not for the observer-distance interpretation.
 
+The expanded non-WHISP external validation target plan is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_expanded_external_validation_targets_v01.py
+```
+
+This freezes the next target families, minimum coverage gates, balance requirements, and pass/fail criteria before any additional data expansion.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

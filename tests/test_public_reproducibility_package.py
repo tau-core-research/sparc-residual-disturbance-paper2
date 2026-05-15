@@ -155,6 +155,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "external_validation_status_board_v01.md",
         PACKET / "external_validation_status_board_v01.csv",
         PACKET / "external_validation_status_decision_v01.csv",
+        PACKET / "expanded_external_validation_targets_v01.md",
+        PACKET / "expanded_external_validation_targets_v01.csv",
+        PACKET / "expanded_external_validation_pass_fail_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -228,6 +231,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_observer_distance_hypothesis_gate_v01.py",
         STUDY / "evaluate_observer_distance_whisp_external_validation_v01.py",
         STUDY / "make_external_validation_status_board_v01.py",
+        STUDY / "make_expanded_external_validation_targets_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1278,6 +1282,46 @@ def test_external_validation_status_board_closes_observer_distance_endpoint():
     assert "does not open a velocity endpoint" in text
     assert "does not claim a Tau Core field detection" in text
     assert "not for the observer-distance interpretation" in text
+
+
+def test_expanded_external_validation_targets_freeze_next_data_gate():
+    with (PACKET / "expanded_external_validation_targets_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        targets = {row["TargetID"]: row for row in csv.DictReader(handle)}
+    assert set(targets) == {"EVT01", "EVT02", "EVT03", "EVT04", "EVT05"}
+    assert targets["EVT01"]["SourceFamily"] == "THINGS harmonic velocity-field controls"
+    assert targets["EVT01"]["MinimumDirectionalN"] == "12"
+    assert targets["EVT01"]["MinimumBalancedClasses"] == "at_least_4_A_and_4_C"
+    assert targets["EVT01"]["Priority"] == "high"
+    assert targets["EVT04"]["SourceFamily"] == "Non-WHISP resolved HI asymmetry catalogues"
+    assert targets["EVT04"]["MinimumDirectionalN"] == "15"
+    assert targets["EVT04"]["RoleIfPasses"] == (
+        "strongest_near_term_external_validation_candidate"
+    )
+    assert targets["EVT05"]["Endpoint"] == "observer_distance_hypothesis_stress_only"
+    assert targets["EVT05"]["RoleIfFails"] == "park_observer_distance_interpretation"
+    assert {row["InterpretationGuardrail"] for row in targets.values()} == {
+        "expanded_external_validation_targets_no_velocity_endpoint_no_formula_fit"
+    }
+
+    with (PACKET / "expanded_external_validation_pass_fail_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert set(gates) == {"EVG01", "EVG02", "EVG03", "EVG04"}
+    assert gates["EVG01"]["CurrentStatus"] == "not_yet_met"
+    assert gates["EVG02"]["Blocks"] == "observer_distance_claim"
+    assert gates["EVG03"]["CurrentStatus"] == "open"
+    assert gates["EVG04"]["CurrentStatus"] == "closed"
+    assert gates["EVG04"]["NextAction"] == "keep_velocity_endpoint_closed"
+
+    text = (PACKET / "expanded_external_validation_targets_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not add a velocity endpoint" in text
+    assert "does not promote the observer-distance interpretation" in text
+    assert "targeted external-data expansion" in text
 
 
 def test_public_package_is_english_only():
