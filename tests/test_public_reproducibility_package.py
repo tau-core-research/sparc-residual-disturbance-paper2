@@ -3590,6 +3590,11 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
     assert "CamB is the most important failure case" in tex
     assert "Stability and effect-size appendix" in tex
     assert "paper2_auc_stability_distributions.pdf" in tex
+    assert "The strongest remaining weakness is external validation" in tex
+    assert "it is not yet externally established" in tex
+    assert "External-validation status" in tex
+    assert "source-family holdout" in tex
+    assert "If the effect disappears, reverses, or becomes dominated" in tex
     assert "Lelli2016SPARC" in bib
     assert "Trachternach2008THINGS" in bib
     assert "Reynolds2020HIAsymmetries" in bib
