@@ -56,6 +56,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "paper2_results_summary_v03.csv",
         PACKET / "paper2_external_proxy_summary_v03.csv",
         PACKET / "paper2_manuscript_v03_gate.csv",
+        PACKET / "paper2_submission_readiness_v01.md",
+        PACKET / "paper2_submission_readiness_v01.csv",
+        PACKET / "paper2_submission_next_actions_v01.csv",
         PACKET / "paper2_final_metric_table.csv",
         PACKET / "paper2_readiness_table.csv",
         PACKET / "paper2_figure_plan.csv",
@@ -444,6 +447,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_paper2_status_board_v02.py",
         STUDY / "make_paper2_manuscript_v02.py",
         STUDY / "make_paper2_manuscript_v03.py",
+        STUDY / "make_paper2_submission_readiness_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3502,6 +3506,39 @@ def test_paper2_manuscript_v03_is_publication_style_but_still_caveated():
     )
     assert gates["P2MSV03G03"]["Status"] == "negative_things_route2_audit_retained"
     assert {row["CanClaimTauValidation"] for row in gates.values()} == {"no"}
+
+
+def test_paper2_submission_readiness_tracks_publication_blockers():
+    with (PACKET / "paper2_submission_readiness_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        readiness = {row["Area"]: row for row in csv.DictReader(handle)}
+    assert readiness["Manuscript identity"]["Status"] == (
+        "ready_as_diagnostic_audit_draft"
+    )
+    assert readiness["Primary internal result"]["Status"] == "ready_with_caveats"
+    assert readiness["External proxy support"]["Status"] == "supporting_context_only"
+    assert readiness["THINGS route2"]["Status"] == "closed_negative_audit"
+    assert readiness["Bibliography"]["Status"] == "not_ready"
+    assert readiness["Submission source"]["Status"] == "not_ready"
+    assert readiness["Submission source"]["BlockingIssue"] == (
+        "no LaTeX source/PDF candidate for Paper 2"
+    )
+
+    with (PACKET / "paper2_submission_next_actions_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        actions = {row["StepID"]: row for row in csv.DictReader(handle)}
+    assert actions["P2SUB01"]["BlocksSubmission"] == "yes"
+    assert actions["P2SUB02"]["Action"] == "create_latex_source_and_bibliography"
+    assert actions["P2SUB03"]["Action"] == "figure_typography_and_caption_audit"
+    assert {row["CanClaimTauValidation"] for row in actions.values()} == {"no"}
+
+    text = (PACKET / "paper2_submission_readiness_v01.md").read_text(encoding="utf-8")
+    assert "not yet submission-ready" in text
+    assert "not signal-discovery blockers" in text
+    assert "Forbidden: Tau Core validation" in text
+    assert "THINGS route2 positive evidence" in text
 
 
 def test_public_package_is_english_only():

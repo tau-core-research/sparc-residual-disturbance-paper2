@@ -98,6 +98,9 @@
     "paper2_results_summary_v03.csv",
     "paper2_section_plan_v02.csv",
     "paper2_shuffled_label_null.csv",
+    "paper2_submission_next_actions_v01.csv",
+    "paper2_submission_readiness_v01.csv",
+    "paper2_submission_readiness_v01.md",
     "paper2_validation_controls.md",
     "path_b_source_only_stau_readout.md",
     "path_b_source_only_stau_readout_joined_points.csv",
@@ -314,7 +317,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "review_paper2_v03_wording_and_prepare_latex_candidate",
+  "paper2_next_gate": "paper2_latex_source_bibliography_and_figure_polish",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -386,5 +389,6 @@
   "things_route2_expansion_status": "closed_not_score_ready_no_synthetic_mass_models_no_scores",
   "paper2_external_validation_status_v02": "route2_closed_paper_identity_diagnostic_external_proxy_audit",
   "paper2_manuscript_v02_status": "skeleton_abstract_draft_generated_diagnostic_audit_no_tau_validation",
-  "paper2_manuscript_v03_status": "publication_style_draft_generated_external_proxy_caveats_integrated"
+  "paper2_manuscript_v03_status": "publication_style_draft_generated_external_proxy_caveats_integrated",
+  "paper2_submission_readiness_v01_status": "diagnostic_draft_ready_submission_source_and_bibliography_not_ready"
 }
