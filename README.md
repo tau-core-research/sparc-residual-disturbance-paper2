@@ -79,6 +79,14 @@ SPARC_ROTMOD_DIR=/path/to/Rotmod_LTG \
 
 This optional pilot back-solves an empirical `S_tau_eff(R)` from `Vobs` and `Vbar`. It is a diagnostic map, not a predictive model, because it uses the observed velocity target.
 
+The first leakage-controlled source-side rule can then be regenerated with:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_predictive_s_tau_rule.py
+```
+
+That rule uses only `EvidenceType` and `Confidence`; it explicitly forbids `Vobs`, `Vbar`, residuals, `Projection_RMS`, `S_tau_eff`, and the A/C class label as rule inputs.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

@@ -55,6 +55,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "s_tau_eff_pilot.md",
         PACKET / "s_tau_eff_point_pilot.csv",
         PACKET / "s_tau_eff_galaxy_summary.csv",
+        PACKET / "predictive_s_tau_rule_v01.md",
+        PACKET / "predictive_s_tau_rule_v01.csv",
+        PACKET / "predictive_s_tau_by_galaxy_v01.csv",
+        PACKET / "predictive_s_tau_readout_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -104,6 +108,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_paper2_manuscript_packet.py",
         STUDY / "make_paper2_figures_and_draft.py",
         STUDY / "make_s_tau_eff_pilot.py",
+        STUDY / "make_predictive_s_tau_rule.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -154,6 +159,42 @@ def test_effective_s_tau_pilot_is_diagnostic_and_not_predictive():
     assert "`S_tau=1` is the old TPG/projection baseline" in text
     assert "not a predictive model yet" in text
     assert "without using the target residual" in text
+
+
+def test_predictive_s_tau_rule_is_frozen_without_target_leakage():
+    with (PACKET / "predictive_s_tau_rule_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rules = list(csv.DictReader(handle))
+    assert len(rules) == 9
+    assert {row["AllowedInputs"] for row in rules} == {"EvidenceType;Confidence"}
+    assert {row["ForbiddenInputs"] for row in rules} == {
+        "Vobs;Vbar;Projection_RMS;residuals;S_tau_eff;Class"
+    }
+    assert {row["InterpretationGuardrail"] for row in rules} == {
+        "frozen_source_side_rule_not_fit_to_s_tau_eff"
+    }
+
+    with (PACKET / "predictive_s_tau_readout_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 45
+    assert {row["ReadoutUse"] for row in rows} == {
+        "post_freeze_diagnostic_only_not_rule_training"
+    }
+
+    predicted = [float(row["Predicted_S_tau_source_v01"]) for row in rows]
+    readout = [float(row["Median_S_tau_eff_clipped_ReadoutOnly"]) for row in rows]
+    mae_rule = sum(abs(a - b) for a, b in zip(predicted, readout)) / len(rows)
+    mae_baseline = sum(abs(1.0 - value) for value in readout) / len(rows)
+    assert round(mae_rule, 9) == 0.337389701
+    assert round(mae_baseline, 9) == 0.358271634
+
+    text = (PACKET / "predictive_s_tau_rule_v01.md").read_text(encoding="utf-8")
+    assert "Forbidden inputs: `Vobs`, `Vbar`, residuals" in text
+    assert "Pearson(predicted source S_tau, empirical S_tau_eff): 0.171323258" in text
+    assert "not a fitted improvement over TPG" in text
 
 
 def test_public_package_is_english_only():
