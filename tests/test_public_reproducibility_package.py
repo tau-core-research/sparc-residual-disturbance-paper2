@@ -254,6 +254,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_missing_mass_model_source_probe_v01.md",
         PACKET / "things_missing_mass_model_source_probe_v01.csv",
         PACKET / "things_missing_mass_model_source_probe_decision_v01.csv",
+        PACKET / "things_mass_model_recovery_gate_v01.md",
+        PACKET / "things_mass_model_recovery_gate_v01.csv",
+        PACKET / "things_mass_model_route2_reconstruction_plan_v01.csv",
+        PACKET / "things_mass_model_recovery_gate_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -352,6 +356,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_things_table3_expanded_control_readout_v01.py",
         STUDY / "make_things_missing_rotmod_acquisition_audit_v01.py",
         STUDY / "make_things_missing_source_probe_v01.py",
+        STUDY / "make_things_mass_model_recovery_gate_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2538,6 +2543,58 @@ def test_things_missing_mass_model_source_probe_keeps_things_gate_closed():
     assert "SPARC LTG rotmod archive" in text
     assert "do not resolve the missing five" in text
     assert "at least two missing galaxies" in text
+
+
+def test_things_mass_model_recovery_gate_closes_route1_before_route2():
+    with (PACKET / "things_mass_model_recovery_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        recovery = list(csv.DictReader(handle))
+    assert {row["GalaxyName"] for row in recovery} == {
+        "NGC925",
+        "NGC3031",
+        "NGC3621",
+        "NGC3627",
+        "NGC4736",
+    }
+    assert all(
+        row["ScoreReadyColumnsFound"] == "no"
+        and row["Route1Conclusion"] == "not_score_ready_from_direct_public_tables"
+        for row in recovery
+    )
+    assert all(
+        row["DeblokArxivSourceStatus"]
+        == "method_and_global_fit_tables_present_per_radius_columns_not_exposed"
+        for row in recovery
+    )
+    assert all(
+        row["Guardrail"] == "route1_then_route2_no_score_from_plots_no_target_refit"
+        for row in recovery
+    )
+
+    with (PACKET / "things_mass_model_route2_reconstruction_plan_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        route2 = {row["StepID"]: row for row in csv.DictReader(handle)}
+    assert route2["R2-01"]["Forbidden"] == "choose_rule_after_viewing_score_direction"
+    assert route2["R2-02"]["Forbidden"] == "tune_gas_component_to_reduce_residuals"
+    assert route2["R2-03"]["Forbidden"] == "fit_ML_to_W_tau_eff_or_Vobs_endpoint"
+    assert route2["R2-04"]["Forbidden"] == "claim_THINGS_N15_before_two_score_ready_rows"
+
+    with (PACKET / "things_mass_model_recovery_gate_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["TMRG01"]["Status"] == "route1_direct_table_recovery_not_score_ready"
+    assert decisions["TMRG01"]["NextGate"] == "route2_frozen_reconstruction_protocol"
+    assert decisions["TMRG02"]["Status"] == "route2_allowed_but_not_yet_scored"
+
+    text = (PACKET / "things_mass_model_recovery_gate_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "first attempt direct recovery" in text
+    assert "This closes route 1 for immediate scoring" in text
+    assert "Route 2 is allowed only as a pre-registered reconstruction protocol" in text
 
 
 def test_public_package_is_english_only():

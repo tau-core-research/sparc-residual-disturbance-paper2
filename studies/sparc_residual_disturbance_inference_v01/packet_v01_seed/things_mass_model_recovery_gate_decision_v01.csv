@@ -1,0 +1,3 @@
+DecisionID,Status,Meaning,NextGate
+TMRG01,route1_direct_table_recovery_not_score_ready,published sources confirm relevant THINGS analysis exists but do not expose the required per-radius baryonic velocity columns in the checked public machine-readable paths,route2_frozen_reconstruction_protocol
+TMRG02,route2_allowed_but_not_yet_scored,"THINGS HI FITS products can be future inputs, but scoring remains blocked until the reconstruction rule is frozen and at least two missing galaxies are completed",write_route2_protocol_before_data_ingestion
