@@ -191,6 +191,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "reynolds2020_lvh_alias_resolved_w_tau_eff_crossmatch_v01.csv",
         PACKET / "reynolds2020_lvh_alias_resolved_metrics_v01.csv",
         PACKET / "reynolds2020_lvh_alias_resolved_decision_v01.csv",
+        PACKET / "reynolds2020_coverage_ceiling_audit_v01.md",
+        PACKET / "reynolds2020_coverage_ceiling_audit_v01.csv",
+        PACKET / "reynolds2020_coverage_ceiling_next_actions_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -274,6 +277,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_things_table3_expanded_overlap_v01.py",
         STUDY / "make_reynolds2020_asymmetry_crossmatch_v01.py",
         STUDY / "make_lvh_alias_resolved_reynolds2020_crossmatch_v01.py",
+        STUDY / "make_reynolds2020_coverage_ceiling_audit_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1749,6 +1753,42 @@ def test_lvh_alias_resolved_reynolds2020_crossmatch_improves_but_below_gate():
     )
     assert "small-sample hint only" in text
     assert "does not open a velocity endpoint" in text
+
+
+def test_reynolds2020_coverage_ceiling_closes_simple_alias_route():
+    with (PACKET / "reynolds2020_coverage_ceiling_audit_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["Survey"]: row for row in csv.DictReader(handle)}
+    assert set(rows) == {"LVHIS", "VIVA", "HALOGAS", "TOTAL"}
+    assert rows["LVHIS"]["TotalWTauEffMatches"] == "2"
+    assert rows["VIVA"]["TotalWTauEffMatches"] == "0"
+    assert rows["HALOGAS"]["TotalWTauEffMatches"] == "4"
+    assert rows["TOTAL"]["TotalWTauEffMatches"] == "6"
+    assert rows["TOTAL"]["MatchedCanonicalNames"] == (
+        "NGC0055;NGC1705;NGC3198;NGC4559;NGC5055;NGC5585"
+    )
+    assert rows["TOTAL"]["CeilingStatus"] == "below_minimum_directional_gate"
+    assert {row["InterpretationGuardrail"] for row in rows.values()} == {
+        "reynolds2020_coverage_ceiling_no_velocity_endpoint"
+    }
+
+    with (PACKET / "reynolds2020_coverage_ceiling_next_actions_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        actions = {row["ActionID"]: row for row in csv.DictReader(handle)}
+    assert actions["R20C01"]["Status"] == "hard_ceiling_below_gate"
+    assert actions["R20C01"]["RequiredBeforeClaim"] == (
+        "add_at_least_9_eligible_independent_matches_or_change_source_family"
+    )
+    assert actions["R20C03"]["Status"] == "closed"
+
+    text = (PACKET / "reynolds2020_coverage_ceiling_audit_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "This closes the simple-alias route" in text
+    assert "does not use Vobs residuals" not in text
+    assert "velocity-field asymmetry behaves differently from map asymmetry" in text
 
 
 def test_public_package_is_english_only():

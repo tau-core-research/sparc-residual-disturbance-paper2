@@ -1,0 +1,5 @@
+Survey,CatalogRows,ExactWTauEffMatches,AliasWTauEffMatches,TotalWTauEffMatches,CurrentSeedCoverageFraction,MatchedCanonicalNames,UnmatchedCatalogRows,CeilingStatus,InterpretationGuardrail
+LVHIS,79,0,2,2,0.025316456,NGC0055;NGC1705,77,below_minimum_directional_gate,reynolds2020_coverage_ceiling_no_velocity_endpoint
+VIVA,45,0,0,0,0.000000000,,45,below_minimum_directional_gate,reynolds2020_coverage_ceiling_no_velocity_endpoint
+HALOGAS,18,4,0,4,0.222222222,NGC3198;NGC4559;NGC5055;NGC5585,14,below_minimum_directional_gate,reynolds2020_coverage_ceiling_no_velocity_endpoint
+TOTAL,142,4,2,6,0.042253521,NGC0055;NGC1705;NGC3198;NGC4559;NGC5055;NGC5585,136,below_minimum_directional_gate,reynolds2020_coverage_ceiling_no_velocity_endpoint

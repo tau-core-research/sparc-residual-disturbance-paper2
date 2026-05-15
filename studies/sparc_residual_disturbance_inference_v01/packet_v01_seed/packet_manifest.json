@@ -119,6 +119,9 @@
     "reynolds2020_asymmetry_crossmatch_metrics_v01.csv",
     "reynolds2020_asymmetry_crossmatch_v01.md",
     "reynolds2020_asymmetry_w_tau_eff_crossmatch_v01.csv",
+    "reynolds2020_coverage_ceiling_audit_v01.csv",
+    "reynolds2020_coverage_ceiling_audit_v01.md",
+    "reynolds2020_coverage_ceiling_next_actions_v01.csv",
     "reynolds2020_lvh_alias_resolved_crossmatch_v01.md",
     "reynolds2020_lvh_alias_resolved_decision_v01.csv",
     "reynolds2020_lvh_alias_resolved_metrics_v01.csv",
@@ -178,7 +181,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "expanded_non_whisp_external_validation_targets",
+  "paper2_next_gate": "predeclare_seed_expansion_or_switch_to_larger_external_family",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -217,5 +220,6 @@
   "halogas_moment_proxy_readout_status": "small_overlap_weak_or_null_control_complete_no_velocity_endpoint",
   "things_table3_expanded_overlap_status": "published_table3_overlap_complete_below_minimum_n_no_velocity_endpoint",
   "reynolds2020_asymmetry_crossmatch_status": "vizier_catalog_ingested_exact_overlap_below_minimum_n",
-  "lvhis_alias_resolution_status": "resolved_ids_alias_crossmatch_below_minimum_n"
+  "lvhis_alias_resolution_status": "resolved_ids_alias_crossmatch_below_minimum_n",
+  "reynolds2020_coverage_ceiling_status": "current_seed_hard_ceiling_below_minimum_n"
 }

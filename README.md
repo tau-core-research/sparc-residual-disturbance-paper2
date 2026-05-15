@@ -291,6 +291,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_lvh_alias_resolved_
 
 This resolves LVHIS survey IDs through the public ATNF LVHIS database, re-runs the Reynolds et al. crossmatch, and records the remaining minimum-N blocker without redistributing raw survey products.
 
+The Reynolds et al. 2020 coverage-ceiling audit is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_reynolds2020_coverage_ceiling_audit_v01.py
+```
+
+This closes the simple-alias expansion route by documenting that the current frozen `W_tau_eff` seed can provide only six Reynolds et al. matches after LVHIS ID resolution.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
