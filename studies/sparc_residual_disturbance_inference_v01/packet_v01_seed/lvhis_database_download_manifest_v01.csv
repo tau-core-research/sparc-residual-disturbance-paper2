@@ -1,0 +1,2 @@
+FileName,LocalRawPath,Status,Bytes,SHA256,SourceURL,PublicPacketUse,InterpretationGuardrail
+LVHIS-database.html,data/raw/external_validation_sources_v01/lvhis/LVHIS-database.html,downloaded,50297,5991a4855c4b694ad08155d9eb74653cf3687dace1bb5537e4d09697b31fbd15,https://www.narrabri.atnf.csiro.au/research/LVHIS/LVHIS-database.html,derived_alias_table_only,lvhis_alias_resolved_reynolds2020_no_velocity_endpoint

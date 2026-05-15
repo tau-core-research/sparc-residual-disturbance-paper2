@@ -185,6 +185,12 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "reynolds2020_asymmetry_w_tau_eff_crossmatch_v01.csv",
         PACKET / "reynolds2020_asymmetry_crossmatch_metrics_v01.csv",
         PACKET / "reynolds2020_asymmetry_crossmatch_decision_v01.csv",
+        PACKET / "reynolds2020_lvh_alias_resolved_crossmatch_v01.md",
+        PACKET / "lvhis_database_download_manifest_v01.csv",
+        PACKET / "lvhis_alias_resolution_v01.csv",
+        PACKET / "reynolds2020_lvh_alias_resolved_w_tau_eff_crossmatch_v01.csv",
+        PACKET / "reynolds2020_lvh_alias_resolved_metrics_v01.csv",
+        PACKET / "reynolds2020_lvh_alias_resolved_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -267,6 +273,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_halogas_moment_proxy_v01.py",
         STUDY / "make_things_table3_expanded_overlap_v01.py",
         STUDY / "make_reynolds2020_asymmetry_crossmatch_v01.py",
+        STUDY / "make_lvh_alias_resolved_reynolds2020_crossmatch_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1282,7 +1289,7 @@ def test_external_validation_status_board_closes_observer_distance_endpoint():
         newline="", encoding="utf-8"
     ) as handle:
         rows = {row["FamilyID"]: row for row in csv.DictReader(handle)}
-    assert set(rows) == {"P07", "ODW", "P05", "P06", "P08"}
+    assert set(rows) == {"P07", "ODW", "P05", "P06", "P08", "R20", "LVH"}
     assert rows["P07"]["Status"] == "positive_small_source_family_sanity_check"
     assert rows["P07"]["PrimaryMetric"] == "AUC=0.760000000;Pearson=0.441950994"
     assert rows["ODW"]["Status"] == "direction_not_reproduced_in_small_whisp_overlap"
@@ -1292,6 +1299,11 @@ def test_external_validation_status_board_closes_observer_distance_endpoint():
     assert rows["P05"]["Status"] == "does_not_absorb_direction_in_small_overlap"
     assert rows["P06"]["Status"] == "too_small_for_directional_validation"
     assert rows["P08"]["Status"] == "weak_small_overlap_control_only"
+    assert rows["R20"]["Status"] == "catalog_ingested_exact_overlap_below_minimum_n"
+    assert rows["LVH"]["Status"] == "alias_resolution_improves_overlap_but_below_minimum_n"
+    assert rows["LVH"]["PrimaryMetric"] == (
+        "AmapPearson=-0.233039744;AvelPearson=0.375346400;AvelAUC=0.777777778"
+    )
     assert {row["EndpointPermission"] for row in rows.values()} == {
         "no_velocity_endpoint"
     }
@@ -1677,6 +1689,66 @@ def test_reynolds2020_asymmetry_crossmatch_ingests_vizier_but_below_gate():
     )
     assert "does not open a velocity endpoint" in text
     assert "LVHIS alias resolution is the next step" in text
+
+
+def test_lvh_alias_resolved_reynolds2020_crossmatch_improves_but_below_gate():
+    with (PACKET / "lvhis_database_download_manifest_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        downloads = {row["FileName"]: row for row in csv.DictReader(handle)}
+    assert set(downloads) == {"LVHIS-database.html"}
+    assert downloads["LVHIS-database.html"]["Status"] == "downloaded"
+    assert downloads["LVHIS-database.html"]["PublicPacketUse"] == (
+        "derived_alias_table_only"
+    )
+
+    with (PACKET / "lvhis_alias_resolution_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        aliases = {row["ExternalName"]: row for row in csv.DictReader(handle)}
+    assert len(aliases) == 82
+    assert aliases["LVHIS004"]["CanonicalSPARCNameCandidate"] == "NGC0055"
+    assert aliases["LVHIS018"]["CanonicalSPARCNameCandidate"] == "NGC1705"
+    assert {row["AllowedUse"] for row in aliases.values()} == {"alias_resolution_only"}
+
+    with (
+        PACKET / "reynolds2020_lvh_alias_resolved_w_tau_eff_crossmatch_v01.csv"
+    ).open(newline="", encoding="utf-8") as handle:
+        cross = {row["CanonicalSPARCName"]: row for row in csv.DictReader(handle)}
+    assert set(cross) == {"NGC0055", "NGC1705", "NGC3198", "NGC4559", "NGC5055", "NGC5585"}
+    assert cross["NGC0055"]["CrossmatchMode"] == "lvhis_database_optical_id_alias"
+    assert cross["NGC1705"]["CrossmatchMode"] == "lvhis_database_optical_id_alias"
+    assert {row["ReadoutUse"] for row in cross.values()} == {
+        "non_WHISP_resolved_HI_asymmetry_alias_resolved_no_velocity_endpoint"
+    }
+
+    with (PACKET / "reynolds2020_lvh_alias_resolved_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["lvhis_alias_rows"]["Value"] == "82"
+    assert metrics["alias_resolved_w_tau_eff_crossmatch_rows"]["Value"] == "6"
+    assert metrics["lvhis_new_alias_matches"]["SecondaryValue"] == "NGC0055;NGC1705"
+    assert metrics["pearson_amap_vs_w_tau_score_alias_resolved"]["Value"] == "-0.233039744"
+    assert metrics["pearson_avel_vs_w_tau_score_alias_resolved"]["Value"] == "0.375346400"
+    assert metrics["auc_c_higher_amap_alias_resolved"]["Value"] == "0.388888889"
+    assert metrics["auc_c_higher_avel_alias_resolved"]["Value"] == "0.777777778"
+    assert metrics["minimum_non_whisp_asymmetry_gate_alias_resolved"]["Value"] == "not_met"
+
+    with (PACKET / "reynolds2020_lvh_alias_resolved_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["LVHD01"]["Status"] == (
+        "alias_resolution_improves_overlap_but_below_minimum_n"
+    )
+    assert decisions["LVHD02"]["Status"] == "closed"
+
+    text = (PACKET / "reynolds2020_lvh_alias_resolved_crossmatch_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "small-sample hint only" in text
+    assert "does not open a velocity endpoint" in text
 
 
 def test_public_package_is_english_only():

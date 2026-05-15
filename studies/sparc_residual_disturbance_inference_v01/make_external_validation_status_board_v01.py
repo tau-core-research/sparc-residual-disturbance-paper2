@@ -35,6 +35,8 @@ def status_rows() -> list[dict[str, str]]:
     p05d = decision_lookup(PACKET / "p05_things_non_circular_w_tau_eff_control_decision_v01.csv")
     odw = metric_lookup(PACKET / "observer_distance_whisp_external_validation_metrics_v01.csv")
     odwd = decision_lookup(PACKET / "observer_distance_whisp_external_validation_decision_v01.csv")
+    r20 = metric_lookup(PACKET / "reynolds2020_asymmetry_crossmatch_metrics_v01.csv")
+    lvh = metric_lookup(PACKET / "reynolds2020_lvh_alias_resolved_metrics_v01.csv")
 
     return [
         {
@@ -106,6 +108,32 @@ def status_rows() -> list[dict[str, str]]:
             "NextAction": "expand_linewidth_or_velocity_field_source_family",
             "InterpretationGuardrail": GUARDRAIL,
         },
+        {
+            "FamilyID": "R20",
+            "Family": "Reynolds 2020 resolved HI asymmetry",
+            "JoinedN": r20["exact_w_tau_eff_crossmatch_rows"]["Value"],
+            "Classes": "A;C",
+            "Readout": "non-WHISP resolved HI asymmetry exact-name crossmatch",
+            "PrimaryMetric": f"AmapPearson={r20['pearson_amap_vs_w_tau_score']['Value']};AvelPearson={r20['pearson_avel_vs_w_tau_score']['Value']}",
+            "Status": "catalog_ingested_exact_overlap_below_minimum_n",
+            "Limitation": "exact-name overlap is HALOGAS-only and below the frozen minimum N",
+            "EndpointPermission": "no_velocity_endpoint",
+            "NextAction": "resolve_LVHIS_aliases_before_directional_claim",
+            "InterpretationGuardrail": GUARDRAIL,
+        },
+        {
+            "FamilyID": "LVH",
+            "Family": "LVHIS alias-resolved Reynolds 2020 asymmetry",
+            "JoinedN": lvh["alias_resolved_w_tau_eff_crossmatch_rows"]["Value"],
+            "Classes": "A;C",
+            "Readout": "non-WHISP resolved HI asymmetry after LVHIS ID resolution",
+            "PrimaryMetric": f"AmapPearson={lvh['pearson_amap_vs_w_tau_score_alias_resolved']['Value']};AvelPearson={lvh['pearson_avel_vs_w_tau_score_alias_resolved']['Value']};AvelAUC={lvh['auc_c_higher_avel_alias_resolved']['Value']}",
+            "Status": "alias_resolution_improves_overlap_but_below_minimum_n",
+            "Limitation": "N=6 remains below the frozen N>=15 validation gate",
+            "EndpointPermission": "no_velocity_endpoint",
+            "NextAction": "expand_seed_or_add_independent_alias_catalogue_before_directional_claim",
+            "InterpretationGuardrail": GUARDRAIL,
+        },
     ]
 
 
@@ -126,7 +154,8 @@ def decision_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
             "Status": status,
             "Rationale": (
                 "WHISP supports the broad W_tau_eff direction, but the WHISP observer-distance "
-                "stress does not reproduce after controls; other families are small controls."
+                "stress does not reproduce after controls; Reynolds/LVHIS alias resolution improves "
+                "non-WHISP overlap but remains below the frozen minimum N."
             ),
             "Blocks": "velocity_formula;field_attribution;observer_distance_claim",
             "NextAction": next_action,
@@ -170,7 +199,7 @@ def write_report(rows: list[dict[str, str]], decisions: list[dict[str, str]]) ->
             f"- EVS01: `{decisions[0]['Status']}`",
             f"- EVS02: `{decisions[1]['Status']}`",
             "",
-            "The broad `W_tau_eff` direction still has a positive WHISP source-family sanity check, but the observer-distance hypothesis is not externally validated by WHISP after controls. The next productive step is therefore expanded non-WHISP validation, especially THINGS/LITTLE THINGS/HALOGAS-style source families with enough overlap for directional tests.",
+            "The broad `W_tau_eff` direction still has a positive WHISP source-family sanity check, but the observer-distance hypothesis is not externally validated by WHISP after controls. The Reynolds/LVHIS alias path improves non-WHISP resolved-HI overlap but remains below the frozen directional gate. The next productive step is therefore expanded non-WHISP validation with enough overlap for directional tests.",
             "",
             "Current support is therefore for the broad residual-inferred weight direction, not for the observer-distance interpretation.",
             "",

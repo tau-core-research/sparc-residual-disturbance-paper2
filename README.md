@@ -283,6 +283,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_reynolds2020_asymme
 
 This parses `J/MNRAS/493/5089`, joins exact-name overlaps to `W_tau_eff`, and records the remaining LVHIS alias-resolution blocker.
 
+The LVHIS alias-resolved Reynolds et al. 2020 crossmatch is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_lvh_alias_resolved_reynolds2020_crossmatch_v01.py
+```
+
+This resolves LVHIS survey IDs through the public ATNF LVHIS database, re-runs the Reynolds et al. crossmatch, and records the remaining minimum-N blocker without redistributing raw survey products.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
