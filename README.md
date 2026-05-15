@@ -4,6 +4,12 @@ This is the slim public reproducibility package for:
 
 **Residual-shape inference and external-proxy audit of structural disturbance in SPARC rotation curves**
 
+Archived release DOI:
+
+```text
+10.5281/zenodo.20210154
+```
+
 The repository contains only the files needed to inspect and regenerate the current Paper 2 submission candidate: LaTeX source, bibliography, generated PDF, publication figures, final derived tables, the final regeneration script, and tests.
 
 Raw survey products and raw SPARC rotmod files are not redistributed.

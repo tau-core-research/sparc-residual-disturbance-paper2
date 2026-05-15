@@ -1,6 +1,7 @@
 {
   "packet": "sparc_residual_disturbance_inference_v01/packet_v01_seed",
   "package_profile": "slim_publication_reproducibility_package",
+  "doi": "10.5281/zenodo.20210154",
   "status": "paper2_submission_source_ready",
   "source_point_map": "studies/sparc_residual_coherence_test_v01/paper_packet_v06_distance_balanced/taucore_specificity_point_map.csv",
   "files": [

@@ -192,11 +192,18 @@ def test_public_package_text_is_english_only():
             ROOT / "README.md",
             ROOT / "DATA_NOTICE.md",
             ROOT / "paper2_submission_source/main.tex",
-            ROOT / "paper2_submission_source/references.bib",
-            PACKET / "README.md",
-            PACKET / "paper2_submission_readiness_v02.md",
-            PACKET / "packet_manifest.json",
-        ]
+        ROOT / "paper2_submission_source/references.bib",
+        PACKET / "README.md",
+        PACKET / "paper2_submission_readiness_v02.md",
+        PACKET / "packet_manifest.json",
+    ]
     )
     assert "_hu." not in public_text
     assert "laikusan" not in public_text.lower()
+
+
+def test_zenodo_doi_is_recorded_in_public_metadata():
+    doi = "10.5281/zenodo.20210154"
+    assert doi in (ROOT / "README.md").read_text(encoding="utf-8")
+    assert doi in (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+    assert doi in (PACKET / "packet_manifest.json").read_text(encoding="utf-8")
