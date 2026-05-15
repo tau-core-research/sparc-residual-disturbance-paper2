@@ -1028,8 +1028,9 @@ $N_B$ & Threshold & B C-like & B A-like & Interpretation\\
 \begin{table}[H]
 \centering
 \caption{Named outliers and failure-case inspection.}
-\footnotesize
-\begin{tabular}{lllrrrrp{0.27\linewidth}}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lllrrrrp{0.34\linewidth}}
 \toprule
 Galaxy & Class & Error & Score & Points & Distance & Incl. & Inspection note\\
 \midrule
