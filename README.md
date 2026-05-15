@@ -201,6 +201,14 @@ python studies/sparc_residual_disturbance_inference_v01/evaluate_proxy_direction
 
 This readout checks whether the residual-blind P01 burden direction aligns with the existing `W_tau_eff` candidate score. It still does not evaluate a velocity endpoint or fit coefficients.
 
+The P07 WHISP source-family holdout is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/evaluate_p07_whisp_holdout_v01.py
+```
+
+This readout checks whether published WHISP HI lopsidedness/asymmetry aligns with `W_tau_eff` in the overlap. It is a small source-family sanity check, not a final validation.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

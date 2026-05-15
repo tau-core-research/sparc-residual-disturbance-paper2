@@ -18,6 +18,9 @@
     "integrated_tau_drift_metric_summary_v01.csv",
     "integrated_tau_drift_point_trace_v01.csv",
     "integrated_tau_drift_v01.md",
+    "p07_whisp_w_tau_eff_holdout_join_v01.csv",
+    "p07_whisp_w_tau_eff_holdout_metric_summary_v01.csv",
+    "p07_whisp_w_tau_eff_holdout_v01.md",
     "packet_manifest.json",
     "paper2_b_class_policy.csv",
     "paper2_baseline_family_loogo.csv",
@@ -96,14 +99,15 @@
     "w_tau_eff_branch_next_gate_v01.csv",
     "w_tau_eff_field_seed_summary_v01.csv",
     "w_tau_eff_field_seed_v01.csv",
-    "w_tau_eff_field_seed_v01.md"
+    "w_tau_eff_field_seed_v01.md",
+    "whisp_vaneymeren2011_overlap.csv"
   ],
   "guardrail": "residuals_are_predictors_here_not_blinded_labels",
   "loogo_validation_status": "first_heldout_sanity_check_complete_not_paper_grade",
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "P07_source_family_holdout_for_w_env_obs_direction",
+  "paper2_next_gate": "P03_P04_THINGS_small_overlap_sanity_or_systematics_competition",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -123,5 +127,6 @@
   "tau_core_weight_model_gate_status": "local_plus_environment_observer_weight_model_target_frozen",
   "source_side_history_proxy_inventory_status": "proxy_inventory_complete_no_endpoint_readout",
   "w_env_obs_proxy_design_status": "primary_source_side_proxy_design_frozen_no_endpoint",
-  "proxy_direction_w_tau_eff_status": "frozen_P01_direction_readout_complete_no_velocity_endpoint"
+  "proxy_direction_w_tau_eff_status": "frozen_P01_direction_readout_complete_no_velocity_endpoint",
+  "p07_whisp_holdout_status": "source_family_holdout_complete_no_velocity_endpoint"
 }

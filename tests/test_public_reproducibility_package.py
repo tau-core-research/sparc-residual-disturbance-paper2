@@ -116,6 +116,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "proxy_direction_w_tau_eff_readout_v01.md",
         PACKET / "proxy_direction_w_tau_eff_join_v01.csv",
         PACKET / "proxy_direction_w_tau_eff_metric_summary_v01.csv",
+        PACKET / "whisp_vaneymeren2011_overlap.csv",
+        PACKET / "p07_whisp_w_tau_eff_holdout_v01.md",
+        PACKET / "p07_whisp_w_tau_eff_holdout_join_v01.csv",
+        PACKET / "p07_whisp_w_tau_eff_holdout_metric_summary_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -180,6 +184,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_source_side_history_proxy_inventory_v01.py",
         STUDY / "freeze_w_env_obs_proxy_design_v01.py",
         STUDY / "evaluate_proxy_direction_vs_w_tau_eff_v01.py",
+        STUDY / "evaluate_p07_whisp_holdout_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -812,6 +817,39 @@ def test_proxy_direction_vs_w_tau_eff_is_positive_without_velocity_endpoint():
     assert "does not evaluate velocity residuals" in text
     assert "AUC high-vs-low score: 0.774159664" in text
     assert "must not be promoted to a velocity formula" in text
+
+
+def test_p07_whisp_holdout_is_positive_but_small_overlap():
+    with (PACKET / "p07_whisp_w_tau_eff_holdout_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 10
+    assert {row["ReadoutUse"] for row in rows} == {
+        "P07_WHISP_source_family_holdout_no_velocity_endpoint"
+    }
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "p07_source_family_holdout_no_velocity_endpoint_no_coefficient_fit"
+    }
+    assert {row["WHISP_BurdenSplit"] for row in rows} == {"low", "high"}
+
+    with (PACKET / "p07_whisp_w_tau_eff_holdout_metric_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "10"
+    assert metrics["pearson_whisp_burden_vs_w_tau_score"]["Value"] == "0.441950994"
+    assert metrics["pearson_whisp_burden_vs_abs_w_tau"]["Value"] == "0.530958640"
+    assert metrics["median_score_low_whisp_burden"]["Value"] == "0.231818182"
+    assert metrics["median_score_high_whisp_burden"]["Value"] == "0.531818182"
+    assert metrics["auc_high_vs_low_whisp_burden"]["Value"] == "0.760000000"
+
+    text = (PACKET / "p07_whisp_w_tau_eff_holdout_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not evaluate velocity residuals" in text
+    assert "AUC high-vs-low WHISP burden: 0.760000000" in text
+    assert "source-family sanity check rather than a final validation" in text
 
 
 def test_public_package_is_english_only():
