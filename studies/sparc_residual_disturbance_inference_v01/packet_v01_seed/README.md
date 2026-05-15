@@ -1,16 +1,21 @@
-# Residual-Disturbance Inference Packet v0.1
+# Paper 2 Slim Packet
 
-Seed packet for residual-pattern-to-disturbance diagnostics. This is exploratory and in-sample only.
-## Paper 2 Seed
+This packet contains the final derived inputs and outputs needed by the Paper 2 submission-source generator.
 
-This packet is now the seed for a cautious Paper 2 direction: residual-shape
-inference of externally reviewed disturbance class. The current strongest
-baseline is `Projection_RMS` under leave-one-galaxy-out validation, but the
-paper-grade claim remains bounded by shuffled-label null tests,
-observability stress tests, baseline-family comparisons, calibration
-uncertainty, and the frozen B-class policy.
+It is not a full development archive. Earlier exploratory branches, raw-source manifests, Tau Core/S_tau probes, and closed external-validation work products were removed from the public slim repository.
 
-The current next gate is to freeze a predictive `S_tau` rule that does not use
-`Vobs` or target residuals.
+The retained files support:
 
-Paper 2 must be framed as a diagnostic audit, not as Tau Core validation.
+- primary residual-shape endpoint regeneration,
+- baseline-family comparison,
+- B-class sensitivity,
+- observability/nuisance stress summaries,
+- named outlier appendix,
+- stability and effect-size appendix,
+- source-gate and figure-audit records.
+
+Regenerate the derived appendix tables and submission source with:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_paper2_submission_source_v01.py
+```

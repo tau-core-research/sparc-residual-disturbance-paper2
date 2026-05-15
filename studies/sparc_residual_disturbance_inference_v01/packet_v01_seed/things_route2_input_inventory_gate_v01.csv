@@ -1,4 +1,0 @@
-GateID,Status,Galaxies,Meaning,CanScoreNow
-R2INV01,at_least_two_primary_candidates_identified,NGC925;NGC3031,"both have THINGS HI source products, SINGS 3p6um source products, and deBlok text seeds for M/L and bulge policy",no
-R2INV02,component_arrays_not_yet_derived,NGC925;NGC3031,"source products are available, but radius-matched Vobs,Vgas,Vdisk,Vbul arrays still need extraction",no
-R2INV03,N15_gate_still_blocked,THINGS,two candidates are promising but not score-ready,no

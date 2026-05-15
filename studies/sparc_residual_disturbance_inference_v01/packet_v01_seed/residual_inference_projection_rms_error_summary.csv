@@ -1,7 +1,0 @@
-SummaryID,N,Correct,FalsePositiveAasC,FalseNegativeCasA,DominantErrorFamily,Interpretation
-projection_rms_confusion,45,34,3,8,false_negative_C_as_A,Projection_RMS is conservative for C: most errors are externally disturbed galaxies with low residual burden.
-error_evidence_type_disturbed_hi,6,,,,,Evidence type represented among Projection_RMS errors.
-error_evidence_type_interaction,1,,,,,Evidence type represented among Projection_RMS errors.
-error_evidence_type_low_asymmetry,2,,,,,Evidence type represented among Projection_RMS errors.
-error_evidence_type_regular_kinematics,1,,,,,Evidence type represented among Projection_RMS errors.
-error_evidence_type_tidal,1,,,,,Evidence type represented among Projection_RMS errors.

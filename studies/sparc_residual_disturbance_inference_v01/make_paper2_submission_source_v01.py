@@ -12,9 +12,9 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-from make_packet_v01_seed import PACKET, ROOT, write_csv
 
-
+ROOT = Path(__file__).resolve().parents[2]
+PACKET = ROOT / "studies/sparc_residual_disturbance_inference_v01/packet_v01_seed"
 SOURCE = ROOT / "paper2_submission_source"
 SOURCE_FIGURES = SOURCE / "figures"
 MAIN_TEX = SOURCE / "main.tex"
@@ -39,6 +39,14 @@ GUARDRAIL = "paper2_submission_source_ready_no_tau_validation_no_external_overcl
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
+
+
+def write_csv(path: Path, rows: list[dict[str, str]], fieldnames: list[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def auc_c_higher(rows: list[dict[str, str]], score_key: str) -> float:
@@ -1383,28 +1391,29 @@ def compile_pdf() -> str:
 
 def update_manifest() -> None:
     manifest_path = PACKET / "packet_manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    files = set(manifest["files"])
-    for path in [
-        FIGURE_AUDIT_MD,
-        FIGURE_AUDIT_CSV,
-        SOURCE_GATE,
-        READINESS_MD,
-        READINESS_CSV,
-        SAMPLE_TABLE,
-        BASELINE_CI_TABLE,
-        EXTERNAL_GATE_TABLE,
-        B_SENSITIVITY_TABLE,
-        OBSERVABILITY_TABLE,
-        OUTLIER_TABLE,
-        STABILITY_TABLE,
-    ]:
-        files.add(path.name)
-    manifest["files"] = sorted(files)
-    manifest["paper2_submission_source_v01_status"] = (
-        "latex_bibliography_pdf_and_figure_audit_generated"
-    )
-    manifest["paper2_next_gate"] = "human_pdf_review_and_journal_specific_polish"
+    files = {path.name for path in PACKET.iterdir() if path.is_file()}
+    manifest = {
+        "packet": "sparc_residual_disturbance_inference_v01/packet_v01_seed",
+        "package_profile": "slim_publication_reproducibility_package",
+        "status": "paper2_submission_source_ready",
+        "source_point_map": (
+            "studies/sparc_residual_coherence_test_v01/"
+            "paper_packet_v06_distance_balanced/taucore_specificity_point_map.csv"
+        ),
+        "files": sorted(files),
+        "guardrail": GUARDRAIL,
+        "paper2_submission_source_v01_status": (
+            "latex_bibliography_pdf_and_figure_audit_generated"
+        ),
+        "paper2_next_gate": "human_pdf_review_and_journal_specific_polish",
+        "excluded_from_slim_repo": [
+            "raw survey products",
+            "raw SPARC rotmod files",
+            "exploratory Tau Core and S_tau branches",
+            "closed THINGS route2 reconstruction work products",
+            "local build previews and cache files",
+        ],
+    }
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 

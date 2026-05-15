@@ -1,5 +1,0 @@
-RuleID,Component,Condition,Definition,AllowedInputs,ForbiddenInputs,InterpretationGuardrail
-S_tau_history_v01,baseline,first point or no previous state,S_tau=1.00,inner_radius_signed_TPG_residual_history,current_point_residual;future_points;S_tau_eff;Class;external_label,causal_inner_residual_history_readout_not_external_prediction
-S_tau_history_v01,history_state,for point i>1,HistoryState=mean signed TPG residual over points 1..i-1,inner_radius_signed_TPG_residual_history,current_point_residual;future_points;S_tau_eff;Class;external_label,causal_inner_residual_history_readout_not_external_prediction
-S_tau_history_v01,update,for point i>1,"S_tau=clip(1 + 0.50*HistoryState, 0.50, 1.50)",inner_radius_signed_TPG_residual_history,current_point_residual;future_points;S_tau_eff;Class;external_label,causal_inner_residual_history_readout_not_external_prediction
-S_tau_history_v01,causality,current point,current Vobs/residual is not used to set current S_tau,inner_radius_signed_TPG_residual_history,current_point_residual;future_points;S_tau_eff;Class;external_label,causal_inner_residual_history_readout_not_external_prediction

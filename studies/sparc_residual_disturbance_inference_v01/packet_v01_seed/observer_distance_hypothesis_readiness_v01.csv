@@ -1,4 +1,0 @@
-ReadinessID,Question,Status,Rationale,NextAction,InterpretationGuardrail
-ODR01,Can this be written as a Paper 2 hypothesis result?,yes_with_guardrails,2 supported hypothesis claims; 2 blocked or not-established claims.,write_as_observer_distance_hypothesis_not_as_tau_core_proof,observer_distance_hypothesis_only_no_formula_no_tau_core_proof
-ODR02,Can this open a velocity formula endpoint?,no,velocity_endpoint_still_closed,external_validation_before_velocity_endpoint,observer_distance_hypothesis_only_no_formula_no_tau_core_proof
-ODR03,What is the next gate?,ready,The hypothesis is frozen; the next scientific step is external source-family validation.,observer_distance_external_validation_readout,observer_distance_hypothesis_only_no_formula_no_tau_core_proof

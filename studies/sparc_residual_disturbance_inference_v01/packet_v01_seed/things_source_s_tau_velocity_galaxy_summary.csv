@@ -1,8 +1,0 @@
-GalaxyName,Class,NPoints,RMSLogResidual_S_tau1,RMSLogResidual_SourcePercentile,RMSLogResidual_SourceLog,DeltaRMS_SourcePercentileMinusS1,DeltaRMS_SourceLogMinusS1,FractionPointsImprovedPercentile,FractionPointsImprovedLog,InterpretationGuardrail
-DDO154,A,12,0.138812043,0.816049094,0.831294409,0.677237051,0.692482366,0.000000000,0.000000000,things_source_s_tau_velocity_readout_no_refit_not_validation
-NGC2366,C,26,0.250878782,0.430088516,0.469855682,0.179209733,0.218976900,0.346153846,0.192307692,things_source_s_tau_velocity_readout_no_refit_not_validation
-NGC2403,A,73,0.084927450,0.238860803,0.351588925,0.153933353,0.266661475,0.000000000,0.000000000,things_source_s_tau_velocity_readout_no_refit_not_validation
-NGC2976,C,27,0.239111156,0.253284296,0.261222862,0.014173140,0.022111705,0.185185185,0.185185185,things_source_s_tau_velocity_readout_no_refit_not_validation
-NGC3198,A,43,0.156224675,0.292569081,0.363824317,0.136344406,0.207599642,0.116279070,0.116279070,things_source_s_tau_velocity_readout_no_refit_not_validation
-NGC5055,C,28,0.117536440,0.068055581,0.120961065,-0.049480859,0.003424625,1.000000000,0.571428571,things_source_s_tau_velocity_readout_no_refit_not_validation
-NGC7331,A,36,0.098042629,0.063947160,0.130223077,-0.034095469,0.032180448,0.833333333,0.583333333,things_source_s_tau_velocity_readout_no_refit_not_validation

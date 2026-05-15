@@ -1,4 +1,0 @@
-Predictor,Validation,NGalaxies,Accuracy,AUC_C_higher,PredictedC,TrueC,FalsePositiveAasC,FalseNegativeCasA,PrecisionC,RecallC,InterpretationGuardrail
-Projection_RMS,leave_one_galaxy_out_median_midpoint_threshold,45,0.755555556,0.771008403,23,28,3,8,0.869565217,0.714285714,baseline_family_comparison_not_model_specificity
-MOND_RMS,leave_one_galaxy_out_median_midpoint_threshold,45,0.644444444,0.720588235,18,28,3,13,0.833333333,0.535714286,baseline_family_comparison_not_model_specificity
-RAR_RMS,leave_one_galaxy_out_median_midpoint_threshold,45,0.622222222,0.731092437,19,28,4,13,0.789473684,0.535714286,baseline_family_comparison_not_model_specificity

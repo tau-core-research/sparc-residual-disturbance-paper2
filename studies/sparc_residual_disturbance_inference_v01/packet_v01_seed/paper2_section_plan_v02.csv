@@ -1,9 +1,0 @@
-Section,Purpose,RequiredContent,ForbiddenContent,Guardrail
-Abstract,State diagnostic residual-inference result and mixed external-proxy context.,CORE AUC; WHISP support caveat; route2 closure; no Tau validation,Tau Core validation; independent external validation claim,paper2_manuscript_v02_diagnostic_audit_no_tau_validation
-1. Introduction,Frame residual-shape inference as a diagnostic audit.,disturbance/non-circular motivation; not a gravity proof,TOE framing,paper2_manuscript_v02_diagnostic_audit_no_tau_validation
-2. Data and Frozen Inputs,"Document SPARC labels, residual features, and external packet inheritance.",45 A/C galaxies; B policy; Paper 1 source packet,residuals replace external labels,paper2_manuscript_v02_diagnostic_audit_no_tau_validation
-3. Internal Diagnostic Result,Report primary LOOGO/null/bootstrap result.,Projection_RMS AUC=0.771008403; p=0.002; CI,physical proof,paper2_manuscript_v02_diagnostic_audit_no_tau_validation
-4. Baseline Families,"Compare projection, MOND/RAR, and Newtonian controls.",low-acceleration family interpretation; no uniqueness,projection formula uniquely explains labels,paper2_manuscript_v02_diagnostic_audit_no_tau_validation
-5. External Proxy Readouts,"Summarize WHISP, Reynolds/LVHIS, ALFALFA, HALOGAS.",WHISP strongest but small; non-WHISP mixed/underpowered,external validation broadly confirmed,paper2_manuscript_v02_diagnostic_audit_no_tau_validation
-6. Negative Audit: THINGS Route2,Show audit discipline and why route2 is not positive evidence.,closed not score-ready; N15 not reached; no synthetic mass models,THINGS N>=15,paper2_manuscript_v02_diagnostic_audit_no_tau_validation
-7. Limitations and Phase II,Define exact upgrades needed for paper-grade validation.,independent N>=15 source family; frozen evidence rule; no endpoint tuning,current result is final validation,paper2_manuscript_v02_diagnostic_audit_no_tau_validation

@@ -1,2 +1,0 @@
-NullTest,Predictor,ObservedAUC,NShuffles,RandomSeed,NullMedianAUC,NullP95AUC,NullP99AUC,EmpiricalP_AUC_ge_observed,InterpretationGuardrail
-shuffle_A_C_labels_preserve_class_counts,Projection_RMS,0.771008403,1000,20260515,0.497899160,0.634453782,0.674390756,0.002000000,label_shuffle_null_not_independent_validation

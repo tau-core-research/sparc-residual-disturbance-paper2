@@ -1,3 +1,0 @@
-DecisionID,Decision,Status,N,Evidence,NextAction,InterpretationGuardrail
-T3X01,expanded_THINGS_score_coverage,expanded_but_still_below_N15,13,all THINGS Table 3 rows with local SPARC rotmods and N>=8 were scored,run_expanded_THINGS_control_readout,things_table3_expanded_w_tau_eff_no_endpoint_refit
-T3X02,endpoint_boundary,no_refit_no_velocity_formula,13,scores use the frozen original W_tau_eff component calibration,use_as_external_control_only,things_table3_expanded_w_tau_eff_no_endpoint_refit

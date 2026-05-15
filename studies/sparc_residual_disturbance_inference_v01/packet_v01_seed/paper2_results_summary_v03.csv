@@ -1,6 +1,0 @@
-ResultID,Quantity,Value,Interpretation,ClaimBoundary,Guardrail
-R1,Projection_RMS LOOGO AUC,0.771008403,primary internal residual-shape diagnostic,"SPARC-internal class recovery, not external validation",paper2_v03_publication_draft_diagnostic_audit_no_tau_validation
-R2,Projection_RMS shuffled-label p,0.002000000,unlikely under random A/C labels in this packet,"null test only, not independent replication",paper2_v03_publication_draft_diagnostic_audit_no_tau_validation
-R3,MOND-simple RMS LOOGO AUC,0.720588235,low-acceleration residual-family support,reduces projection uniqueness claim,paper2_v03_publication_draft_diagnostic_audit_no_tau_validation
-R4,RAR-like RMS LOOGO AUC,0.731092437,low-acceleration residual-family support,not gravity-model selection,paper2_v03_publication_draft_diagnostic_audit_no_tau_validation
-R5,Newtonian baryonic RMS LOOGO AUC,0.506302521,near-chance control,does not prove low-acceleration physics by itself,paper2_v03_publication_draft_diagnostic_audit_no_tau_validation

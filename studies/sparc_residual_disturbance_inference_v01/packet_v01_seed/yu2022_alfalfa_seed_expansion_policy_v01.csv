@@ -1,5 +1,0 @@
-RuleID,Rule,FrozenRule,NRows,AllowedUse,InterpretationGuardrail
-YU22F01,candidate_universe,"All Yu2022 ALFALFA rows with AGC<100000 mapped to UGC, local SPARC rotmod availability, and not already in W_tau_eff enter the expansion queue.",19,pre_score_candidate_queue_only,yu2022_alfalfa_seed_expansion_freeze_no_directional_readout
-YU22F02,primary_quality_gate,Primary scoring candidates require S/N>=20 and no catalogue confusion note c. Lower-quality rows remain documented but are not scored in the first expansion pass.,19,input_quality_gate_before_scoring,yu2022_alfalfa_seed_expansion_freeze_no_directional_readout
-YU22F03,anchor_handling,Existing W_tau_eff seed overlaps are retained as anchors and must not be refit during the expansion pass.,7,anchor_rows_only,yu2022_alfalfa_seed_expansion_freeze_no_directional_readout
-YU22F04,directional_readout_lock,No Af/Ac versus expanded W_tau_eff directional readout may be computed until the expanded scoring script and expanded score table are committed.,0,locks_the_next_endpoint,yu2022_alfalfa_seed_expansion_freeze_no_directional_readout

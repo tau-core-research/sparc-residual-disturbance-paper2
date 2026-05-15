@@ -1,3 +1,0 @@
-DecisionID,Decision,Status,N,Evidence,NextAction,InterpretationGuardrail
-T3R01,expanded_THINGS_non_circular_absorption,does_not_absorb_WHISP_direction,13,Ar_AUC=0.345238095;Ar_Pearson=-0.310471908;Ar_Spearman=-0.310866869,continue_to_non_WHISP_resolved_HI_replication,things_table3_expanded_control_readout_no_velocity_endpoint
-T3R02,claim_boundary,control_only_below_N15,13,expanded THINGS Table 3 remains below N>=15,do_not_claim_THINGS_validation,things_table3_expanded_control_readout_no_velocity_endpoint

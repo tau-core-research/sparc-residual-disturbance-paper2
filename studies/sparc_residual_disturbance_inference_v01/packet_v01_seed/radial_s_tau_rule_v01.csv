@@ -1,6 +1,0 @@
-RuleID,Component,Condition,Multiplier,AllowedInputs,ForbiddenInputs,InterpretationGuardrail
-S_tau_radial_v01,inner_radius,RadiusFraction<0.33,0.90,EvidenceType;Confidence;RadiusFraction;aN_over_a0,Vobs;Vbar;Projection_RMS;residuals;S_tau_eff;Class,frozen_radial_rule_not_fit_to_velocity_residuals
-S_tau_radial_v01,middle_radius,0.33<=RadiusFraction<0.67,0.98,EvidenceType;Confidence;RadiusFraction;aN_over_a0,Vobs;Vbar;Projection_RMS;residuals;S_tau_eff;Class,frozen_radial_rule_not_fit_to_velocity_residuals
-S_tau_radial_v01,outer_radius,RadiusFraction>=0.67,1.06,EvidenceType;Confidence;RadiusFraction;aN_over_a0,Vobs;Vbar;Projection_RMS;residuals;S_tau_eff;Class,frozen_radial_rule_not_fit_to_velocity_residuals
-S_tau_radial_v01,low_acceleration,aN_over_a0<0.1,+0.04 additive,EvidenceType;Confidence;RadiusFraction;aN_over_a0,Vobs;Vbar;Projection_RMS;residuals;S_tau_eff;Class,frozen_radial_rule_not_fit_to_velocity_residuals
-S_tau_radial_v01,high_acceleration,aN_over_a0>=0.3,-0.03 additive,EvidenceType;Confidence;RadiusFraction;aN_over_a0,Vobs;Vbar;Projection_RMS;residuals;S_tau_eff;Class,frozen_radial_rule_not_fit_to_velocity_residuals

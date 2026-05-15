@@ -1,4 +1,0 @@
-EndpointGate,Endpoint,AllowedAfterThisDesign,PrimaryQuestion,PassCondition,FailureCondition,Guardrail
-E01,proxy_direction_vs_W_tau_eff_candidate_score,yes_next,Does the frozen P01 direction separate W_tau_eff candidate burden without using velocity residual inputs as predictors?,predeclared direction has positive association with W_tau_eff candidate score,P01 direction is null or reversed,proxy_design_frozen_no_endpoint_readout_no_rule_fitting
-E02,P07_source_family_holdout,yes_after_E01,Does WHISP lopsidedness/asymmetry support the same direction in its overlap?,WHISP burden aligns with P01/W_tau_eff direction,WHISP does not align or is dominated by class imbalance,proxy_design_frozen_no_endpoint_readout_no_rule_fitting
-E03,velocity_readout_with_S_tau_full,no,Does a full S_tau formula improve velocity residuals?,not applicable at this gate,attempted before formula and coefficients are frozen,proxy_design_frozen_no_endpoint_readout_no_rule_fitting
