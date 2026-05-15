@@ -16,6 +16,9 @@
     "expanded_external_validation_pass_fail_v01.csv",
     "expanded_external_validation_targets_v01.csv",
     "expanded_external_validation_targets_v01.md",
+    "external_source_acquisition_plan_v01.csv",
+    "external_source_acquisition_plan_v01.md",
+    "external_source_required_fields_v01.csv",
     "external_validation_status_board_v01.csv",
     "external_validation_status_board_v01.md",
     "external_validation_status_decision_v01.csv",
@@ -145,7 +148,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "expand_non_whisp_external_overlap",
+  "paper2_next_gate": "source_alias_crossmatch_before_downloads",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -175,5 +178,6 @@
   "observer_distance_hypothesis_gate_status": "hypothesis_frozen_external_validation_required",
   "observer_distance_whisp_external_validation_status": "small_source_family_validation_complete_no_velocity_endpoint",
   "external_validation_status_board_status": "mixed_external_validation_status_complete_no_velocity_endpoint",
-  "expanded_external_validation_targets_status": "target_plan_frozen_no_velocity_endpoint"
+  "expanded_external_validation_targets_status": "target_plan_frozen_no_velocity_endpoint",
+  "external_source_acquisition_plan_status": "source_targets_and_required_fields_frozen"
 }

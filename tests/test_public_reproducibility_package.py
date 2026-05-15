@@ -158,6 +158,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "expanded_external_validation_targets_v01.md",
         PACKET / "expanded_external_validation_targets_v01.csv",
         PACKET / "expanded_external_validation_pass_fail_v01.csv",
+        PACKET / "external_source_acquisition_plan_v01.md",
+        PACKET / "external_source_acquisition_plan_v01.csv",
+        PACKET / "external_source_required_fields_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -232,6 +235,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_observer_distance_whisp_external_validation_v01.py",
         STUDY / "make_external_validation_status_board_v01.py",
         STUDY / "make_expanded_external_validation_targets_v01.py",
+        STUDY / "make_external_source_acquisition_plan_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1322,6 +1326,52 @@ def test_expanded_external_validation_targets_freeze_next_data_gate():
     assert "does not add a velocity endpoint" in text
     assert "does not promote the observer-distance interpretation" in text
     assert "targeted external-data expansion" in text
+
+
+def test_external_source_acquisition_plan_freezes_sources_and_no_raw_data_policy():
+    with (PACKET / "external_source_acquisition_plan_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        sources = {row["SourceID"]: row for row in csv.DictReader(handle)}
+    assert set(sources) == {"SRC01", "SRC02", "SRC03", "SRC04", "SRC05"}
+    assert sources["SRC01"]["TargetID"] == "EVT01"
+    assert sources["SRC01"]["AccessURL"] == "https://arxiv.org/abs/0810.2116"
+    assert sources["SRC02"]["AccessURL"] == (
+        "https://science.nrao.edu/science/surveys/littlethings/data"
+    )
+    assert sources["SRC03"]["AccessURL"] == "https://zenodo.org/records/2552349"
+    assert sources["SRC03"]["RedistributionPolicy"] == (
+        "do not commit raw cubes; commit checksums and derived small summary"
+    )
+    assert sources["SRC04"]["Priority"] == "high"
+    assert {row["InterpretationGuardrail"] for row in sources.values()} == {
+        "source_acquisition_plan_no_raw_data_redistribution_no_velocity_endpoint"
+    }
+
+    with (PACKET / "external_source_required_fields_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        fields = {row["FieldID"]: row for row in csv.DictReader(handle)}
+    assert set(fields) == {
+        "FLD01",
+        "FLD02",
+        "FLD03",
+        "FLD04",
+        "FLD05",
+        "FLD06",
+        "FLD07",
+        "FLD08",
+    }
+    assert fields["FLD05"]["FieldName"] == "LinewidthStressOrCubeDerivedProxy"
+    assert fields["FLD08"]["AllowedUse"] == "forbidden"
+    assert fields["FLD08"]["FieldName"] == "VobsResidualOrFormulaSelectedQuantity"
+
+    text = (PACKET / "external_source_acquisition_plan_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not redistribute raw survey products" in text
+    assert "does not open a velocity endpoint" in text
+    assert "Raw FITS cubes or large survey products should remain outside" in text
 
 
 def test_public_package_is_english_only():

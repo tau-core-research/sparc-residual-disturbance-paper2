@@ -233,6 +233,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_expanded_external_v
 
 This freezes the next target families, minimum coverage gates, balance requirements, and pass/fail criteria before any additional data expansion.
 
+The external source acquisition plan is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_external_source_acquisition_plan_v01.py
+```
+
+This freezes public source URLs, required derived fields, and raw-data redistribution guardrails for the next expansion step.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
