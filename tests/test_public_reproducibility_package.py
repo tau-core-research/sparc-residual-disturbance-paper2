@@ -277,6 +277,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_surface_density_conversion_policy_v01.csv",
         PACKET / "things_route2_velocity_solver_policy_v01.csv",
         PACKET / "things_route2_geometry_solver_gate_v01.csv",
+        PACKET / "things_route2_solver_validation_gate_v01.md",
+        PACKET / "things_route2_solver_validation_targets_v01.csv",
+        PACKET / "things_route2_solver_validation_requirements_v01.csv",
+        PACKET / "things_route2_solver_validation_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -381,6 +385,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "stage_things_route2_primary_inputs_v01.py",
         STUDY / "audit_things_route2_fits_readiness_v01.py",
         STUDY / "freeze_things_route2_geometry_solver_v01.py",
+        STUDY / "make_things_route2_solver_validation_gate_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2886,6 +2891,73 @@ def test_things_route2_geometry_solver_policy_is_frozen_before_scoring():
     assert "No component arrays are derived here" in text
     assert "No `W_tau_eff` score is computed here" in text
     assert "Validate the component-derivation solver on existing THINGS/SPARC overlap" in text
+
+
+def test_things_route2_solver_validation_gate_blocks_missing_scores():
+    with (PACKET / "things_route2_solver_validation_targets_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        targets = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert set(targets) == {
+        "DDO154",
+        "NGC2366",
+        "NGC2403",
+        "NGC2976",
+        "NGC3198",
+        "NGC5055",
+        "NGC7331",
+    }
+    assert all(row["ExistingSparcReference"] == "yes" for row in targets.values())
+    assert all(row["ExistingWtauEffSeed"] == "yes" for row in targets.values())
+    assert all(
+        row["ValidationUse"] == "solver_reconstruction_accuracy_only_not_tau_endpoint"
+        for row in targets.values()
+    )
+    assert all(
+        row["ForbiddenUse"] == "choose_solver_or_tolerance_by_W_tau_eff_direction"
+        for row in targets.values()
+    )
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in targets.values())
+
+    with (PACKET / "things_route2_solver_validation_requirements_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        requirements = {row["RequirementID"]: row for row in csv.DictReader(handle)}
+    assert requirements["R2VAL01"]["Requirement"] == "stage_validation_raw_inputs"
+    assert requirements["R2VAL03"]["PassCondition"] == (
+        "median_absolute_fractional_component_error_le_0p15_for_at_least_three_validation_galaxies"
+    )
+    assert all(
+        row["FailureAction"] in {
+            "do_not_apply_solver_to_NGC925_NGC3031",
+            "revise_solver_only_before_any_missing_score_and_restart_validation",
+            "keep_route2_as_not_score_ready",
+        }
+        for row in requirements.values()
+    )
+    assert all(
+        row["CanScoreMissingGalaxiesNow"] == "no" for row in requirements.values()
+    )
+
+    with (PACKET / "things_route2_solver_validation_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2VALG01"]["Status"] == (
+        "validation_targets_defined_from_existing_THINGS_SPARC_overlap"
+    )
+    assert gates["R2VALG02"]["Status"] == "validation_raw_inputs_not_yet_staged"
+    assert gates["R2VALG03"]["Status"] == "solver_not_yet_accuracy_validated"
+    assert all(
+        row["CanApplySolverToMissingGalaxies"] == "no" for row in gates.values()
+    )
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in gates.values())
+
+    text = (PACKET / "things_route2_solver_validation_gate_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "No missing-galaxy score may be computed from route 2" in text
+    assert "No solver or tolerance may be selected using `W_tau_eff` direction" in text
 
 
 def test_public_package_is_english_only():
