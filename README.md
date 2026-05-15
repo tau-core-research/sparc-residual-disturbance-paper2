@@ -135,6 +135,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_integrated_tau_drif
 
 This diagnostic asks whether the fixed TPG/projection baseline departs through cumulative radial drift rather than pointwise random scatter. It is not an `S_tau` rule; it motivates a possible history-dependent `S_tau` gate.
 
+The causal inner-history `S_tau` readout is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/evaluate_history_s_tau_rule.py
+```
+
+This readout sets each point's `S_tau` from the signed residual history of inner points in the same galaxy. It is not an external prediction, but it tests whether an integrated radial state can improve outer-point residuals.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

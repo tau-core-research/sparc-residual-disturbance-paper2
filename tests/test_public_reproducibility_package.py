@@ -87,6 +87,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "integrated_tau_drift_point_trace_v01.csv",
         PACKET / "integrated_tau_drift_galaxy_summary_v01.csv",
         PACKET / "integrated_tau_drift_metric_summary_v01.csv",
+        PACKET / "history_s_tau_rule_v01.md",
+        PACKET / "history_s_tau_rule_v01.csv",
+        PACKET / "history_s_tau_velocity_point_readout.csv",
+        PACKET / "history_s_tau_velocity_galaxy_summary.csv",
+        PACKET / "history_s_tau_velocity_metric_summary.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -143,6 +148,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "audit_things_source_s_tau_failure.py",
         STUDY / "evaluate_contextual_s_tau_rule.py",
         STUDY / "make_integrated_tau_drift_v01.py",
+        STUDY / "evaluate_history_s_tau_rule.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -448,6 +454,54 @@ def test_integrated_tau_drift_supports_history_dependent_diagnostic_gate():
     text = (PACKET / "integrated_tau_drift_v01.md").read_text(encoding="utf-8")
     assert "cumulative radial drift rather than pointwise random scatter" in text
     assert "integrated or history-dependent quantity" in text
+
+
+def test_history_s_tau_rule_uses_inner_residual_history_and_improves_readout():
+    with (PACKET / "history_s_tau_rule_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rules = list(csv.DictReader(handle))
+    assert len(rules) == 4
+    assert {row["AllowedInputs"] for row in rules} == {
+        "inner_radius_signed_TPG_residual_history"
+    }
+    assert {row["ForbiddenInputs"] for row in rules} == {
+        "current_point_residual;future_points;S_tau_eff;Class;external_label"
+    }
+    assert {row["InterpretationGuardrail"] for row in rules} == {
+        "causal_inner_residual_history_readout_not_external_prediction"
+    }
+
+    with (PACKET / "history_s_tau_velocity_point_readout.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        points = list(csv.DictReader(handle))
+    assert len(points) == 926
+    s_values = [float(row["Predicted_S_tau_history_v01"]) for row in points]
+    assert min(s_values) >= 0.5
+    assert max(s_values) <= 1.5
+    first_points = [row for row in points if row["PointIndex"] == "1"]
+    assert {row["HistoryStatePriorMeanSignedResidual"] for row in first_points} == {
+        "0.000000000"
+    }
+
+    with (PACKET / "history_s_tau_velocity_metric_summary.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["Subset"]: row for row in csv.DictReader(handle)}
+    assert rows["all"]["MedianDeltaRMS_HistoryMinusS1"] == "-0.016862038"
+    assert rows["all"]["FractionGalaxiesImproved"] == "0.933333333"
+    assert rows["A"]["MedianDeltaRMS_HistoryMinusS1"] == "-0.008566997"
+    assert rows["A"]["FractionGalaxiesImproved"] == "0.823529412"
+    assert rows["C"]["MedianDeltaRMS_HistoryMinusS1"] == "-0.042417618"
+    assert rows["C"]["FractionGalaxiesImproved"] == "1.000000000"
+    assert {row["InterpretationGuardrail"] for row in rows.values()} == {
+        "causal_inner_residual_history_readout_not_external_prediction"
+    }
+
+    text = (PACKET / "history_s_tau_rule_v01.md").read_text(encoding="utf-8")
+    assert "current point residual, future points" in text
+    assert "source-side proxy for the history state" in text
 
 
 def test_public_package_is_english_only():

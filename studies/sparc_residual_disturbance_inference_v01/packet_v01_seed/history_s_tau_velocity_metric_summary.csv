@@ -1,0 +1,4 @@
+Subset,NGalaxies,MedianDeltaRMS_HistoryMinusS1,MeanDeltaRMS_HistoryMinusS1,FractionGalaxiesImproved,MedianPointwiseDeltaAbsResidual,MedianRMS_S_tau1,MedianRMS_HistoryRule,InterpretationGuardrail
+all,45,-0.016862038,-0.038392459,0.933333333,-0.021311923,0.173858302,0.146893676,causal_inner_residual_history_readout_not_external_prediction
+A,17,-0.008566997,-0.025127103,0.823529412,-0.004562742,0.124355655,0.117259019,causal_inner_residual_history_readout_not_external_prediction
+C,28,-0.042417618,-0.046446425,1.000000000,-0.038434680,0.208624150,0.176779459,causal_inner_residual_history_readout_not_external_prediction
