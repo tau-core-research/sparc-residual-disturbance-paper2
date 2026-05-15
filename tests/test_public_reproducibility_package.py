@@ -248,6 +248,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_table3_expanded_control_readout_join_v01.csv",
         PACKET / "things_table3_expanded_control_readout_metrics_v01.csv",
         PACKET / "things_table3_expanded_control_readout_decision_v01.csv",
+        PACKET / "things_missing_rotmod_acquisition_audit_v01.md",
+        PACKET / "things_missing_rotmod_acquisition_audit_v01.csv",
+        PACKET / "things_missing_rotmod_acquisition_plan_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -344,6 +347,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_things_expanded_resolver_control_gate_v01.py",
         STUDY / "score_things_table3_expanded_w_tau_eff_v01.py",
         STUDY / "evaluate_things_table3_expanded_control_readout_v01.py",
+        STUDY / "make_things_missing_rotmod_acquisition_audit_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2441,6 +2445,53 @@ def test_things_table3_expanded_scoring_and_control_readout_remain_below_n15():
     )
     assert "does not reproduce the WHISP-positive direction" in text
     assert "below the N>=15 validation threshold" in text
+
+
+def test_things_missing_rotmod_acquisition_audit_freezes_no_synthetic_expansion():
+    with (PACKET / "things_missing_rotmod_acquisition_audit_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        audit = list(csv.DictReader(handle))
+    missing = {
+        row["GalaxyName"]: row
+        for row in audit
+        if row["CurrentStatus"] == "missing_local_sparc_rotmod"
+    }
+    assert set(missing) == {"NGC925", "NGC3031", "NGC3621", "NGC3627", "NGC4736"}
+    assert all(row["HasLocalSparcRotmod"] == "no" for row in missing.values())
+    assert all(row["CurrentScoreStatus"] == "excluded_no_rotmod" for row in missing.values())
+    assert all(
+        row["AllowedNextUse"]
+        == "score_only_if_public_mass_model_columns_are_recovered_and_conversion_rule_is_frozen"
+        for row in missing.values()
+    )
+    assert missing["NGC925"]["PrimarySource"] == "de_Blok_etal_2008_THINGS_mass_models"
+    assert missing["NGC3031"]["PrimarySource"] == "de_Blok_etal_2008_THINGS_mass_models"
+    assert missing["NGC3627"]["PrimarySource"] == "de_Blok_etal_2008_THINGS_mass_models"
+    assert (
+        missing["NGC3621"]["AcquisitionClass"]
+        == "possible_but_not_clean_THINGS_Table3_completion"
+    )
+    assert missing["NGC4736"]["AcquisitionClass"] == "possible_but_high_systematics_risk"
+
+    with (PACKET / "things_missing_rotmod_acquisition_plan_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        plan = {row["StepID"]: row for row in csv.DictReader(handle)}
+    assert plan["TMA01"]["MinimumSuccess"] == (
+        "at_least_two_missing_galaxies_with_Vobs_Vgas_Vdisk_Vbul"
+    )
+    assert plan["TMA01"]["ForbiddenAction"] == (
+        "synthetic_baryonic_components_or_fit_to_W_tau_eff"
+    )
+    assert plan["TMA03"]["ForbiddenAction"] == "claim_THINGS_N15_validation"
+
+    text = (PACKET / "things_missing_rotmod_acquisition_audit_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Missing local SPARC-like rotmod inputs: 5" in text
+    assert "Published rotation curves alone are insufficient" in text
+    assert "at least two of the missing galaxies" in text
 
 
 def test_public_package_is_english_only():
