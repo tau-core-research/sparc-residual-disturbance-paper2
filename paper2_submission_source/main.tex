@@ -5,6 +5,7 @@
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{float}
+\usepackage{longtable}
 
 \title{Residual-shape inference and external-proxy audit of structural disturbance in SPARC rotation curves}
 \author{Jozsef Olcsak}
@@ -14,7 +15,7 @@
 \maketitle
 
 \begin{abstract}
-We ask whether fixed rotation-curve residual-shape features can recover externally reviewed structural-disturbance labels in SPARC galaxies, and whether independent H\,I disturbance proxies support the same diagnostic direction. The study reverses the Paper 1 audit: the A/C labels are treated as frozen external targets, while residual features are evaluated as predictors under leave-one-galaxy-out thresholding, shuffled-label null tests, bootstrap uncertainty, baseline-family controls, and observability stress checks. The primary internal feature, Projection RMS, reaches LOOGO AUC=0.771008403 with shuffled-label $p=0.002000000$ and bootstrap 95\% AUC interval $[0.600802469,0.909100262]$. MOND-simple and empirical RAR-like residual scores also separate A/C systems, whereas a Newtonian baryonic RMS control is near chance, indicating a low-acceleration residual-family effect rather than projection-formula uniqueness. External proxy readouts are supportive but not decisive. The result is therefore a reproducible residual-inference and external-proxy audit, not a Tau Core validation claim, not gravity-model selection, and not independent paper-grade external validation.
+We ask whether fixed rotation-curve residual-shape features can recover externally reviewed structural-disturbance labels in SPARC galaxies, and whether independent H\,I disturbance proxies support the same diagnostic direction. The study reverses the Paper 1 audit: the A/C labels are treated as frozen external targets, while residual features are evaluated as predictors under leave-one-galaxy-out thresholding, shuffled-label null tests, bootstrap uncertainty, baseline-family controls, and observability stress checks. The primary internal feature, Projection RMS, reaches LOOGO AUC=0.771008403 with shuffled-label $p=0.002000000$ and bootstrap 95\% AUC interval $[0.600802469,0.909100262]$. MOND-simple and empirical RAR-like residual scores also separate A/C systems, whereas a Newtonian baryonic RMS control is near chance, indicating a low-acceleration residual-family effect rather than projection-formula uniqueness. External proxy readouts are supportive but not decisive. The result is therefore promising but sample-limited: a reproducible residual-inference and external-proxy audit, not a Tau Core validation claim, not gravity-model selection, and not independent paper-grade external validation.
 \end{abstract}
 
 \section{Introduction}
@@ -31,9 +32,23 @@ The public packet contains the derived tables, scripts, figures, and audit recor
 
 \section{Residual-shape endpoint and validation design}
 
-The primary endpoint is Projection RMS, the galaxy-level RMS of a fixed low-acceleration projection residual. It is used as an operational residual-shape score rather than as a physical proof of the projection formula. The key design choice is that the score is fixed before the external-proxy readouts are interpreted.
+For each galaxy $g$ and radial point $i$, the packet starts from absolute log-residual magnitudes
+\[
+r_{{m,gi}} = \left|\log V_{{\rm obs},gi} - \log V_{{m,gi}}\right|,
+\]
+where $m$ denotes the fixed residual family. Projection RMS is then
+\[
+{\rm RMS}_{{m,g}} =
+\sqrt{{1\over N_g}\sum_i r_{{m,gi}}^2}.
+\]
+All points are weighted equally; no velocity-error weighting is applied in the primary endpoint. The radial domain is the available SPARC rotation-curve support for each galaxy after the inherited Paper 1 point-map construction. The same aggregation is used for Projection RMS, MOND-simple RMS, RAR-like RMS, and Newtonian baryonic RMS. The Projection endpoint is used as an operational residual-shape score rather than as a physical proof of the projection formula.
 
-The primary internal validation uses leave-one-galaxy-out thresholding. For each held-out galaxy, the decision threshold is recomputed from the remaining A and C systems as the midpoint between their class medians. A shuffled-label null preserves class counts and tests whether the observed AUC is expected under random A/C labels. Bootstrap resampling estimates sample-size uncertainty. These tests are internal to SPARC and should not be described as independent validation.
+The primary internal validation uses leave-one-galaxy-out thresholding. For held-out galaxy $h$, the threshold is recomputed from the remaining galaxies:
+\[
+T_h={1\over2}\left[{\rm median}({\rm RMS}_{g\in A,g\ne h})+
+{\rm median}({\rm RMS}_{g\in C,g\ne h})\right].
+\]
+The held-out galaxy is classified as C-like if its score exceeds $T_h$. A shuffled-label null preserves the 17/28 A/C class counts and uses 1000 shuffles with random seed 20260515; the practical p-value floor is therefore of order $10^{-3}$, and the observed empirical value is $p=0.002000000$. Bootstrap uncertainty uses 2000 class-stratified galaxy resamples with random seed 20260516 for the primary endpoint. These tests are internal to SPARC and should not be described as independent validation.
 
 \section{Primary results}
 
@@ -53,13 +68,28 @@ Newtonian baryonic RMS AUC & 0.506302521 & near-chance control & limited inferen
 \end{tabular}
 \end{table}
 
+\begin{table}[H]
+\centering
+\caption{Bootstrap AUC intervals for baseline residual-score families.}
+\begin{tabular}{lccc}
+\toprule
+Score family & AUC & CI low & CI high\\
+\midrule
+Projection RMS & 0.771008403 & 0.609243697 & 0.913865546\\
+MOND-simple RMS & 0.720588235 & 0.552521008 & 0.871848739\\
+RAR-like RMS & 0.731092437 & 0.569275210 & 0.878151261\\
+Newtonian baryonic RMS & 0.506302521 & 0.340336134 & 0.678571429\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.82\linewidth]{figures/paper2_projection_rms_distribution.pdf}
 \caption{Distribution of the fixed Projection RMS residual score for externally regular A and disturbed C systems.}
 \end{figure}
 
-The primary signal is positive and statistically sharp in the frozen internal packet. The result is strongest when stated as class recovery from residual shape, not as a physical detection of an underlying field.
+The primary signal is positive, but the bootstrap interval is broad. The correct reading is promising but sample-limited class recovery from residual shape, not a physical detection of an underlying field.
 
 \section{Baseline-family comparison}
 
@@ -85,9 +115,40 @@ The error audit is retained because a useful diagnostic must show where it fails
 
 These failures are not relabeling evidence. They are targets for follow-up inspection, especially where residual morphology, inclination, radial coverage, and H\,I kinematic asymmetry disagree.
 
+\begin{table}[H]
+\centering
+\caption{B-class sensitivity check. B systems are not used as primary labels.}
+\begin{tabular}{ccccc}
+\toprule
+$N_B$ & Threshold & B C-like & B A-like & Interpretation\\
+\midrule
+28 & 0.166489797 & 13 & 15 & descriptive only\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{External proxy readouts}
 
-The external H\,I context draws on WHISP lopsidedness and morphology \cite{vanEymeren2011WHISP,vanEymeren2011WHISPII,Holwerda2011WHISP}, THINGS non-circular-motion diagnostics \cite{Trachternach2008THINGS}, Reynolds et al. H\,I asymmetry catalogues \cite{Reynolds2020HIAsymmetries}, and ALFALFA profile asymmetry \cite{Yu2022ALFALFA}. WHISP resolved-HI asymmetry is the strongest supportive external readout, but its overlap is small. WHISP morphology is mixed, Reynolds/LVHIS is promising but below the frozen $N\geq15$ gate, and ALFALFA/HALOGAS do not provide strong directional support. The external evidence therefore supports the paper as an audit, not as an independent validation result.
+The external H\,I context draws on WHISP lopsidedness and morphology \cite{vanEymeren2011WHISP,vanEymeren2011WHISPII,Holwerda2011WHISP}, THINGS non-circular-motion diagnostics \cite{Trachternach2008THINGS}, Reynolds et al. H\,I asymmetry catalogues \cite{Reynolds2020HIAsymmetries}, and ALFALFA profile asymmetry \cite{Yu2022ALFALFA}. Table~\ref{tab:external} lists each frozen proxy gate. WHISP resolved-HI asymmetry is the strongest supportive external readout, but its overlap is small. WHISP morphology is mixed, Reynolds/LVHIS is promising but below the frozen $N\geq15$ gate, and ALFALFA/HALOGAS do not provide strong directional support. The external evidence therefore supports the paper as an audit, not as an independent validation result.
+
+\begin{table}[H]
+\centering
+\caption{External-proxy readouts and frozen gates.}
+\label{tab:external}
+\footnotesize
+\begin{tabular}{lllll}
+\toprule
+Source & Overlap & Direction/status & Effect size & Gate\\
+\midrule
+WHISP resolved & 14 & positive, small N & r=0.391; AUC=0.714 & context\\
+WHISP morph. & 25 & mixed & AUC=0.644; burden=0.506 & context\\
+Reynolds/LVHIS & 6 & promising, N<15 & r=0.375; AUC=0.778 & fail N\\
+ALFALFA & 22 & weak & r=0.146; AUC=0.472 & weak\\
+HALOGAS & 5 & control-like & r=0.216; AUC=0.500 & control\\
+THINGS route2 & 0\_score\_ready & closed & 0 score-ready & negative audit\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{THINGS route2 negative audit}
 
@@ -107,6 +168,8 @@ Observability remains the main scientific caveat. Nearby galaxies can reveal asy
 
 Accordingly, the result should be read as a reproducible SPARC diagnostic association with external-proxy context, not as a selection-function-proof physical inference.
 
+The distance-stress labels are operational. Greedy unique matching pairs each A galaxy with one nearby C galaxy without reusing controls. Optimal ordered matching sorts both classes by distance and pairs by rank. The Mpc-caliper check keeps only pairs within the frozen maximum distance separation. These checks are not a full selection-function model.
+
 \section{Claim boundary and Phase II}
 
 Allowed claim: fixed residual-shape features recover externally reviewed A/C disturbance class better than chance in the current SPARC packet, and several external proxy readouts provide mixed but informative context.
@@ -114,6 +177,68 @@ Allowed claim: fixed residual-shape features recover externally reviewed A/C dis
 Forbidden claims: Tau Core validation, gravity-model selection, projection-formula uniqueness, replacement of external labels by residual-only labels, broad independent external validation, or THINGS route2 positive evidence.
 
 The next paper-grade step is a held-out external source-family test with $N\geq15$, a frozen evidence rule, no velocity-endpoint refit, explicit observability covariates, and predefined failure conditions. A negative Phase II result should be treated as evidence that the present association is SPARC-specific, proxy-specific, or observability-driven.
+
+\appendix
+
+\section{A/C sample table}
+
+\begin{longtable}{llrrrr}
+\caption{Frozen A/C sample used for the primary diagnostic.}\\
+\toprule
+Galaxy & Class & Distance & Incl. & Points & Projection RMS\\
+\midrule
+\endfirsthead
+\toprule
+Galaxy & Class & Distance & Incl. & Points & Projection RMS\\
+\midrule
+\endhead
+CamB & A & 3.36 & 65.0 & 9 & 0.963585384\\
+DDO154 & A & 4.04 & 64.0 & 12 & 0.138812041\\
+ESO079-G014 & A & 28.70 & 79.0 & 15 & 0.116776650\\
+ESO116-G012 & A & 13.00 & 74.0 & 15 & 0.118483994\\
+IC2574 & C & 3.91 & 75.0 & 34 & 0.221285260\\
+NGC0055 & C & 2.11 & 77.0 & 21 & 0.204516651\\
+NGC1705 & C & 5.73 & 80.0 & 14 & 0.354417125\\
+NGC2366 & C & 3.27 & 68.0 & 26 & 0.250878781\\
+NGC2403 & A & 3.16 & 63.0 & 73 & 0.084927422\\
+NGC2976 & C & 3.58 & 61.0 & 27 & 0.239111203\\
+NGC3109 & C & 1.33 & 70.0 & 25 & 0.175872342\\
+NGC3198 & A & 13.80 & 73.0 & 43 & 0.156224718\\
+NGC3741 & C & 3.21 & 70.0 & 21 & 0.204417844\\
+NGC3917 & A & 18.00 & 79.0 & 17 & 0.143599282\\
+NGC3972 & A & 18.00 & 77.0 & 10 & 0.101666153\\
+NGC4183 & A & 18.00 & 82.0 & 23 & 0.067793794\\
+NGC4559 & A & 9.00 & 67.0 & 32 & 0.133934337\\
+NGC5055 & C & 9.90 & 55.0 & 28 & 0.117536453\\
+NGC5585 & A & 7.06 & 51.0 & 24 & 0.173858350\\
+NGC6503 & A & 6.26 & 74.0 & 31 & 0.072498887\\
+NGC7331 & A & 14.70 & 75.0 & 36 & 0.098042642\\
+UGC00128 & A & 64.50 & 57.0 & 22 & 0.138644763\\
+UGC00191 & A & 17.10 & 45.0 & 9 & 0.124355499\\
+UGC00731 & C & 12.50 & 57.0 & 12 & 0.339703437\\
+UGC02455 & C & 6.92 & 51.0 & 8 & 0.793075490\\
+UGC03580 & C & 20.70 & 63.0 & 47 & 0.280295930\\
+UGC04305 & C & 3.45 & 40.0 & 22 & 0.595364038\\
+UGC04325 & C & 9.60 & 41.0 & 8 & 0.284250584\\
+UGC04499 & C & 12.50 & 50.0 & 9 & 0.137445134\\
+UGC05253 & C & 22.90 & 37.0 & 73 & 0.080485995\\
+UGC05716 & A & 21.30 & 54.0 & 12 & 0.113234582\\
+UGC05764 & A & 7.47 & 60.0 & 10 & 0.329468364\\
+UGC05829 & C & 8.64 & 34.0 & 11 & 0.138511849\\
+UGC05918 & C & 7.66 & 46.0 & 8 & 0.142410680\\
+UGC06446 & C & 12.00 & 51.0 & 17 & 0.194477890\\
+UGC06818 & C & 18.00 & 75.0 & 8 & 0.308337913\\
+UGC06917 & C & 18.00 & 56.0 & 11 & 0.071490152\\
+UGC06973 & C & 18.00 & 71.0 & 9 & 0.212731540\\
+UGC07323 & C & 8.00 & 47.0 & 10 & 0.146477589\\
+UGC07399 & C & 8.43 & 55.0 & 10 & 0.397297780\\
+UGC07577 & C & 2.59 & 63.0 & 9 & 0.654467132\\
+UGC07603 & C & 4.70 & 78.0 & 12 & 0.180772538\\
+UGC08490 & C & 4.65 & 50.0 & 30 & 0.186480775\\
+UGC08837 & C & 7.21 & 80.0 & 8 & 0.439660106\\
+UGC12632 & C & 9.77 & 46.0 & 15 & 0.105256872\\
+\bottomrule
+\end{longtable}
 
 \bibliographystyle{plain}
 \bibliography{references}

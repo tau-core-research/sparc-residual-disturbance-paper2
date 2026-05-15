@@ -71,6 +71,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "paper2_submission_source_gate_v01.csv",
         PACKET / "paper2_figure_typography_audit_v01.md",
         PACKET / "paper2_figure_typography_audit_v01.csv",
+        PACKET / "paper2_ac_sample_appendix_v01.csv",
+        PACKET / "paper2_baseline_auc_ci_v01.csv",
+        PACKET / "paper2_external_proxy_gate_table_v01.csv",
+        PACKET / "paper2_b_class_sensitivity_v01.csv",
         PACKET / "paper2_final_metric_table.csv",
         PACKET / "paper2_readiness_table.csv",
         PACKET / "paper2_figure_plan.csv",
@@ -3566,6 +3570,13 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
     assert "\\bibliography{references}" in tex
     assert "not a Tau Core validation claim" in tex
     assert "Forbidden claims: Tau Core validation" in tex
+    assert "r_{{m,gi}}" in tex
+    assert "All points are weighted equally" in tex
+    assert "1000 shuffles with random seed 20260515" in tex
+    assert "2000 class-stratified galaxy resamples" in tex
+    assert "promising but sample-limited" in tex
+    assert "Greedy unique matching" in tex
+    assert "A/C sample table" in tex
     assert "Lelli2016SPARC" in bib
     assert "Trachternach2008THINGS" in bib
     assert "Reynolds2020HIAsymmetries" in bib
@@ -3589,6 +3600,38 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
     assert len(figures) == 4
     assert {row["TypographyStatus"] for row in figures} == {"publication_candidate"}
     assert {row["VectorExport"] for row in figures} == {"pdf"}
+
+    with (PACKET / "paper2_ac_sample_appendix_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        sample = list(csv.DictReader(handle))
+    assert len(sample) == 45
+    assert {"DistanceMpc", "InclinationDeg", "NPoints", "Projection_RMS"} <= set(
+        sample[0]
+    )
+
+    with (PACKET / "paper2_baseline_auc_ci_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        baseline_ci = {row["Predictor"]: row for row in csv.DictReader(handle)}
+    assert baseline_ci["Projection_RMS"]["AUC_C_higher"] == "0.771008403"
+    assert baseline_ci["MOND_RMS"]["BootstrapN"] == "2000"
+    assert baseline_ci["Newtonian_Baryonic_RMS"]["AUC_C_higher"] == "0.506302521"
+
+    with (PACKET / "paper2_external_proxy_gate_table_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        external_gates = {row["ProxySource"]: row for row in csv.DictReader(handle)}
+    assert external_gates["WHISP_RESOLVED"]["FrozenGate"] == "supporting_context"
+    assert external_gates["REYNOLDS_LVH"]["FrozenGate"] == "fail_minimum_n"
+    assert external_gates["THINGS_ROUTE2"]["FrozenGate"] == "negative_audit"
+
+    with (PACKET / "paper2_b_class_sensitivity_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        b_sensitivity = list(csv.DictReader(handle))
+    assert b_sensitivity[0]["BPredictedC_like"] == "13"
+    assert b_sensitivity[0]["BPredictedA_like"] == "15"
 
     with (PACKET / "paper2_submission_readiness_v02.csv").open(
         newline="", encoding="utf-8"

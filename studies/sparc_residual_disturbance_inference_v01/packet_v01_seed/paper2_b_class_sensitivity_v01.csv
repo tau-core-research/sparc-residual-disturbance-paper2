@@ -1,0 +1,2 @@
+SensitivityID,NB,ProjectionRMSThreshold,BPredictedC_like,BPredictedA_like,Interpretation,Guardrail
+B01,28,0.166489797,13,15,descriptive_uncertainty_band_not_primary_training,paper2_submission_source_ready_no_tau_validation_no_external_overclaim

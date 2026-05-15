@@ -1,0 +1,5 @@
+Predictor,Label,AUC_C_higher,BootstrapN,BootstrapCI95Low,BootstrapCI95High,Guardrail
+Projection_RMS,Projection RMS,0.771008403,2000,0.609243697,0.913865546,paper2_submission_source_ready_no_tau_validation_no_external_overclaim
+MOND_RMS,MOND-simple RMS,0.720588235,2000,0.552521008,0.871848739,paper2_submission_source_ready_no_tau_validation_no_external_overclaim
+RAR_RMS,RAR-like RMS,0.731092437,2000,0.569275210,0.878151261,paper2_submission_source_ready_no_tau_validation_no_external_overclaim
+Newtonian_Baryonic_RMS,Newtonian baryonic RMS,0.506302521,2000,0.340336134,0.678571429,paper2_submission_source_ready_no_tau_validation_no_external_overclaim
