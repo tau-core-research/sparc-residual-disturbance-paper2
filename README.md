@@ -217,6 +217,14 @@ python studies/sparc_residual_disturbance_inference_v01/evaluate_observer_distan
 
 This readout tests whether the observer-distance hypothesis direction reproduces inside the WHISP overlap after WHISP/systematics controls. It does not open a velocity endpoint and it is not class-balanced.
 
+The external validation status board is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_external_validation_status_board_v01.py
+```
+
+This board summarizes the WHISP, THINGS, LITTLE THINGS, and HALOGAS source-family status. It freezes the current decision as mixed support for the broad `W_tau_eff` direction, but not for the observer-distance interpretation.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

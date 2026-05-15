@@ -152,6 +152,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "observer_distance_whisp_external_validation_join_v01.csv",
         PACKET / "observer_distance_whisp_external_validation_metrics_v01.csv",
         PACKET / "observer_distance_whisp_external_validation_decision_v01.csv",
+        PACKET / "external_validation_status_board_v01.md",
+        PACKET / "external_validation_status_board_v01.csv",
+        PACKET / "external_validation_status_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -224,6 +227,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_multivariable_no_velocity_stress_v01.py",
         STUDY / "make_observer_distance_hypothesis_gate_v01.py",
         STUDY / "evaluate_observer_distance_whisp_external_validation_v01.py",
+        STUDY / "make_external_validation_status_board_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1232,6 +1236,48 @@ def test_observer_distance_whisp_external_validation_is_guardrailed():
     assert "does not open a velocity endpoint" in text
     assert "not class-balanced" in text
     assert "cannot validate a Tau Core field or velocity formula" in text
+
+
+def test_external_validation_status_board_closes_observer_distance_endpoint():
+    with (PACKET / "external_validation_status_board_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["FamilyID"]: row for row in csv.DictReader(handle)}
+    assert set(rows) == {"P07", "ODW", "P05", "P06", "P08"}
+    assert rows["P07"]["Status"] == "positive_small_source_family_sanity_check"
+    assert rows["P07"]["PrimaryMetric"] == "AUC=0.760000000;Pearson=0.441950994"
+    assert rows["ODW"]["Status"] == "direction_not_reproduced_in_small_whisp_overlap"
+    assert rows["ODW"]["PrimaryMetric"] == (
+        "rawPearson=0.167726020;partialPearson=-0.224079320;partialAUC=0.360000000"
+    )
+    assert rows["P05"]["Status"] == "does_not_absorb_direction_in_small_overlap"
+    assert rows["P06"]["Status"] == "too_small_for_directional_validation"
+    assert rows["P08"]["Status"] == "weak_small_overlap_control_only"
+    assert {row["EndpointPermission"] for row in rows.values()} == {
+        "no_velocity_endpoint"
+    }
+    assert {row["InterpretationGuardrail"] for row in rows.values()} == {
+        "external_validation_status_no_velocity_endpoint_no_tau_core_claim"
+    }
+
+    with (PACKET / "external_validation_status_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["EVS01"]["Status"] == (
+        "mixed_external_validation_supporting_w_tau_direction_not_observer_distance"
+    )
+    assert decisions["EVS01"]["NextAction"] == (
+        "prioritize_non_whisp_THINGS_LITTLE_THINGS_HALOGAS_expansion_before_formula"
+    )
+    assert decisions["EVS02"]["Status"] == "closed"
+
+    text = (PACKET / "external_validation_status_board_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not open a velocity endpoint" in text
+    assert "does not claim a Tau Core field detection" in text
+    assert "not for the observer-distance interpretation" in text
 
 
 def test_public_package_is_english_only():
