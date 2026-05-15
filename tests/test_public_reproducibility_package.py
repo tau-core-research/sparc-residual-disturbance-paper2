@@ -144,6 +144,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "multivariable_no_velocity_stress_join_v01.csv",
         PACKET / "multivariable_no_velocity_stress_metrics_v01.csv",
         PACKET / "multivariable_no_velocity_stress_decision_v01.csv",
+        PACKET / "observer_distance_hypothesis_gate_v01.md",
+        PACKET / "observer_distance_hypothesis_claim_boundary_v01.csv",
+        PACKET / "observer_distance_hypothesis_validation_plan_v01.csv",
+        PACKET / "observer_distance_hypothesis_readiness_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -214,6 +218,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_p09_observability_decomposition_v01.py",
         STUDY / "evaluate_distance_resolution_environment_join_v01.py",
         STUDY / "evaluate_multivariable_no_velocity_stress_v01.py",
+        STUDY / "make_observer_distance_hypothesis_gate_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1128,6 +1133,52 @@ def test_multivariable_no_velocity_stress_supports_observer_distance_hypothesis_
     )
     assert "without opening a velocity endpoint" in text
     assert "does not establish a Tau Core field" in text
+
+
+def test_observer_distance_hypothesis_gate_freezes_claim_boundary_and_validation_plan():
+    with (PACKET / "observer_distance_hypothesis_claim_boundary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        claims = {row["ClaimID"]: row for row in csv.DictReader(handle)}
+    assert set(claims) == {"ODC01", "ODC02", "ODC03", "ODC04"}
+    assert claims["ODC01"]["Status"] == "supported_as_in_sample_hypothesis"
+    assert claims["ODC01"]["Evidence"] == "raw Pearson=0.404324367; raw AUC=0.771739130"
+    assert claims["ODC02"]["Status"] == "supported_as_stress_survival"
+    assert claims["ODC02"]["Evidence"] == (
+        "partial Pearson=0.434416486; partial AUC=0.662000000; "
+        "nuisance-only R2=0.207747757"
+    )
+    assert claims["ODC03"]["Status"] == "not_established"
+    assert claims["ODC04"]["Status"] == "blocked"
+    assert "velocity formula" in claims["ODC01"]["ForbiddenWording"]
+    assert "formula validation" in claims["ODC04"]["ForbiddenWording"]
+    assert {row["InterpretationGuardrail"] for row in claims.values()} == {
+        "observer_distance_hypothesis_only_no_formula_no_tau_core_proof"
+    }
+
+    with (PACKET / "observer_distance_hypothesis_validation_plan_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        validation = {row["ValidationID"]: row for row in csv.DictReader(handle)}
+    assert set(validation) == {"ODV01", "ODV02", "ODV03", "ODV04"}
+    assert validation["ODV01"]["Target"] == "WHISP overlap"
+    assert validation["ODV02"]["EndpointPermission"] == "no_velocity_endpoint"
+    assert validation["ODV04"]["EndpointPermission"] == "blocked_until_external_validation"
+
+    with (PACKET / "observer_distance_hypothesis_readiness_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        readiness = {row["ReadinessID"]: row for row in csv.DictReader(handle)}
+    assert readiness["ODR01"]["Status"] == "yes_with_guardrails"
+    assert readiness["ODR02"]["Status"] == "no"
+    assert readiness["ODR03"]["NextAction"] == "observer_distance_external_validation_readout"
+
+    text = (PACKET / "observer_distance_hypothesis_gate_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "hypothesis-level result only" in text
+    assert "does not claim a Tau Core field detection" in text
+    assert "At least one external source-family validation" in text
 
 
 def test_public_package_is_english_only():
