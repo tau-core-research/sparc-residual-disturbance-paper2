@@ -1,0 +1,4 @@
+Group,NGalaxies,Median_W_tau_eff_candidate_score_v01,Mean_W_tau_eff_candidate_score_v01,Median_W_tau_eff_signed_v01,Median_W_tau_eff_abs_v01,NHighCandidate,NMediumCandidate,NLowOrControlCandidate,InterpretationGuardrail
+all,45,0.500000000,0.500000000,0.011351180,0.128416526,12,12,21,w_tau_eff_residual_inferred_seed_not_tau_core_field_map
+A,17,0.304545455,0.352139038,0.023903266,0.070366381,2,2,13,w_tau_eff_residual_inferred_seed_not_tau_core_field_map
+C,28,0.579545455,0.589772727,-0.042397768,0.173436672,10,10,8,w_tau_eff_residual_inferred_seed_not_tau_core_field_map

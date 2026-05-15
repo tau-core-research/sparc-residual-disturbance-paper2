@@ -153,6 +153,14 @@ This packet treats the TPG residual as a possible carrier of a higher-order Tau 
 
 In the current framing, TPG is not outside Tau Core: it is treated as an effective baseline that already carries local Tau Core weights. The residual is the candidate carrier for the missing environment- and observer-dependent weights.
 
+The closing `W_tau_eff` field seed is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_w_tau_eff_field_seed_v01.py
+```
+
+This closes the residual-weight branch by defining a map-ready galaxy-level seed. It is not a Tau Core field map; sky coordinates, distances, environment proxies, and systematics controls must be joined before mapping.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

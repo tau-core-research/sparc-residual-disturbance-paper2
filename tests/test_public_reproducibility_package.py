@@ -95,6 +95,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "tau_core_signal_candidate_v01.md",
         PACKET / "tau_core_signal_candidate_galaxy_summary_v01.csv",
         PACKET / "tau_core_signal_candidate_relation_summary_v01.csv",
+        PACKET / "w_tau_eff_field_seed_v01.md",
+        PACKET / "w_tau_eff_field_seed_v01.csv",
+        PACKET / "w_tau_eff_field_seed_summary_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -153,6 +156,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_integrated_tau_drift_v01.py",
         STUDY / "evaluate_history_s_tau_rule.py",
         STUDY / "make_tau_core_signal_candidate_v01.py",
+        STUDY / "make_w_tau_eff_field_seed_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -548,6 +552,45 @@ def test_tau_core_signal_candidate_is_framed_without_attribution_claim():
     assert "It does not identify the residual itself with Tau Core" in text
     assert "environment/observer weights" in text
     assert "Attribution requires external source-side predictors or controls" in text
+
+
+def test_w_tau_eff_field_seed_closes_branch_without_map_claim():
+    with (PACKET / "w_tau_eff_field_seed_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 45
+    assert {row["MapReadiness"] for row in rows} == {
+        "needs_ra_dec_distance_environment_join"
+    }
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "w_tau_eff_residual_inferred_seed_not_tau_core_field_map"
+    }
+    assert {row["CandidateConfidenceTier"] for row in rows} == {
+        "high_candidate",
+        "medium_candidate",
+        "low_or_control_candidate",
+    }
+
+    with (PACKET / "w_tau_eff_field_seed_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        summary = {row["Group"]: row for row in csv.DictReader(handle)}
+    assert summary["all"]["NGalaxies"] == "45"
+    assert summary["all"]["Median_W_tau_eff_candidate_score_v01"] == "0.500000000"
+    assert summary["A"]["Median_W_tau_eff_candidate_score_v01"] == "0.304545455"
+    assert summary["C"]["Median_W_tau_eff_candidate_score_v01"] == "0.579545455"
+    assert summary["all"]["NHighCandidate"] == "12"
+    assert summary["A"]["NHighCandidate"] == "2"
+    assert summary["C"]["NHighCandidate"] == "10"
+    assert {row["InterpretationGuardrail"] for row in summary.values()} == {
+        "w_tau_eff_residual_inferred_seed_not_tau_core_field_map"
+    }
+
+    text = (PACKET / "w_tau_eff_field_seed_v01.md").read_text(encoding="utf-8")
+    assert "TPG`: effective baseline carrying local Tau Core weights" in text
+    assert "not claim a Tau Core field map" in text
+    assert "RA, Dec, distance, distance uncertainty" in text
 
 
 def test_public_package_is_english_only():
