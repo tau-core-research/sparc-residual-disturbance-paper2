@@ -78,6 +78,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_source_s_tau_failure_point_audit.csv",
         PACKET / "things_source_s_tau_failure_galaxy_audit.csv",
         PACKET / "things_source_s_tau_failure_metric_summary.csv",
+        PACKET / "contextual_s_tau_rule_v01.md",
+        PACKET / "contextual_s_tau_rule_v01.csv",
+        PACKET / "contextual_s_tau_velocity_point_readout.csv",
+        PACKET / "contextual_s_tau_velocity_galaxy_summary.csv",
+        PACKET / "contextual_s_tau_velocity_metric_summary.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -132,6 +137,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_radial_s_tau_rule.py",
         STUDY / "evaluate_things_source_s_tau_velocity.py",
         STUDY / "audit_things_source_s_tau_failure.py",
+        STUDY / "evaluate_contextual_s_tau_rule.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -357,6 +363,49 @@ def test_things_source_s_tau_failure_audit_explains_direction_without_rule_selec
     )
     assert "must not be used to choose a new rule" in text
     assert "stress magnitude alone is therefore an incomplete proxy" in text
+
+
+def test_contextual_s_tau_rule_is_conservative_and_hypothesis_generating():
+    with (PACKET / "contextual_s_tau_rule_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rules = list(csv.DictReader(handle))
+    assert len(rules) == 9
+    assert {row["AllowedInputs"] for row in rules} == {
+        "RadiusFraction;aN_over_a0;StressDispersionOverRotationScale"
+    }
+    assert {row["ForbiddenInputs"] for row in rules} == {
+        "Vobs;Vbar;residuals;S_tau_eff;Class;outcome_selected_mapping"
+    }
+    assert {row["InterpretationGuardrail"] for row in rules} == {
+        "contextual_s_tau_rule_post_audit_candidate_not_validation"
+    }
+
+    with (PACKET / "contextual_s_tau_velocity_point_readout.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        points = list(csv.DictReader(handle))
+    assert len(points) == 245
+    s_values = [float(row["Predicted_S_tau_contextual_v01"]) for row in points]
+    assert min(s_values) >= 0.88
+    assert max(s_values) <= 1.12
+
+    with (PACKET / "contextual_s_tau_velocity_metric_summary.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["Subset"]: row for row in csv.DictReader(handle)}
+    assert rows["all"]["NGalaxies"] == "7"
+    assert rows["all"]["MedianDeltaRMS_ContextualMinusS1"] == "0.002491356"
+    assert rows["all"]["FractionGalaxiesImproved"] == "0.428571429"
+    assert rows["A"]["MedianDeltaRMS_ContextualMinusS1"] == "-0.004336262"
+    assert rows["C"]["MedianDeltaRMS_ContextualMinusS1"] == "0.009241461"
+    assert {row["InterpretationGuardrail"] for row in rows.values()} == {
+        "contextual_s_tau_rule_post_audit_candidate_not_validation"
+    }
+
+    text = (PACKET / "contextual_s_tau_rule_v01.md").read_text(encoding="utf-8")
+    assert "post-audit candidate, not validation" in text
+    assert "held-out source-family gate" in text
 
 
 def test_public_package_is_english_only():

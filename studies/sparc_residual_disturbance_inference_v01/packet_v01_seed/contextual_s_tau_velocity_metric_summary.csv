@@ -1,0 +1,4 @@
+Subset,NGalaxies,MedianDeltaRMS_ContextualMinusS1,MeanDeltaRMS_ContextualMinusS1,FractionGalaxiesImproved,MedianRMS_S_tau1,MedianRMS_ContextualRule,InterpretationGuardrail
+all,7,0.002491356,0.000822718,0.428571429,0.138812043,0.138753380,contextual_s_tau_rule_post_audit_candidate_not_validation
+A,4,-0.004336262,-0.004789086,0.500000000,0.118427336,0.117766754,contextual_s_tau_rule_post_audit_candidate_not_validation
+C,3,0.009241461,0.008305122,0.333333333,0.239111156,0.233568122,contextual_s_tau_rule_post_audit_candidate_not_validation

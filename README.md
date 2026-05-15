@@ -119,6 +119,14 @@ python studies/sparc_residual_disturbance_inference_v01/audit_things_source_s_ta
 
 This audit compares the source-side mappings to the empirical `S_tau_eff` diagnostic only to explain the failure mode. It is not a new rule and must not be used as model selection.
 
+The first conservative contextual `S_tau(R)` candidate is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/evaluate_contextual_s_tau_rule.py
+```
+
+This post-audit candidate stays close to `S_tau=1` and uses only radius fraction, acceleration regime, and the THINGS stress proxy. It is hypothesis-generating until tested on a held-out source family.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
