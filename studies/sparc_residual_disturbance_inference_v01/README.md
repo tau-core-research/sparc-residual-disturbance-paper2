@@ -25,6 +25,8 @@ control gate is:
 
 ```bash
 python studies/sparc_residual_disturbance_inference_v01/make_w_env_obs_systematics_competition_v01.py
+python studies/sparc_residual_disturbance_inference_v01/evaluate_p05_things_non_circular_control_v01.py
+python studies/sparc_residual_disturbance_inference_v01/make_w_env_obs_systematics_competition_v01.py
 ```
 
 This creates the systematics competition matrix and sanitized control summaries.

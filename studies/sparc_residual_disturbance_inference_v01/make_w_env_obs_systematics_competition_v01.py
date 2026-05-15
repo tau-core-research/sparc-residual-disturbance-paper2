@@ -20,6 +20,8 @@ PAPER1_TAU_PACKET = (
 W_TAU = PACKET / "w_tau_eff_field_seed_v01.csv"
 P01_METRICS = PACKET / "proxy_direction_w_tau_eff_metric_summary_v01.csv"
 P07_METRICS = PACKET / "p07_whisp_w_tau_eff_holdout_metric_summary_v01.csv"
+P05_METRICS = PACKET / "p05_things_non_circular_w_tau_eff_control_metrics_v01.csv"
+P05_DECISIONS = PACKET / "p05_things_non_circular_w_tau_eff_control_decision_v01.csv"
 
 THINGS_HARMONIC_SRC = TAU_PACKET / "things_published_harmonic_residual_joined_galaxies.csv"
 LITTLE_PRESSURE_SRC = TAU_PACKET / "littlethings_pressure_support_galaxy_summary.csv"
@@ -44,6 +46,21 @@ def metric_value(path: Path, metric: str) -> str:
         if row["Metric"] == metric:
             return row["Value"]
     raise KeyError(metric)
+
+
+def optional_metric_value(path: Path, metric: str) -> str:
+    if not path.exists():
+        return ""
+    return metric_value(path, metric)
+
+
+def optional_decision_status(path: Path, decision_id: str) -> str:
+    if not path.exists():
+        return ""
+    for row in read_csv(path):
+        if row["DecisionID"] == decision_id:
+            return row["Status"]
+    return ""
 
 
 def joined_count(rows: list[dict[str, str]], w_names: set[str]) -> int:
@@ -140,6 +157,17 @@ def build_matrix() -> list[dict[str, str]]:
     p01_auc = metric_value(P01_METRICS, "auc_high_vs_low_score")
     p07_auc = metric_value(P07_METRICS, "auc_high_vs_low_whisp_burden")
     p07_pearson = metric_value(P07_METRICS, "pearson_whisp_burden_vs_w_tau_score")
+    p05_pearson = optional_metric_value(P05_METRICS, "pearson_p05_burden_vs_w_tau_score")
+    p05_auc = optional_metric_value(P05_METRICS, "auc_high_vs_low_p05_burden")
+    p05_status = optional_decision_status(P05_DECISIONS, "P05D01")
+    if p05_pearson and p05_auc:
+        p05_readout = f"Pearson={p05_pearson};AUC={p05_auc};Status={p05_status}"
+        p05_decision = "does_not_absorb_direction_in_small_overlap"
+        p05_required = "proceed_to_P09_observability_join_keep_P05_as_control"
+    else:
+        p05_readout = "published_harmonic_columns_available_no_regression"
+        p05_decision = "must_control_before_velocity_formula"
+        p05_required = "join_P05_to_W_tau_eff_on_overlap_without_using_residual_columns"
     return [
         {
             "ControlID": "S01",
@@ -150,9 +178,9 @@ def build_matrix() -> list[dict[str, str]]:
             "CompetitionRole": "direct_non_circular_motion_control",
             "CanCompeteNow": "partial_small_overlap",
             "MainThreat": "non_circular_motion_can_mimic_signed_residual_drift",
-            "CurrentReadout": "published_harmonic_columns_available_no_regression",
-            "Decision": "must_control_before_velocity_formula",
-            "RequiredNextControl": "join_P05_to_W_tau_eff_on_overlap_without_using_residual_columns",
+            "CurrentReadout": p05_readout,
+            "Decision": p05_decision,
+            "RequiredNextControl": p05_required,
             "InterpretationGuardrail": GUARDRAIL,
         },
         {
@@ -302,6 +330,8 @@ def build_coverage(
 
 
 def build_readiness() -> list[dict[str, str]]:
+    p05_status = optional_decision_status(P05_DECISIONS, "P05D01")
+    p05_complete = p05_status == "does_not_absorb_direction_in_small_overlap"
     return [
         {
             "DecisionID": "D01",
@@ -315,10 +345,18 @@ def build_readiness() -> list[dict[str, str]]:
         {
             "DecisionID": "D02",
             "Decision": "systematics_competition",
-            "Status": "open_blocker_for_formula",
-            "Rationale": "Non-circular motion, pressure support, linewidth stress, and inclination/observability are not yet defeated at galaxy level.",
+            "Status": "open_blocker_for_formula" if not p05_complete else "partially_reduced_blocker",
+            "Rationale": (
+                "Non-circular motion, pressure support, linewidth stress, and inclination/observability are not yet defeated at galaxy level."
+                if not p05_complete
+                else "P05 does not absorb the direction in the seven-galaxy overlap, but inclination/observability remains unresolved."
+            ),
             "Blocks": "S_tau_full_formula_freeze;field_map_attribution",
-            "NextAction": "run_P05_non_circular_overlap_control_before_any_velocity_endpoint",
+            "NextAction": (
+                "run_P05_non_circular_overlap_control_before_any_velocity_endpoint"
+                if not p05_complete
+                else "run_P09_galaxy_level_inclination_observability_join"
+            ),
             "InterpretationGuardrail": GUARDRAIL,
         },
         {
@@ -334,9 +372,17 @@ def build_readiness() -> list[dict[str, str]]:
             "DecisionID": "D04",
             "Decision": "next_paper2_gate",
             "Status": "ready",
-            "Rationale": "The safest next gate is a small but explicit P05 overlap control using only published harmonic non-circular columns.",
+            "Rationale": (
+                "The safest next gate is a small but explicit P05 overlap control using only published harmonic non-circular columns."
+                if not p05_complete
+                else "The P05 overlap control is complete; the remaining key gate is galaxy-level observability/inclination."
+            ),
             "Blocks": "none_for_control_gate",
-            "NextAction": "P05_non_circular_overlap_control_before_S_tau_formula",
+            "NextAction": (
+                "P05_non_circular_overlap_control_before_S_tau_formula"
+                if not p05_complete
+                else "P09_galaxy_level_inclination_observability_join"
+            ),
             "InterpretationGuardrail": GUARDRAIL,
         },
     ]
@@ -411,7 +457,12 @@ def update_manifest() -> None:
     manifest["w_env_obs_systematics_competition_status"] = (
         "systematics_competition_matrix_complete_no_attribution"
     )
-    manifest["paper2_next_gate"] = "P05_non_circular_overlap_control_before_S_tau_formula"
+    next_gate = (
+        "P09_galaxy_level_inclination_observability_join"
+        if P05_DECISIONS.exists()
+        else "P05_non_circular_overlap_control_before_S_tau_formula"
+    )
+    manifest["paper2_next_gate"] = next_gate
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 

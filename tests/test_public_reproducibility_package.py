@@ -128,6 +128,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "systematics_control_littlethings_pressure_summary_v01.csv",
         PACKET / "systematics_control_halogas_linewidth_summary_v01.csv",
         PACKET / "systematics_control_inclination_summary_v01.csv",
+        PACKET / "p05_things_non_circular_w_tau_eff_control_v01.md",
+        PACKET / "p05_things_non_circular_w_tau_eff_control_join_v01.csv",
+        PACKET / "p05_things_non_circular_w_tau_eff_control_metrics_v01.csv",
+        PACKET / "p05_things_non_circular_w_tau_eff_control_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -194,6 +198,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_proxy_direction_vs_w_tau_eff_v01.py",
         STUDY / "evaluate_p07_whisp_holdout_v01.py",
         STUDY / "make_w_env_obs_systematics_competition_v01.py",
+        STUDY / "evaluate_p05_things_non_circular_control_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -868,7 +873,10 @@ def test_w_env_obs_systematics_competition_blocks_attribution_until_controls():
         matrix = {row["ControlID"]: row for row in csv.DictReader(handle)}
     assert set(matrix) == {"S01", "S02", "S03", "S04", "S05", "S06"}
     assert matrix["S01"]["ProxyID"] == "P05"
-    assert matrix["S01"]["Decision"] == "must_control_before_velocity_formula"
+    assert matrix["S01"]["CurrentReadout"] == (
+        "Pearson=0.217454567;AUC=0.333333333;Status=does_not_absorb_direction_in_small_overlap"
+    )
+    assert matrix["S01"]["Decision"] == "does_not_absorb_direction_in_small_overlap"
     assert matrix["S04"]["ProxyID"] == "P09"
     assert matrix["S04"]["CanCompeteNow"] == "summary_only"
     assert matrix["S04"]["Decision"] == "blocks_attribution_until_galaxy_level_join"
@@ -915,15 +923,62 @@ def test_w_env_obs_systematics_competition_blocks_attribution_until_controls():
     ) as handle:
         readiness = {row["DecisionID"]: row for row in csv.DictReader(handle)}
     assert readiness["D01"]["Status"] == "supported_but_not_attributed"
-    assert readiness["D02"]["Status"] == "open_blocker_for_formula"
+    assert readiness["D02"]["Status"] == "partially_reduced_blocker"
     assert readiness["D03"]["Status"] == "blocked"
-    assert readiness["D04"]["NextAction"] == "P05_non_circular_overlap_control_before_S_tau_formula"
+    assert readiness["D04"]["NextAction"] == "P09_galaxy_level_inclination_observability_join"
 
     text = (PACKET / "w_env_obs_systematics_competition_v01.md").read_text(
         encoding="utf-8"
     )
     assert "The velocity endpoint remains closed" in text
     assert "not a new positive endpoint" in text
+
+
+def test_p05_things_non_circular_control_is_small_overlap_and_does_not_absorb_signal():
+    with (PACKET / "p05_things_non_circular_w_tau_eff_control_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 7
+    assert {row["GalaxyName"] for row in rows} == {
+        "DDO154",
+        "NGC2366",
+        "NGC2403",
+        "NGC2976",
+        "NGC3198",
+        "NGC5055",
+        "NGC7331",
+    }
+    assert {row["ReadoutUse"] for row in rows} == {
+        "P05_THINGS_non_circular_control_no_velocity_endpoint"
+    }
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "p05_non_circular_control_no_velocity_endpoint_no_attribution"
+    }
+
+    with (PACKET / "p05_things_non_circular_w_tau_eff_control_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "7"
+    assert metrics["pearson_p05_burden_vs_w_tau_score"]["Value"] == "0.217454567"
+    assert metrics["spearman_p05_burden_vs_w_tau_score"]["Value"] == "0.107142857"
+    assert metrics["auc_high_vs_low_p05_burden"]["Value"] == "0.333333333"
+    assert metrics["pearson_NonCircularAmplitudeOverVmaxPercent_vs_w_tau_score"]["Value"] == "0.518486407"
+
+    with (PACKET / "p05_things_non_circular_w_tau_eff_control_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["P05D01"]["Status"] == "does_not_absorb_direction_in_small_overlap"
+    assert decisions["P05D01"]["NextAction"] == "retain_P05_control_but_proceed_to_P09_observability_join"
+    assert decisions["P05D02"]["Status"] == "velocity_endpoint_still_closed"
+
+    text = (PACKET / "p05_things_non_circular_w_tau_eff_control_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not use velocity residuals as predictors" in text
+    assert "cannot by itself fit or reject a Tau Core formula" in text
 
 
 def test_public_package_is_english_only():

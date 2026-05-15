@@ -18,6 +18,10 @@
     "integrated_tau_drift_metric_summary_v01.csv",
     "integrated_tau_drift_point_trace_v01.csv",
     "integrated_tau_drift_v01.md",
+    "p05_things_non_circular_w_tau_eff_control_decision_v01.csv",
+    "p05_things_non_circular_w_tau_eff_control_join_v01.csv",
+    "p05_things_non_circular_w_tau_eff_control_metrics_v01.csv",
+    "p05_things_non_circular_w_tau_eff_control_v01.md",
     "p07_whisp_w_tau_eff_holdout_join_v01.csv",
     "p07_whisp_w_tau_eff_holdout_metric_summary_v01.csv",
     "p07_whisp_w_tau_eff_holdout_v01.md",
@@ -115,7 +119,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "P05_non_circular_overlap_control_before_S_tau_formula",
+  "paper2_next_gate": "P09_galaxy_level_inclination_observability_join",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -137,5 +141,6 @@
   "w_env_obs_proxy_design_status": "primary_source_side_proxy_design_frozen_no_endpoint",
   "proxy_direction_w_tau_eff_status": "frozen_P01_direction_readout_complete_no_velocity_endpoint",
   "p07_whisp_holdout_status": "source_family_holdout_complete_no_velocity_endpoint",
-  "w_env_obs_systematics_competition_status": "systematics_competition_matrix_complete_no_attribution"
+  "w_env_obs_systematics_competition_status": "systematics_competition_matrix_complete_no_attribution",
+  "p05_things_non_circular_control_status": "small_overlap_control_complete_no_velocity_endpoint"
 }
