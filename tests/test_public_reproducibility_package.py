@@ -305,6 +305,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_photometry_policy_sparc_join_v01.csv",
         PACKET / "things_route2_photometry_policy_metrics_v01.csv",
         PACKET / "things_route2_photometry_policy_gate_v01.csv",
+        PACKET / "things_published_mass_model_recovery_v02.md",
+        PACKET / "things_published_mass_model_source_manifest_v02.csv",
+        PACKET / "things_published_mass_model_recovery_audit_v02.csv",
+        PACKET / "things_published_mass_model_recovery_decision_v02.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -416,6 +420,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "convert_things_route2_validation_surface_density_v01.py",
         STUDY / "validate_things_route2_surface_profiles_against_sparc_v01.py",
         STUDY / "audit_things_route2_photometry_policy_v01.py",
+        STUDY / "audit_things_published_mass_model_recovery_v02.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3262,6 +3267,51 @@ def test_things_route2_background_only_photometry_policy_does_not_unblock_solver
     assert "does not validate route 2 stellar photometry" in text
     assert "No velocity component arrays are derived here" in text
     assert "No `W_tau_eff` endpoint is opened here" in text
+
+
+def test_things_published_mass_model_recovery_v02_does_not_create_columns():
+    with (PACKET / "things_published_mass_model_source_manifest_v02.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        sources = {row["SourceID"]: row for row in csv.DictReader(handle)}
+    assert sources["SPARC_ROTMOD_LTG"]["Exists"] == "yes"
+    assert sources["SPARC_TABLE2_MRT"]["Exists"] == "yes"
+    assert sources["SPARC_MASS_MODEL_FIGURES"]["Exists"] == "yes"
+    assert all(
+        row["RedistributionPolicy"] == "raw_source_not_tracked_manifest_only"
+        for row in sources.values()
+    )
+
+    with (PACKET / "things_published_mass_model_recovery_audit_v02.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert set(rows) == {"NGC925", "NGC3031", "NGC3621", "NGC3627", "NGC4736"}
+    assert all(
+        row["RecoveredScoreReadyColumns"] == "no" for row in rows.values()
+    )
+    assert all(
+        row["RecoveryStatus"] == "published_machine_columns_not_recovered"
+        for row in rows.values()
+    )
+    assert all("Vgas" in row["RequiredColumns"] for row in rows.values())
+    assert all("synthetic" not in row["AllowedNextUse"] for row in rows.values())
+
+    with (PACKET / "things_published_mass_model_recovery_decision_v02.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["TPMMR02D01"]["Status"] == "insufficient_for_THINGS_N15"
+    assert decisions["TPMMR02D01"]["Evidence"] == "score_ready_recovered=0"
+    assert decisions["TPMMR02D02"]["Status"] == (
+        "keep_route2_blocked_no_synthetic_mass_models"
+    )
+
+    text = (PACKET / "things_published_mass_model_recovery_v02.md").read_text(
+        encoding="utf-8"
+    )
+    assert "No synthetic mass-model columns are created here" in text
+    assert "No `W_tau_eff` score is computed here" in text
 
 
 def test_public_package_is_english_only():
