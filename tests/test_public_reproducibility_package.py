@@ -287,6 +287,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_solver_validation_fits_v01.md",
         PACKET / "things_route2_solver_validation_fits_header_v01.csv",
         PACKET / "things_route2_solver_validation_fits_gate_v01.csv",
+        PACKET / "things_route2_validation_surface_profiles_v01.md",
+        PACKET / "things_route2_validation_surface_profiles_v01.csv",
+        PACKET / "things_route2_validation_surface_profile_summary_v01.csv",
+        PACKET / "things_route2_validation_surface_profile_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -394,6 +398,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_things_route2_solver_validation_gate_v01.py",
         STUDY / "stage_things_route2_solver_validation_inputs_v01.py",
         STUDY / "audit_things_route2_solver_validation_fits_v01.py",
+        STUDY / "derive_things_route2_validation_surface_profiles_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3048,6 +3053,56 @@ def test_things_route2_solver_validation_fits_audit_blocks_missing_scores():
     )
     assert "No component arrays are derived here" in text
     assert "No missing-galaxy score is computed here" in text
+
+
+def test_things_route2_validation_surface_profiles_are_native_unit_only():
+    with (PACKET / "things_route2_validation_surface_profiles_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) >= 60
+    assert {row["GalaxyName"] for row in rows} == {"NGC2403", "NGC3198", "NGC5055"}
+    assert {row["SourceRole"] for row in rows} == {
+        "THINGS_HI_MOM0",
+        "SINGS_IRAC1_3P6UM",
+    }
+    assert all(row["GitTrackedRaw"] == "no" for row in rows)
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in rows)
+    assert all(
+        row["ValidationUse"] == "surface_profile_extraction_only_not_velocity_solver"
+        for row in rows
+    )
+    units = {(row["SourceRole"], row["InputBUNIT"]) for row in rows}
+    assert ("THINGS_HI_MOM0", "JY/B*M/S") in units
+    assert ("SINGS_IRAC1_3P6UM", "MJy/sr") in units
+
+    with (PACKET / "things_route2_validation_surface_profile_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        summary = list(csv.DictReader(handle))
+    assert len(summary) == 6
+    assert all(row["ProfileStatus"] == "derived_native_unit_profile" for row in summary)
+    assert all(int(row["NProfileBins"]) >= 5 for row in summary)
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in summary)
+
+    with (PACKET / "things_route2_validation_surface_profile_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2VALPROF01"]["Status"] == (
+        "native_unit_surface_profiles_derived_for_three_validation_galaxies"
+    )
+    assert gates["R2VALPROF01"]["CanValidateSolverNow"] == (
+        "not_until_native_profiles_are_converted_to_surface_density"
+    )
+    assert gates["R2VALPROF02"]["Status"] == "velocity_solver_not_run"
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in gates.values())
+
+    text = (PACKET / "things_route2_validation_surface_profiles_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "No velocity component arrays are derived here" in text
+    assert "No `W_tau_eff` endpoint is opened here" in text
 
 
 def test_public_package_is_english_only():
