@@ -1,0 +1,3 @@
+DecisionID,Decision,Status,N,PassCondition,NextAction,InterpretationGuardrail
+YU22R01,directional_signal_status,not_supported,22,"Spearman(LogMaxAfAc,W_tau_eff)>0 and high-vs-low AUC>0.5",treat_as_external_hint_not_validation_if_effect_is_weak,yu2022_alfalfa_af_ac_directional_readout_no_fit_no_claim
+YU22R02,claim_boundary,no_model_validation_claim,22,"Yu Af/Ac is global HI profile asymmetry, not a direct local S_tau field measurement",seek_spatially_resolved_or_held_out_kinematic_proxy,yu2022_alfalfa_af_ac_directional_readout_no_fit_no_claim

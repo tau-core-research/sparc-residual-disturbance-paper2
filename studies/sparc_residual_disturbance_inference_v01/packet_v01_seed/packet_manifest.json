@@ -183,6 +183,10 @@
     "w_tau_eff_field_seed_v01.csv",
     "w_tau_eff_field_seed_v01.md",
     "whisp_vaneymeren2011_overlap.csv",
+    "yu2022_alfalfa_af_ac_directional_readout_v01.md",
+    "yu2022_alfalfa_af_ac_w_tau_eff_decision_v01.csv",
+    "yu2022_alfalfa_af_ac_w_tau_eff_join_v01.csv",
+    "yu2022_alfalfa_af_ac_w_tau_eff_metrics_v01.csv",
     "yu2022_alfalfa_download_manifest_v01.csv",
     "yu2022_alfalfa_expanded_w_tau_eff_decision_v01.csv",
     "yu2022_alfalfa_expanded_w_tau_eff_point_trace_v01.csv",
@@ -204,7 +208,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "yu2022_alfalfa_af_ac_directional_readout",
+  "paper2_next_gate": "spatially_resolved_or_held_out_kinematic_proxy_validation",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -249,5 +253,6 @@
   "reynolds2020_sparc_rotmod_availability_status": "current_local_rotmod_overlap_below_minimum_n",
   "yu2022_alfalfa_coverage_status": "promising_for_predeclared_seed_expansion_no_directional_readout",
   "yu2022_alfalfa_seed_expansion_freeze_status": "candidate_queue_frozen_no_directional_readout",
-  "yu2022_alfalfa_expanded_w_tau_eff_scoring_status": "expanded_scores_committed_directional_readout_ready_after_commit"
+  "yu2022_alfalfa_expanded_w_tau_eff_scoring_status": "expanded_scores_committed_directional_readout_ready_after_commit",
+  "yu2022_alfalfa_af_ac_directional_readout_status": "weak_external_source_side_directional_hint_not_validation"
 }

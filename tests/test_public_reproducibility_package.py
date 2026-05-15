@@ -218,6 +218,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "yu2022_alfalfa_expanded_w_tau_eff_scores_v01.csv",
         PACKET / "yu2022_alfalfa_expanded_w_tau_eff_summary_v01.csv",
         PACKET / "yu2022_alfalfa_expanded_w_tau_eff_decision_v01.csv",
+        PACKET / "yu2022_alfalfa_af_ac_directional_readout_v01.md",
+        PACKET / "yu2022_alfalfa_af_ac_w_tau_eff_join_v01.csv",
+        PACKET / "yu2022_alfalfa_af_ac_w_tau_eff_metrics_v01.csv",
+        PACKET / "yu2022_alfalfa_af_ac_w_tau_eff_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -307,6 +311,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "audit_yu2022_alfalfa_profile_asymmetry_coverage_v01.py",
         STUDY / "make_yu2022_alfalfa_seed_expansion_freeze_v01.py",
         STUDY / "score_yu2022_alfalfa_expanded_w_tau_eff_v01.py",
+        STUDY / "evaluate_yu2022_alfalfa_af_ac_directional_readout_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2108,6 +2113,50 @@ def test_yu2022_alfalfa_expanded_w_tau_eff_scoring_is_frozen_before_directional_
     )
     assert "It does not compute the Af/Ac directional readout." in text
     assert "Existing `W_tau_eff` seed overlaps are retained as anchors without refit." in text
+
+
+def test_yu2022_alfalfa_af_ac_directional_readout_is_not_supported():
+    with (PACKET / "yu2022_alfalfa_af_ac_w_tau_eff_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 22
+    assert collections.Counter(row["ProfileAsymmetryTier"] for row in rows) == {
+        "low_profile_asymmetry": 12,
+        "medium_profile_asymmetry": 4,
+        "high_profile_asymmetry": 6,
+    }
+    assert {row["ReadoutUse"] for row in rows} == {
+        "frozen_yu2022_af_ac_direction_vs_committed_w_tau_eff_score"
+    }
+
+    with (PACKET / "yu2022_alfalfa_af_ac_w_tau_eff_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_directional_readout_rows"]["Value"] == "22"
+    assert (
+        metrics["coverage_directional_readout_rows"]["SecondaryValue"]
+        == "low=12;medium=4;high=6"
+    )
+    assert metrics["spearman_LogMaxAfAc_vs_w_tau_score"]["Value"] == "0.013023835"
+    assert metrics["pearson_LogMaxAfAc_vs_w_tau_score"]["Value"] == "0.010298371"
+    assert metrics["auc_high_vs_low_profile_asymmetry_score"]["Value"] == "0.472222222"
+    assert metrics["median_score_low_profile_asymmetry"]["Value"] == "0.397727273"
+    assert metrics["median_score_high_profile_asymmetry"]["Value"] == "0.388636363"
+
+    with (PACKET / "yu2022_alfalfa_af_ac_w_tau_eff_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["YU22R01"]["Status"] == "not_supported"
+    assert decisions["YU22R02"]["Status"] == "no_model_validation_claim"
+
+    text = (PACKET / "yu2022_alfalfa_af_ac_directional_readout_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "It does not fit coefficients and does not validate a Tau Core field model." in text
+    assert "This is a source-side external hint, not a validation." in text
 
 
 def test_public_package_is_english_only():
