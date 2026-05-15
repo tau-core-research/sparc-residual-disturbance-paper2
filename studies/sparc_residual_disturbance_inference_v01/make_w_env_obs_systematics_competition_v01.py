@@ -22,6 +22,8 @@ P01_METRICS = PACKET / "proxy_direction_w_tau_eff_metric_summary_v01.csv"
 P07_METRICS = PACKET / "p07_whisp_w_tau_eff_holdout_metric_summary_v01.csv"
 P05_METRICS = PACKET / "p05_things_non_circular_w_tau_eff_control_metrics_v01.csv"
 P05_DECISIONS = PACKET / "p05_things_non_circular_w_tau_eff_control_decision_v01.csv"
+P09_METRICS = PACKET / "p09_observability_decomposition_metrics_v01.csv"
+P09_DECISIONS = PACKET / "p09_observability_decomposition_decision_v01.csv"
 
 THINGS_HARMONIC_SRC = TAU_PACKET / "things_published_harmonic_residual_joined_galaxies.csv"
 LITTLE_PRESSURE_SRC = TAU_PACKET / "littlethings_pressure_support_galaxy_summary.csv"
@@ -160,6 +162,9 @@ def build_matrix() -> list[dict[str, str]]:
     p05_pearson = optional_metric_value(P05_METRICS, "pearson_p05_burden_vs_w_tau_score")
     p05_auc = optional_metric_value(P05_METRICS, "auc_high_vs_low_p05_burden")
     p05_status = optional_decision_status(P05_DECISIONS, "P05D01")
+    p09_status = optional_decision_status(P09_DECISIONS, "P09D01")
+    p09_recon_auc = optional_metric_value(P09_METRICS, "auc_high_vs_low_reconstruction_risk")
+    p09_geometry_auc = optional_metric_value(P09_METRICS, "auc_high_vs_low_observer_geometry")
     if p05_pearson and p05_auc:
         p05_readout = f"Pearson={p05_pearson};AUC={p05_auc};Status={p05_status}"
         p05_decision = "does_not_absorb_direction_in_small_overlap"
@@ -168,6 +173,17 @@ def build_matrix() -> list[dict[str, str]]:
         p05_readout = "published_harmonic_columns_available_no_regression"
         p05_decision = "must_control_before_velocity_formula"
         p05_required = "join_P05_to_W_tau_eff_on_overlap_without_using_residual_columns"
+    if p09_recon_auc and p09_geometry_auc:
+        p09_readout = (
+            f"ReconstructionRiskAUC={p09_recon_auc};"
+            f"ObserverGeometryAUC={p09_geometry_auc};Status={p09_status}"
+        )
+        p09_decision = "ordinary_observability_risk_competes_with_signal"
+        p09_required = "distance_resolution_environment_join_before_formula"
+    else:
+        p09_readout = "binned_summary_available_not_galaxy_level_competition"
+        p09_decision = "blocks_attribution_until_galaxy_level_join"
+        p09_required = "galaxy_level_inclination_resolution_distance_join"
     return [
         {
             "ControlID": "S01",
@@ -220,9 +236,9 @@ def build_matrix() -> list[dict[str, str]]:
             "CompetitionRole": "mandatory_observability_control",
             "CanCompeteNow": "summary_only",
             "MainThreat": "deprojection_edge_on_and_observability_bias_can_drive_apparent_disturbance",
-            "CurrentReadout": "binned_summary_available_not_galaxy_level_competition",
-            "Decision": "blocks_attribution_until_galaxy_level_join",
-            "RequiredNextControl": "galaxy_level_inclination_resolution_distance_join",
+            "CurrentReadout": p09_readout,
+            "Decision": p09_decision,
+            "RequiredNextControl": p09_required,
             "InterpretationGuardrail": GUARDRAIL,
         },
         {
@@ -332,6 +348,8 @@ def build_coverage(
 def build_readiness() -> list[dict[str, str]]:
     p05_status = optional_decision_status(P05_DECISIONS, "P05D01")
     p05_complete = p05_status == "does_not_absorb_direction_in_small_overlap"
+    p09_status = optional_decision_status(P09_DECISIONS, "P09D01")
+    p09_complete = p09_status == "ordinary_observability_risk_competes_with_signal"
     return [
         {
             "DecisionID": "D01",
@@ -345,17 +363,27 @@ def build_readiness() -> list[dict[str, str]]:
         {
             "DecisionID": "D02",
             "Decision": "systematics_competition",
-            "Status": "open_blocker_for_formula" if not p05_complete else "partially_reduced_blocker",
+            "Status": (
+                "open_blocker_for_formula"
+                if not p05_complete
+                else "ordinary_observability_risk_now_primary_blocker"
+                if p09_complete
+                else "partially_reduced_blocker"
+            ),
             "Rationale": (
                 "Non-circular motion, pressure support, linewidth stress, and inclination/observability are not yet defeated at galaxy level."
                 if not p05_complete
                 else "P05 does not absorb the direction in the seven-galaxy overlap, but inclination/observability remains unresolved."
+                if not p09_complete
+                else "P05 does not absorb the direction, but P09 shows ordinary reconstruction/observability risk competes with the score."
             ),
             "Blocks": "S_tau_full_formula_freeze;field_map_attribution",
             "NextAction": (
                 "run_P05_non_circular_overlap_control_before_any_velocity_endpoint"
                 if not p05_complete
                 else "run_P09_galaxy_level_inclination_observability_join"
+                if not p09_complete
+                else "run_distance_resolution_environment_join_before_formula"
             ),
             "InterpretationGuardrail": GUARDRAIL,
         },
@@ -376,12 +404,16 @@ def build_readiness() -> list[dict[str, str]]:
                 "The safest next gate is a small but explicit P05 overlap control using only published harmonic non-circular columns."
                 if not p05_complete
                 else "The P05 overlap control is complete; the remaining key gate is galaxy-level observability/inclination."
+                if not p09_complete
+                else "P09 galaxy-level observability decomposition is complete; distance, resolution, and environment must be joined before any formula endpoint."
             ),
             "Blocks": "none_for_control_gate",
             "NextAction": (
                 "P05_non_circular_overlap_control_before_S_tau_formula"
                 if not p05_complete
                 else "P09_galaxy_level_inclination_observability_join"
+                if not p09_complete
+                else "distance_resolution_environment_join_before_formula"
             ),
             "InterpretationGuardrail": GUARDRAIL,
         },
@@ -457,11 +489,12 @@ def update_manifest() -> None:
     manifest["w_env_obs_systematics_competition_status"] = (
         "systematics_competition_matrix_complete_no_attribution"
     )
-    next_gate = (
-        "P09_galaxy_level_inclination_observability_join"
-        if P05_DECISIONS.exists()
-        else "P05_non_circular_overlap_control_before_S_tau_formula"
-    )
+    if P09_DECISIONS.exists():
+        next_gate = "distance_resolution_environment_join_before_formula"
+    elif P05_DECISIONS.exists():
+        next_gate = "P09_galaxy_level_inclination_observability_join"
+    else:
+        next_gate = "P05_non_circular_overlap_control_before_S_tau_formula"
     manifest["paper2_next_gate"] = next_gate
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 

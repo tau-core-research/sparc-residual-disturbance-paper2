@@ -132,6 +132,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "p05_things_non_circular_w_tau_eff_control_join_v01.csv",
         PACKET / "p05_things_non_circular_w_tau_eff_control_metrics_v01.csv",
         PACKET / "p05_things_non_circular_w_tau_eff_control_decision_v01.csv",
+        PACKET / "p09_observability_decomposition_v01.md",
+        PACKET / "p09_observability_decomposition_join_v01.csv",
+        PACKET / "p09_observability_decomposition_metrics_v01.csv",
+        PACKET / "p09_observability_decomposition_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -199,6 +203,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_p07_whisp_holdout_v01.py",
         STUDY / "make_w_env_obs_systematics_competition_v01.py",
         STUDY / "evaluate_p05_things_non_circular_control_v01.py",
+        STUDY / "evaluate_p09_observability_decomposition_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -879,7 +884,11 @@ def test_w_env_obs_systematics_competition_blocks_attribution_until_controls():
     assert matrix["S01"]["Decision"] == "does_not_absorb_direction_in_small_overlap"
     assert matrix["S04"]["ProxyID"] == "P09"
     assert matrix["S04"]["CanCompeteNow"] == "summary_only"
-    assert matrix["S04"]["Decision"] == "blocks_attribution_until_galaxy_level_join"
+    assert matrix["S04"]["CurrentReadout"] == (
+        "ReconstructionRiskAUC=0.750000000;ObserverGeometryAUC=0.389328063;"
+        "Status=ordinary_observability_risk_competes_with_signal"
+    )
+    assert matrix["S04"]["Decision"] == "ordinary_observability_risk_competes_with_signal"
     assert matrix["S05"]["CurrentReadout"] == "AUC=0.774159664"
     assert matrix["S06"]["CurrentReadout"] == "AUC=0.760000000;Pearson=0.441950994"
     assert {row["InterpretationGuardrail"] for row in matrix.values()} == {
@@ -923,9 +932,9 @@ def test_w_env_obs_systematics_competition_blocks_attribution_until_controls():
     ) as handle:
         readiness = {row["DecisionID"]: row for row in csv.DictReader(handle)}
     assert readiness["D01"]["Status"] == "supported_but_not_attributed"
-    assert readiness["D02"]["Status"] == "partially_reduced_blocker"
+    assert readiness["D02"]["Status"] == "ordinary_observability_risk_now_primary_blocker"
     assert readiness["D03"]["Status"] == "blocked"
-    assert readiness["D04"]["NextAction"] == "P09_galaxy_level_inclination_observability_join"
+    assert readiness["D04"]["NextAction"] == "distance_resolution_environment_join_before_formula"
 
     text = (PACKET / "w_env_obs_systematics_competition_v01.md").read_text(
         encoding="utf-8"
@@ -979,6 +988,49 @@ def test_p05_things_non_circular_control_is_small_overlap_and_does_not_absorb_si
     )
     assert "does not use velocity residuals as predictors" in text
     assert "cannot by itself fit or reject a Tau Core formula" in text
+
+
+def test_p09_observability_decomposition_keeps_observer_channel_but_flags_reconstruction_risk():
+    with (PACKET / "p09_observability_decomposition_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 45
+    assert {row["ReadoutUse"] for row in rows} == {
+        "P09_observability_decomposition_no_velocity_endpoint"
+    }
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "p09_observability_decomposition_not_bias_erasure_not_attribution"
+    }
+    assert {row["ResidualBlindCheck"] for row in rows} == {"true"}
+    assert {row["Class"] for row in rows} == {"A", "C"}
+
+    with (PACKET / "p09_observability_decomposition_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "45"
+    assert metrics["pearson_observer_geometry_vs_w_tau_score"]["Value"] == "-0.225721262"
+    assert metrics["auc_high_vs_low_observer_geometry"]["Value"] == "0.389328063"
+    assert metrics["pearson_reconstruction_risk_vs_w_tau_score"]["Value"] == "0.289724767"
+    assert metrics["spearman_reconstruction_risk_vs_w_tau_score"]["Value"] == "0.333959220"
+    assert metrics["auc_high_vs_low_reconstruction_risk"]["Value"] == "0.750000000"
+    assert metrics["median_score_by_ReconstructionRiskSplit_high"]["Value"] == "0.659090910"
+    assert metrics["median_score_by_ReconstructionRiskSplit_low"]["Value"] == "0.327272727"
+
+    with (PACKET / "p09_observability_decomposition_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["P09D01"]["Status"] == "ordinary_observability_risk_competes_with_signal"
+    assert decisions["P09D01"]["NextAction"] == "do_not_open_velocity_endpoint_before_distance_resolution_regression"
+    assert decisions["P09D02"]["Status"] == "decompose_observability_do_not_delete_it"
+
+    text = (PACKET / "p09_observability_decomposition_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "not as something to erase automatically" in text
+    assert "observer geometry should not be dismissed as mere nuisance" in text
 
 
 def test_public_package_is_english_only():

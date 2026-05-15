@@ -14,7 +14,7 @@ These are useful candidate signals, but they do not attribute the residual-infer
 - P05 non-circular motion control: `does_not_absorb_direction_in_small_overlap`.
 - P06 pressure-support control: control-only until overlap expands.
 - P08 HALOGAS linewidth stress: retain as a weak or negative control.
-- P09 inclination/observability: `blocks_attribution_until_galaxy_level_join`.
+- P09 inclination/observability: `ordinary_observability_risk_competes_with_signal`.
 
 ## Decision
 
