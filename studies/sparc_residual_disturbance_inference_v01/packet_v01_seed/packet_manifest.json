@@ -175,6 +175,10 @@
     "things_published_mass_model_recovery_v02.md",
     "things_published_mass_model_source_manifest_v02.csv",
     "things_route2_component_derivation_readiness_gate_v01.csv",
+    "things_route2_expansion_claim_boundary_v01.csv",
+    "things_route2_expansion_closure_decision_v01.csv",
+    "things_route2_expansion_closure_evidence_v01.csv",
+    "things_route2_expansion_closure_v01.md",
     "things_route2_fits_header_readiness_v01.csv",
     "things_route2_fits_readiness_v01.md",
     "things_route2_frozen_rules_v01.csv",
@@ -295,7 +299,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "route2_contact_authors_or_find_supplementary_rotmod_tables",
+  "paper2_next_gate": "return_to_non_route2_paper2_roadmap_or_external_validation_sources",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -363,5 +367,6 @@
   "things_route2_validation_surface_density_status": "surface_density_proxy_profiles_converted_no_velocity_solver_no_scores",
   "things_route2_velocity_solver_validation_status": "blocked_surface_profile_reference_check_failed_no_scores",
   "things_route2_photometry_policy_status": "background_only_policy_failed_sparc_reference_check_solver_blocked",
-  "things_published_mass_model_recovery_v02_status": "official_machine_sources_checked_missing_columns_not_recovered_no_scores"
+  "things_published_mass_model_recovery_v02_status": "official_machine_sources_checked_missing_columns_not_recovered_no_scores",
+  "things_route2_expansion_status": "closed_not_score_ready_no_synthetic_mass_models_no_scores"
 }

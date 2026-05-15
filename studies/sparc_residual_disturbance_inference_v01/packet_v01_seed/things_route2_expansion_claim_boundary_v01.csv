@@ -1,0 +1,5 @@
+ClaimID,Claim,Status,Replacement,Guardrail
+R2CLAIM01,Route2 produced score-ready missing THINGS galaxies.,forbidden,Route2 produced a reproducible negative audit and remains not score-ready.,route2_expansion_closed_not_score_ready_no_synthetic_mass_models
+R2CLAIM02,The velocity solver was validated.,forbidden,Velocity-solver validation was blocked before solver execution by failed stellar surface-profile checks.,route2_expansion_closed_not_score_ready_no_synthetic_mass_models
+R2CLAIM03,THINGS was expanded to N>=15.,forbidden,THINGS remains below the frozen N>=15 external-validation gate.,route2_expansion_closed_not_score_ready_no_synthetic_mass_models
+R2CLAIM04,Route2 disproves the broader W_tau_eff direction.,forbidden,Route2 only shows that this reconstruction path is not validated for missing THINGS mass-model recovery.,route2_expansion_closed_not_score_ready_no_synthetic_mass_models

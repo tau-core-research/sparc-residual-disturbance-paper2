@@ -309,6 +309,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_published_mass_model_source_manifest_v02.csv",
         PACKET / "things_published_mass_model_recovery_audit_v02.csv",
         PACKET / "things_published_mass_model_recovery_decision_v02.csv",
+        PACKET / "things_route2_expansion_closure_v01.md",
+        PACKET / "things_route2_expansion_closure_decision_v01.csv",
+        PACKET / "things_route2_expansion_closure_evidence_v01.csv",
+        PACKET / "things_route2_expansion_claim_boundary_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -421,6 +425,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "validate_things_route2_surface_profiles_against_sparc_v01.py",
         STUDY / "audit_things_route2_photometry_policy_v01.py",
         STUDY / "audit_things_published_mass_model_recovery_v02.py",
+        STUDY / "close_things_route2_expansion_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3312,6 +3317,43 @@ def test_things_published_mass_model_recovery_v02_does_not_create_columns():
     )
     assert "No synthetic mass-model columns are created here" in text
     assert "No `W_tau_eff` score is computed here" in text
+
+
+def test_things_route2_expansion_is_closed_not_score_ready():
+    with (PACKET / "things_route2_expansion_closure_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["R2CLOSED01"]["Status"] == "closed_not_score_ready"
+    assert decisions["R2CLOSED01"]["ForbiddenUse"] == (
+        "score_missing_THINGS_galaxies_from_route2_outputs"
+    )
+    assert decisions["R2CLOSED02"]["Status"] == "not_reached"
+    assert decisions["R2CLOSED02"]["ForbiddenUse"] == (
+        "claim_THINGS_N15_or_paper_grade_external_validation_from_route2"
+    )
+
+    with (PACKET / "things_route2_expansion_closure_evidence_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        evidence = {row["EvidenceID"]: row for row in csv.DictReader(handle)}
+    assert evidence["R2CLOSE03"]["Status"] == "failed"
+    assert evidence["R2CLOSE04"]["Status"] == "failed"
+    assert evidence["R2CLOSE05"]["Status"] == "failed"
+
+    with (PACKET / "things_route2_expansion_claim_boundary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        boundaries = {row["ClaimID"]: row for row in csv.DictReader(handle)}
+    assert all(row["Status"] == "forbidden" for row in boundaries.values())
+    assert "THINGS remains below" in boundaries["R2CLAIM03"]["Replacement"]
+
+    text = (PACKET / "things_route2_expansion_closure_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Route 2 is closed as not score-ready" in text
+    assert "No route2 `W_tau_eff` score is computed here" in text
+    assert "No synthetic mass-model columns are created here" in text
 
 
 def test_public_package_is_english_only():
