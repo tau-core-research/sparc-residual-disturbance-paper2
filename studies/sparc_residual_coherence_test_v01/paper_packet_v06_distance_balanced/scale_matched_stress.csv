@@ -1,0 +1,7 @@
+control,covariate,n_pairs,median_A_covariate,median_C_covariate,median_abs_delta,caliper,effect,p,ci95_low,ci95_high,detail
+greedy_unique_sparc_distance_mpc_matched_pairs,sparc_distance_mpc,17,13.8,9.9,0.35999999999999943,,0.08247321987990427,0.033596640335966405,-0.030176000759058866,0.16473863072661002,unit=Mpc; all greedy unique pairs
+optimal_ordered_sparc_distance_mpc_matched_pairs,sparc_distance_mpc,17,13.8,9.9,0.5299999999999994,,0.08247321987990427,0.036096390360963904,-0.013227122559131207,0.16351927987147558,unit=Mpc; minimum-total-distance ordered 1D matching
+sparc_distance_mpc_matched_pairs_caliper,sparc_distance_mpc,13,9.0,8.64,0.13999999999999968,2 Mpc,0.11949042119802622,0.0897910208979102,-0.018779584122188525,0.1670613480665738,strict caliper subset; small-n support if coverage is low
+greedy_unique_hecate_stellar_mass_log_matched_pairs,hecate_stellar_mass_log,10,9.956,9.042000000000002,0.6949999999999994,,0.1392984541591043,0.012198780121987801,0.05342236708046917,0.21203419079078495,unit=dex; all greedy unique pairs
+optimal_ordered_hecate_stellar_mass_log_matched_pairs,hecate_stellar_mass_log,10,9.956,9.042000000000002,0.9669999999999996,,0.12823299925373666,0.0143985601439856,0.060917369144494304,0.2114905848231288,unit=dex; minimum-total-distance ordered 1D matching
+hecate_stellar_mass_log_matched_pairs_caliper,hecate_stellar_mass_log,5,9.728,9.357,0.25,0.5 dex,0.08603265696493219,0.3047695230476952,-0.1023681975591558,0.20779704283561032,strict caliper subset; small-n support if coverage is low

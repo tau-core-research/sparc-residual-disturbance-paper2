@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this reproducibility package, please cite the archived release and the manuscript."
+title: "SPARC Residual-Disturbance Paper 2 Reproducibility Package"
+type: software
+authors:
+  - family-names: "Olcsak"
+    given-names: "Jozsef"
+repository-code: "https://github.com/jolcsak/sparc-residual-disturbance-paper2"
+abstract: "Public reproducibility package for residual-shape inference of structural disturbance in SPARC rotation curves."
+keywords:
+  - SPARC
+  - galaxy rotation curves
+  - residual diagnostics
+  - structural disturbance
+  - reproducibility
+license: MIT
+version: "0.1.0"
+date-released: "2026-05-15"
+preferred-citation:
+  type: article
+  title: "Residual-shape inference of structural disturbance in SPARC rotation curves: a diagnostic audit"
+  authors:
+    - family-names: "Olcsak"
+      given-names: "Jozsef"
+  year: 2026
+  notes: "Working manuscript packet; replace with journal or preprint DOI when available."

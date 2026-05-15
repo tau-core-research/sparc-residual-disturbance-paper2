@@ -1,0 +1,5 @@
+FigureID,Content,SourceFiles,Purpose,RequiredBeforeSubmission
+F1,Projection_RMS distributions for A and C classes with threshold,residual_feature_table.csv;paper2_calibration_uncertainty.csv,show_primary_class_separation,yes
+F2,"AUC comparison across Projection, MOND, RAR, and Newtonian residual families",paper2_baseline_family_loogo.csv;paper2_newtonian_scope.csv,show_low_acceleration_family_not_projection_uniqueness,yes
+F3,Confusion/error audit with false-positive A-as-C and false-negative C-as-A galaxies,residual_inference_projection_rms_error_audit.csv;residual_inference_projection_rms_error_summary.csv,make_failure_modes_reviewable,yes
+F4,Distance-matched stress summary,paper2_observability_stress.csv,show_observability_caveat_transparently,optional_if_table_is_clear

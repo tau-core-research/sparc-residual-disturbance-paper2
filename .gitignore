@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+.DS_Store
+data/raw/
+data/external/SPARC_Table1.txt
+data/sparc/Rotmod_LTG/
+arxiv/*.aux
+arxiv/*.log
+arxiv/*.out

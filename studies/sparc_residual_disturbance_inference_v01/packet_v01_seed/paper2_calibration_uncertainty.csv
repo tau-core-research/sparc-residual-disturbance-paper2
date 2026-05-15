@@ -1,0 +1,2 @@
+CalibrationID,Predictor,NGalaxies,ObservedAUC,BootstrapN,RandomSeed,AUC_CI95Low,AUC_CI95High,Threshold,ThresholdAccuracyInSample,InterpretationGuardrail
+projection_rms_auc_bootstrap,Projection_RMS,45,0.771008403,2000,20260516,0.600802469,0.909100262,0.166489797,0.755555556,bootstrap_uncertainty_not_external_validation

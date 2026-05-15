@@ -1,0 +1,4 @@
+Predictor,Validation,NGalaxies,Accuracy,AUC_C_higher,PredictedC,TrueC,FalsePositiveAasC,FalseNegativeCasA,PrecisionC,RecallC,InterpretationGuardrail
+Projection_RMS,leave_one_galaxy_out_median_midpoint_threshold,45,0.755555556,0.771008403,23,28,3,8,0.869565217,0.714285714,first_heldout_sanity_check_not_paper_grade_classifier
+Projection_LowAccelerationMean,leave_one_galaxy_out_median_midpoint_threshold,45,0.755555556,0.762605042,23,28,3,8,0.869565217,0.714285714,first_heldout_sanity_check_not_paper_grade_classifier
+ResidualDisturbanceScore_v01,leave_one_galaxy_out_median_midpoint_threshold,45,0.577777778,0.663865546,23,28,7,12,0.695652174,0.571428571,first_heldout_sanity_check_not_paper_grade_classifier
