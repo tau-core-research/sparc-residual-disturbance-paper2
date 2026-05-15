@@ -185,6 +185,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_source_side_history
 
 This inventory lists residual-free proxy families and systematics controls. It does not evaluate a velocity endpoint or select a rule.
 
+The first frozen `W_env_obs` proxy design is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/freeze_w_env_obs_proxy_design_v01.py
+```
+
+This design freezes P01 as the broad prior, P07 as the source-family holdout, P03/P04 as small sanity checks, and P09 as a mandatory systematics control. It blocks velocity endpoint readouts until a formula is frozen.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

@@ -83,6 +83,10 @@
     "things_source_s_tau_velocity_metric_summary.csv",
     "things_source_s_tau_velocity_point_readout.csv",
     "things_source_s_tau_velocity_readout.md",
+    "w_env_obs_proxy_design_v01.csv",
+    "w_env_obs_proxy_design_v01.md",
+    "w_env_obs_proxy_endpoint_plan_v01.csv",
+    "w_env_obs_proxy_rule_freeze_v01.csv",
     "w_tau_eff_branch_claim_boundary_v01.csv",
     "w_tau_eff_branch_closure_audit_v01.md",
     "w_tau_eff_branch_failure_modes_v01.csv",
@@ -96,7 +100,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "freeze_primary_source_side_w_env_obs_proxy_design",
+  "paper2_next_gate": "proxy_direction_vs_w_tau_eff_candidate_score",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -114,5 +118,6 @@
   "w_tau_eff_field_seed_status": "residual_inferred_effective_weight_seed_complete",
   "w_tau_eff_branch_closure_status": "closed_for_definition_seed_not_for_attribution",
   "tau_core_weight_model_gate_status": "local_plus_environment_observer_weight_model_target_frozen",
-  "source_side_history_proxy_inventory_status": "proxy_inventory_complete_no_endpoint_readout"
+  "source_side_history_proxy_inventory_status": "proxy_inventory_complete_no_endpoint_readout",
+  "w_env_obs_proxy_design_status": "primary_source_side_proxy_design_frozen_no_endpoint"
 }

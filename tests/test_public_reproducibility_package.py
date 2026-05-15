@@ -109,6 +109,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "source_side_history_proxy_inventory_v01.md",
         PACKET / "source_side_history_proxy_inventory_v01.csv",
         PACKET / "source_side_history_proxy_readiness_v01.csv",
+        PACKET / "w_env_obs_proxy_design_v01.md",
+        PACKET / "w_env_obs_proxy_design_v01.csv",
+        PACKET / "w_env_obs_proxy_rule_freeze_v01.csv",
+        PACKET / "w_env_obs_proxy_endpoint_plan_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -171,6 +175,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_w_tau_eff_branch_closure_audit_v01.py",
         STUDY / "make_tau_core_weight_model_gate_v01.py",
         STUDY / "make_source_side_history_proxy_inventory_v01.py",
+        STUDY / "freeze_w_env_obs_proxy_design_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -726,6 +731,47 @@ def test_source_side_history_proxy_inventory_has_no_endpoint_readout():
     assert "No velocity endpoint is evaluated here" in text
     assert "Ready broad/holdout proxy IDs: P01, P07" in text
     assert "Do not tune a velocity formula from this inventory" in text
+
+
+def test_w_env_obs_proxy_design_freezes_roles_and_blocks_velocity_endpoint():
+    with (PACKET / "w_env_obs_proxy_design_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        design = {row["DesignID"]: row for row in csv.DictReader(handle)}
+    assert design["D01"]["ProxyID"] == "P01"
+    assert design["D01"]["Role"] == "primary_broad_prior"
+    assert design["D02"]["ProxyID"] == "P07"
+    assert design["D02"]["Role"] == "source_family_holdout"
+    assert design["D03"]["ProxyID"] == "P03"
+    assert design["D04"]["ProxyID"] == "P04"
+    assert design["D05"]["ProxyID"] == "P09"
+    assert "TPG_residual" in design["D01"]["ForbiddenInputs"]
+    assert {row["Guardrail"] for row in design.values()} == {
+        "proxy_design_frozen_no_endpoint_readout_no_rule_fitting"
+    }
+
+    with (PACKET / "w_env_obs_proxy_rule_freeze_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rules = {row["RuleStep"]: row for row in csv.DictReader(handle)}
+    assert rules["R01"]["FrozenChoice"] == "P01_primary"
+    assert rules["R02"]["FrozenChoice"] == "direction_only_no_coefficients"
+    assert rules["R03"]["FrozenChoice"] == "P07_holdout"
+    assert rules["R05"]["FrozenChoice"] == "endpoint_blocked"
+
+    with (PACKET / "w_env_obs_proxy_endpoint_plan_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        endpoints = {row["EndpointGate"]: row for row in csv.DictReader(handle)}
+    assert endpoints["E01"]["AllowedAfterThisDesign"] == "yes_next"
+    assert endpoints["E02"]["AllowedAfterThisDesign"] == "yes_after_E01"
+    assert endpoints["E03"]["AllowedAfterThisDesign"] == "no"
+    assert endpoints["E03"]["Endpoint"] == "velocity_readout_with_S_tau_full"
+
+    text = (PACKET / "w_env_obs_proxy_design_v01.md").read_text(encoding="utf-8")
+    assert "Primary broad prior: `P01`" in text
+    assert "No `S_tau_full` coefficient selection" in text
+    assert "No velocity endpoint readout" in text
 
 
 def test_public_package_is_english_only():
