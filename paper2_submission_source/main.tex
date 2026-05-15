@@ -123,6 +123,8 @@ The error audit is retained because a useful diagnostic must show where it fails
 
 These failures are not relabeling evidence. They are targets for follow-up inspection, especially where residual morphology, inclination, radial coverage, and H\,I kinematic asymmetry disagree.
 
+CamB is the most important failure case. It is externally labeled A from regular-kinematics evidence, but it has Projection RMS near 0.96 and only nine rotation-curve points. The paper therefore treats CamB as a named residual-hard outlier rather than letting it disappear inside summary statistics.
+
 \begin{table}[H]
 \centering
 \caption{B-class sensitivity check. B systems are not used as primary labels.}
@@ -131,6 +133,21 @@ These failures are not relabeling evidence. They are targets for follow-up inspe
 $N_B$ & Threshold & B C-like & B A-like & Interpretation\\
 \midrule
 28 & 0.166489797 & 13 & 15 & descriptive only\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Named outliers and failure-case inspection.}
+\footnotesize
+\begin{tabular}{lllrrrrp{0.27\linewidth}}
+\toprule
+Galaxy & Class & Error & Score & Points & Distance & Incl. & Inspection note\\
+\midrule
+CamB & A & A as C & 0.963585384 & 9 & 3.36 & 65.0 & dominant A-class failure; low point count; very high low-acceleration residual burden\\
+UGC05764 & A & A as C & 0.329468364 & 10 & 7.47 & 60.0 & secondary A-class failure; compact 10-point curve; high residual margin\\
+NGC5585 & A & A as C & 0.173858350 & 24 & 7.06 & 51.0 & near-threshold A-class failure; external low-asymmetry evidence but residual just above gate\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -213,6 +230,32 @@ The next paper-grade step is a held-out external source-family test with $N\geq1
 \centering
 \includegraphics[width=0.58\linewidth]{figures/paper2_projection_roc.pdf}
 \caption{ROC curve for the Projection RMS score using the frozen A/C labels.}
+\end{figure}
+
+\section{Stability and effect-size appendix}
+
+\begin{table}[H]
+\centering
+\caption{Rank and stability effect-size summaries for Projection RMS.}
+\footnotesize
+\begin{tabular}{lll}
+\toprule
+Metric & Value & Secondary value\\
+\midrule
+Mann--Whitney $U$ & 367.000000000 & nA=17;nC=28\\
+Cliff's $\delta$ & 0.542016807 & positive means C scores tend higher\\
+AUC minus chance & 0.271008403 & auc=0.771008403\\
+Bootstrap AUC median & 0.775210084 & p05=0.630252101;p95=0.894957983\\
+Label-shuffle AUC median & 0.497899160 & p95=0.634453782;observed=0.771008403\\
+AUC without CamB & 0.819196429 & A-class outlier removed for sensitivity only\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\linewidth]{figures/paper2_auc_stability_distributions.pdf}
+\caption{Bootstrap and shuffled-label AUC distributions for the Projection RMS endpoint.}
 \end{figure}
 
 \appendix

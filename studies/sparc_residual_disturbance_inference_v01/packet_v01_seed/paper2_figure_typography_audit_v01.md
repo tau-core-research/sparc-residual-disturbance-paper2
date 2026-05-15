@@ -8,6 +8,7 @@ All submission-candidate figures are regenerated as vector PDF files under `pape
 - `paper2_distance_stress.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `paper2_observability_stress.csv`.
 - `paper2_confusion_matrix.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `residual_inference_loogo_predictions.csv`.
 - `paper2_projection_roc.pdf`: appendix_candidate; short_descriptive_caption_in_latex; source `residual_inference_loogo_predictions.csv`.
+- `paper2_auc_stability_distributions.pdf`: appendix_candidate; short_descriptive_caption_in_latex; source `residual_feature_table.csv;paper2_shuffled_label_null.csv`.
 
 The figures remain reproducible from packet tables and do not introduce new data or endpoint tuning.
 

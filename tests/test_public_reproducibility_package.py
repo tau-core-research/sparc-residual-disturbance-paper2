@@ -29,6 +29,7 @@ def test_publication_repo_checklist_files_exist():
         ROOT / "paper2_submission_source/figures/paper2_confusion_matrix.pdf",
         ROOT / "paper2_submission_source/figures/paper2_projection_roc.pdf",
         ROOT / "paper2_submission_source/figures/paper2_distance_stress.pdf",
+        ROOT / "paper2_submission_source/figures/paper2_auc_stability_distributions.pdf",
         ROOT / "figures/README.md",
         ROOT / "tests",
         STUDY / "README.md",
@@ -78,6 +79,8 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "paper2_external_proxy_gate_table_v01.csv",
         PACKET / "paper2_b_class_sensitivity_v01.csv",
         PACKET / "paper2_observability_covariate_appendix_v01.csv",
+        PACKET / "paper2_outlier_failure_case_appendix_v01.csv",
+        PACKET / "paper2_stability_effect_size_v01.csv",
         PACKET / "paper2_final_metric_table.csv",
         PACKET / "paper2_readiness_table.csv",
         PACKET / "paper2_figure_plan.csv",
@@ -3584,6 +3587,9 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
     assert "A/C sample table" in tex
     assert "Observability and nuisance-covariate stress summaries" in tex
     assert "ROC curve" in tex
+    assert "CamB is the most important failure case" in tex
+    assert "Stability and effect-size appendix" in tex
+    assert "paper2_auc_stability_distributions.pdf" in tex
     assert "Lelli2016SPARC" in bib
     assert "Trachternach2008THINGS" in bib
     assert "Reynolds2020HIAsymmetries" in bib
@@ -3604,7 +3610,7 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
         newline="", encoding="utf-8"
     ) as handle:
         figures = list(csv.DictReader(handle))
-    assert len(figures) == 6
+    assert len(figures) == 7
     assert "appendix_candidate" in {row["TypographyStatus"] for row in figures}
     assert {row["VectorExport"] for row in figures} == {"pdf"}
 
@@ -3651,6 +3657,28 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
         ]["Value"]
         == "0.434416486"
     )
+
+    with (PACKET / "paper2_outlier_failure_case_appendix_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        outliers = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert outliers["CamB"]["Projection_RMS"] == "0.963585384"
+    assert outliers["CamB"]["NPoints"] == "9"
+    assert outliers["CamB"]["ErrorFamily"] == "false_positive_A_as_C"
+
+    with (PACKET / "paper2_stability_effect_size_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        stability = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert stability["mann_whitney_u_c_higher"]["Value"] == "367.000000000"
+    assert stability["cliffs_delta_c_higher"]["Value"] == "0.542016807"
+    assert stability["bootstrap_auc_median"]["SecondaryValue"] == (
+        "p05=0.630252101;p95=0.894957983"
+    )
+    assert stability["permutation_auc_median"]["SecondaryValue"] == (
+        "p95=0.634453782;observed=0.771008403"
+    )
+    assert stability["auc_without_CamB"]["Value"] == "0.819196429"
 
     with (PACKET / "paper2_submission_readiness_v02.csv").open(
         newline="", encoding="utf-8"

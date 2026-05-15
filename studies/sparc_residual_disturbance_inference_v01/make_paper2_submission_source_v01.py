@@ -30,6 +30,8 @@ BASELINE_CI_TABLE = PACKET / "paper2_baseline_auc_ci_v01.csv"
 EXTERNAL_GATE_TABLE = PACKET / "paper2_external_proxy_gate_table_v01.csv"
 B_SENSITIVITY_TABLE = PACKET / "paper2_b_class_sensitivity_v01.csv"
 OBSERVABILITY_TABLE = PACKET / "paper2_observability_covariate_appendix_v01.csv"
+OUTLIER_TABLE = PACKET / "paper2_outlier_failure_case_appendix_v01.csv"
+STABILITY_TABLE = PACKET / "paper2_stability_effect_size_v01.csv"
 
 GUARDRAIL = "paper2_submission_source_ready_no_tau_validation_no_external_overclaim"
 
@@ -71,6 +73,40 @@ def bootstrap_auc_ci(rows: list[dict[str, str]], score_key: str, seed: int) -> t
         sample = [rng.choice(a_rows) for _ in a_rows] + [rng.choice(c_rows) for _ in c_rows]
         values.append(auc_c_higher(sample, score_key))
     return percentile(values, 0.025), percentile(values, 0.975)
+
+
+def bootstrap_auc_values(rows: list[dict[str, str]], score_key: str, seed: int, n: int = 2000) -> list[float]:
+    rng = random.Random(seed)
+    a_rows = [row for row in rows if row["Class"] == "A"]
+    c_rows = [row for row in rows if row["Class"] == "C"]
+    values = []
+    for _ in range(n):
+        sample = [rng.choice(a_rows) for _ in a_rows] + [rng.choice(c_rows) for _ in c_rows]
+        values.append(auc_c_higher(sample, score_key))
+    return values
+
+
+def shuffled_auc_values(rows: list[dict[str, str]], score_key: str, seed: int, n: int = 1000) -> list[float]:
+    rng = random.Random(seed)
+    scores = [float(row[score_key]) for row in rows]
+    labels = [1 if row["Class"] == "C" else 0 for row in rows]
+    values = []
+    for _ in range(n):
+        shuffled = labels[:]
+        rng.shuffle(shuffled)
+        positives = [score for label, score in zip(shuffled, scores) if label == 1]
+        negatives = [score for label, score in zip(shuffled, scores) if label == 0]
+        wins = 0.0
+        total = 0
+        for pos in positives:
+            for neg in negatives:
+                total += 1
+                if pos > neg:
+                    wins += 1.0
+                elif pos == neg:
+                    wins += 0.5
+        values.append(wins / total)
+    return values
 
 
 def baseline_score_rows() -> list[dict[str, str]]:
@@ -264,6 +300,173 @@ def observability_latex_rows() -> str:
     return "\n".join(
         f"{latex_escape(labels[row['Metric']])} & {latex_escape(row['N'])} & {latex_escape(row['Value'])} & {latex_escape(secondary[row['Metric']])}\\\\"
         for row in observability_rows()
+    )
+
+
+def mann_whitney_u(a_values: list[float], c_values: list[float]) -> float:
+    wins = 0.0
+    for c_score in c_values:
+        for a_score in a_values:
+            if c_score > a_score:
+                wins += 1.0
+            elif c_score == a_score:
+                wins += 0.5
+    return wins
+
+
+def cliff_delta(a_values: list[float], c_values: list[float]) -> float:
+    greater = lesser = 0
+    for c_score in c_values:
+        for a_score in a_values:
+            if c_score > a_score:
+                greater += 1
+            elif c_score < a_score:
+                lesser += 1
+    return (greater - lesser) / (len(a_values) * len(c_values))
+
+
+def effect_size_rows() -> list[dict[str, str]]:
+    rows = baseline_score_rows()
+    a_values = [float(row["Projection_RMS"]) for row in rows if row["Class"] == "A"]
+    c_values = [float(row["Projection_RMS"]) for row in rows if row["Class"] == "C"]
+    auc_value = auc_c_higher(rows, "Projection_RMS")
+    cliff = cliff_delta(a_values, c_values)
+    bootstrap = bootstrap_auc_values(rows, "Projection_RMS", 20260611)
+    shuffled = shuffled_auc_values(rows, "Projection_RMS", 20260515)
+    without_camb = [row for row in rows if row["GalaxyName"] != "CamB"]
+    return [
+        {
+            "Metric": "mann_whitney_u_c_higher",
+            "Value": f"{mann_whitney_u(a_values, c_values):.9f}",
+            "SecondaryValue": f"nA={len(a_values)};nC={len(c_values)}",
+            "Interpretation": "rank_effect_size_not_model_selection",
+            "Guardrail": GUARDRAIL,
+        },
+        {
+            "Metric": "cliffs_delta_c_higher",
+            "Value": f"{cliff:.9f}",
+            "SecondaryValue": "positive_means_C_scores_tend_higher",
+            "Interpretation": "rank_effect_size_not_model_selection",
+            "Guardrail": GUARDRAIL,
+        },
+        {
+            "Metric": "auc_minus_chance",
+            "Value": f"{auc_value - 0.5:.9f}",
+            "SecondaryValue": f"auc={auc_value:.9f}",
+            "Interpretation": "descriptive_effect_size",
+            "Guardrail": GUARDRAIL,
+        },
+        {
+            "Metric": "bootstrap_auc_median",
+            "Value": f"{percentile(bootstrap, 0.5):.9f}",
+            "SecondaryValue": f"p05={percentile(bootstrap, 0.05):.9f};p95={percentile(bootstrap, 0.95):.9f}",
+            "Interpretation": "stability_distribution",
+            "Guardrail": GUARDRAIL,
+        },
+        {
+            "Metric": "permutation_auc_median",
+            "Value": f"{percentile(shuffled, 0.5):.9f}",
+            "SecondaryValue": f"p95={percentile(shuffled, 0.95):.9f};observed={auc_value:.9f}",
+            "Interpretation": "label_null_distribution",
+            "Guardrail": GUARDRAIL,
+        },
+        {
+            "Metric": "auc_without_CamB",
+            "Value": f"{auc_c_higher(without_camb, 'Projection_RMS'):.9f}",
+            "SecondaryValue": "A-class outlier removed for sensitivity only",
+            "Interpretation": "outlier_sensitivity_not_primary_result",
+            "Guardrail": GUARDRAIL,
+        },
+    ]
+
+
+def outlier_rows() -> list[dict[str, str]]:
+    features = {row["GalaxyName"]: row for row in read_csv(PACKET / "residual_feature_table.csv")}
+    errors = {
+        row["GalaxyName"]: row
+        for row in read_csv(PACKET / "residual_inference_projection_rms_error_audit.csv")
+    }
+    distance = {
+        row["GalaxyName"]: row
+        for row in read_csv(PACKET / "distance_resolution_environment_join_v01.csv")
+    }
+    inclination = {
+        row["GalaxyName"]: row
+        for row in read_csv(PACKET / "p09_observability_decomposition_join_v01.csv")
+    }
+    output = []
+    for name in ["CamB", "UGC05764", "NGC5585"]:
+        frow = features[name]
+        erow = errors[name]
+        drow = distance[name]
+        irow = inclination[name]
+        output.append(
+            {
+                "GalaxyName": name,
+                "Class": frow["Class"],
+                "ErrorFamily": erow["ErrorFamily"],
+                "Projection_RMS": frow["Projection_RMS"],
+                "LOOGOThreshold": erow["LOOGOThreshold"],
+                "Margin": erow["MarginScoreMinusThreshold"],
+                "NPoints": frow["NPoints"],
+                "DistanceMpc": drow["DistanceMpc"],
+                "InclinationDeg": irow["InclinationDeg"],
+                "EvidenceType": erow["EvidenceType"],
+                "InspectionNote": erow["DiagnosticNote"],
+                "Guardrail": GUARDRAIL,
+            }
+        )
+    return output
+
+
+def outlier_latex_rows() -> str:
+    compact_notes = {
+        "CamB": "dominant A-class failure; low point count; very high low-acceleration residual burden",
+        "UGC05764": "secondary A-class failure; compact 10-point curve; high residual margin",
+        "NGC5585": "near-threshold A-class failure; external low-asymmetry evidence but residual just above gate",
+    }
+    error_labels = {
+        "false_positive_A_as_C": "A as C",
+        "false_negative_C_as_A": "C as A",
+        "correct": "correct",
+    }
+
+    return "\n".join(
+        " & ".join(
+            latex_escape(value)
+            for value in [
+                row["GalaxyName"],
+                row["Class"],
+                error_labels[row["ErrorFamily"]],
+                row["Projection_RMS"],
+                row["NPoints"],
+                row["DistanceMpc"],
+                row["InclinationDeg"],
+                compact_notes[row["GalaxyName"]],
+            ]
+        )
+        + r"\\"
+        for row in outlier_rows()
+    )
+
+
+def effect_latex_rows() -> str:
+    labels = {
+        "mann_whitney_u_c_higher": "Mann--Whitney $U$",
+        "cliffs_delta_c_higher": "Cliff's $\\delta$",
+        "auc_minus_chance": "AUC minus chance",
+        "bootstrap_auc_median": "Bootstrap AUC median",
+        "permutation_auc_median": "Label-shuffle AUC median",
+        "auc_without_CamB": "AUC without CamB",
+    }
+    secondary = {
+        "positive_means_C_scores_tend_higher": "positive means C scores tend higher",
+        "A-class outlier removed for sensitivity only": "A-class outlier removed for sensitivity only",
+    }
+
+    return "\n".join(
+        f"{labels[row['Metric']]} & {latex_escape(row['Value'])} & {latex_escape(secondary.get(row['SecondaryValue'], row['SecondaryValue']))}\\\\"
+        for row in effect_size_rows()
     )
 
 
@@ -464,6 +667,25 @@ def plot_projection_roc() -> None:
     save_pdf("paper2_projection_roc.pdf")
 
 
+def plot_stability_distributions() -> None:
+    rows = baseline_score_rows()
+    bootstrap = bootstrap_auc_values(rows, "Projection_RMS", 20260611)
+    shuffled = shuffled_auc_values(rows, "Projection_RMS", 20260515)
+    observed = auc_c_higher(rows, "Projection_RMS")
+
+    plt.figure(figsize=(6.4, 4.0))
+    bins = [0.25 + index * 0.025 for index in range(31)]
+    plt.hist(shuffled, bins=bins, alpha=0.62, color="#777777", label="label shuffle")
+    plt.hist(bootstrap, bins=bins, alpha=0.54, color="#2a6fbb", label="bootstrap")
+    plt.axvline(observed, color="#c65d1e", linewidth=1.6, label="observed")
+    plt.xlabel("AUC")
+    plt.ylabel("Resamples")
+    plt.title("Projection RMS AUC stability")
+    plt.legend(frameon=False)
+    plt.tight_layout()
+    save_pdf("paper2_auc_stability_distributions.pdf")
+
+
 def plot_distance_stress() -> None:
     rows = read_csv(PACKET / "paper2_observability_stress.csv")
     labels = []
@@ -497,6 +719,7 @@ def generate_figures() -> None:
     plot_error_audit()
     plot_confusion_matrix()
     plot_projection_roc()
+    plot_stability_distributions()
     plot_distance_stress()
 
 
@@ -641,6 +864,8 @@ def tex_text() -> str:
         sample_rows,
         ["GalaxyName", "Class", "DistanceMpc", "InclinationDeg", "NPoints", "Projection_RMS"],
     )
+    outlier_table = outlier_latex_rows()
+    effect_table = effect_latex_rows()
     external_table = external_latex_rows()
     b_table = (
         f"{latex_escape(b_rows[0]['NB'])} & "
@@ -771,6 +996,8 @@ The error audit is retained because a useful diagnostic must show where it fails
 
 These failures are not relabeling evidence. They are targets for follow-up inspection, especially where residual morphology, inclination, radial coverage, and H\,I kinematic asymmetry disagree.
 
+CamB is the most important failure case. It is externally labeled A from regular-kinematics evidence, but it has Projection RMS near 0.96 and only nine rotation-curve points. The paper therefore treats CamB as a named residual-hard outlier rather than letting it disappear inside summary statistics.
+
 \begin{table}[H]
 \centering
 \caption{B-class sensitivity check. B systems are not used as primary labels.}
@@ -779,6 +1006,19 @@ These failures are not relabeling evidence. They are targets for follow-up inspe
 $N_B$ & Threshold & B C-like & B A-like & Interpretation\\
 \midrule
 {b_table}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Named outliers and failure-case inspection.}
+\footnotesize
+\begin{tabular}{lllrrrrp{0.27\linewidth}}
+\toprule
+Galaxy & Class & Error & Score & Points & Distance & Incl. & Inspection note\\
+\midrule
+{outlier_table}
 \bottomrule
 \end{tabular}
 \end{table}
@@ -852,6 +1092,27 @@ The next paper-grade step is a held-out external source-family test with $N\geq1
 \caption{ROC curve for the Projection RMS score using the frozen A/C labels.}
 \end{figure}
 
+\section{Stability and effect-size appendix}
+
+\begin{table}[H]
+\centering
+\caption{Rank and stability effect-size summaries for Projection RMS.}
+\footnotesize
+\begin{tabular}{lll}
+\toprule
+Metric & Value & Secondary value\\
+\midrule
+{effect_table}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\linewidth]{figures/paper2_auc_stability_distributions.pdf}
+\caption{Bootstrap and shuffled-label AUC distributions for the Projection RMS endpoint.}
+\end{figure}
+
 \appendix
 
 \section{A/C sample table}
@@ -880,6 +1141,8 @@ Galaxy & Class & Distance & Incl. & Points & Projection RMS\\
         .replace("{b_table}", b_table)
         .replace("{external_table}", external_table)
         .replace("{observability_table}", observability_table)
+        .replace("{outlier_table}", outlier_table)
+        .replace("{effect_table}", effect_table)
         .replace("{sample_table}", sample_table)
     )
 
@@ -929,6 +1192,14 @@ def figure_audit_rows() -> list[dict[str, str]]:
         {
             "Figure": "paper2_projection_roc.pdf",
             "Source": "residual_inference_loogo_predictions.csv",
+            "TypographyStatus": "appendix_candidate",
+            "CaptionStatus": "short_descriptive_caption_in_latex",
+            "VectorExport": "pdf",
+            "Guardrail": GUARDRAIL,
+        },
+        {
+            "Figure": "paper2_auc_stability_distributions.pdf",
+            "Source": "residual_feature_table.csv;paper2_shuffled_label_null.csv",
             "TypographyStatus": "appendix_candidate",
             "CaptionStatus": "short_descriptive_caption_in_latex",
             "VectorExport": "pdf",
@@ -1107,6 +1378,8 @@ def update_manifest() -> None:
         EXTERNAL_GATE_TABLE,
         B_SENSITIVITY_TABLE,
         OBSERVABILITY_TABLE,
+        OUTLIER_TABLE,
+        STABILITY_TABLE,
     ]:
         files.add(path.name)
     manifest["files"] = sorted(files)
@@ -1190,6 +1463,29 @@ def main() -> None:
         OBSERVABILITY_TABLE,
         observability_rows(),
         ["Metric", "N", "Value", "SecondaryValue", "Interpretation", "Guardrail"],
+    )
+    write_csv(
+        OUTLIER_TABLE,
+        outlier_rows(),
+        [
+            "GalaxyName",
+            "Class",
+            "ErrorFamily",
+            "Projection_RMS",
+            "LOOGOThreshold",
+            "Margin",
+            "NPoints",
+            "DistanceMpc",
+            "InclinationDeg",
+            "EvidenceType",
+            "InspectionNote",
+            "Guardrail",
+        ],
+    )
+    write_csv(
+        STABILITY_TABLE,
+        effect_size_rows(),
+        ["Metric", "Value", "SecondaryValue", "Interpretation", "Guardrail"],
     )
     update_manifest()
     print(PDF)
