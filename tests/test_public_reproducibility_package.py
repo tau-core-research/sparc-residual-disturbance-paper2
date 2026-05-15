@@ -174,6 +174,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "halogas_moment_proxy_readout_v01.md",
         PACKET / "halogas_moment_proxy_metrics_v01.csv",
         PACKET / "halogas_moment_proxy_decision_v01.csv",
+        PACKET / "things_table3_expanded_overlap_v01.md",
+        PACKET / "things_trachternach2008_table3_v01.csv",
+        PACKET / "things_table3_w_tau_eff_overlap_v01.csv",
+        PACKET / "things_table3_w_tau_eff_metrics_v01.csv",
+        PACKET / "things_table3_expansion_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -254,6 +259,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_source_alias_crossmatch_v01.py",
         STUDY / "derive_halogas_moment_features_v01.py",
         STUDY / "evaluate_halogas_moment_proxy_v01.py",
+        STUDY / "make_things_table3_expanded_overlap_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1542,6 +1548,65 @@ def test_halogas_moment_proxy_readout_remains_weak_control():
     )
     assert "small-overlap external control" in text
     assert "does not open a velocity endpoint" in text
+
+
+def test_things_table3_expanded_overlap_is_below_gate_and_not_positive():
+    with (PACKET / "things_trachternach2008_table3_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        table = list(csv.DictReader(handle))
+    assert len(table) == 18
+    assert {row["AllowedUse"] for row in table} == {
+        "published_non_circular_motion_control_only"
+    }
+    assert {row["InterpretationGuardrail"] for row in table} == {
+        "things_table3_published_control_no_velocity_endpoint"
+    }
+
+    with (PACKET / "things_table3_w_tau_eff_overlap_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        overlap = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert set(overlap) == {
+        "DDO154",
+        "IC2574",
+        "NGC2366",
+        "NGC2403",
+        "NGC2976",
+        "NGC3198",
+        "NGC5055",
+        "NGC7331",
+    }
+    assert overlap["IC2574"]["Class"] == "C"
+    assert overlap["IC2574"]["MedianNonCircularAmplitudeKms"] == "3.750000000"
+    assert {row["ReadoutUse"] for row in overlap.values()} == {
+        "THINGS_Table3_expanded_overlap_no_velocity_endpoint"
+    }
+
+    with (PACKET / "things_table3_w_tau_eff_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["things_table3_total_rows"]["Value"] == "18"
+    assert metrics["things_table3_w_tau_overlap"]["Value"] == "8"
+    assert metrics["pearson_table3_ar_vs_w_tau_score"]["Value"] == "-0.087767676"
+    assert metrics["auc_high_vs_low_table3_ar"]["Value"] == "0.187500000"
+    assert metrics["minimum_directional_n_gate"]["Value"] == "not_met"
+
+    with (PACKET / "things_table3_expansion_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["T3D01"]["Status"] == (
+        "expanded_overlap_available_but_below_minimum_n"
+    )
+    assert decisions["T3D02"]["Status"] == "closed"
+
+    text = (PACKET / "things_table3_expanded_overlap_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not open a velocity endpoint" in text
+    assert "Minimum N gate: not_met" in text
 
 
 def test_public_package_is_english_only():

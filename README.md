@@ -267,6 +267,14 @@ python studies/sparc_residual_disturbance_inference_v01/evaluate_halogas_moment_
 
 These commands build the exact-name external-source join, derive small HALOGAS moment-map proxy features, and evaluate the proxy as a small external control. They do not use SPARC velocity residuals as predictors and do not open a velocity endpoint.
 
+The THINGS Table 3 expanded overlap check is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_things_table3_expanded_overlap_v01.py
+```
+
+This curates the published Trachternach et al. harmonic-decomposition summary values, joins them to `W_tau_eff`, and freezes the current THINGS expansion status.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

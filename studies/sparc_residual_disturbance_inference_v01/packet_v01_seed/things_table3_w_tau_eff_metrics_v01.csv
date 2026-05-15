@@ -1,0 +1,6 @@
+Metric,N,Value,SecondaryValue,InterpretationGuardrail
+things_table3_total_rows,18,18,published Table 3 rows,things_table3_published_control_no_velocity_endpoint
+things_table3_w_tau_overlap,8,8,A;C,things_table3_published_control_no_velocity_endpoint
+pearson_table3_ar_vs_w_tau_score,8,-0.087767676,Table3 median non-circular amplitude vs W_tau_eff,things_table3_published_control_no_velocity_endpoint
+auc_high_vs_low_table3_ar,8,0.187500000,median split on Table3 median non-circular amplitude,things_table3_published_control_no_velocity_endpoint
+minimum_directional_n_gate,8,not_met,requires N>=12 from frozen target plan,things_table3_published_control_no_velocity_endpoint

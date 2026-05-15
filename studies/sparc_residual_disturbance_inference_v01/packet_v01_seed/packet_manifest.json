@@ -139,6 +139,11 @@
     "things_source_s_tau_velocity_metric_summary.csv",
     "things_source_s_tau_velocity_point_readout.csv",
     "things_source_s_tau_velocity_readout.md",
+    "things_table3_expanded_overlap_v01.md",
+    "things_table3_expansion_decision_v01.csv",
+    "things_table3_w_tau_eff_metrics_v01.csv",
+    "things_table3_w_tau_eff_overlap_v01.csv",
+    "things_trachternach2008_table3_v01.csv",
     "w_env_obs_proxy_design_v01.csv",
     "w_env_obs_proxy_design_v01.md",
     "w_env_obs_proxy_endpoint_plan_v01.csv",
@@ -161,7 +166,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "THINGS_or_non_WHISP_asymmetry_expansion",
+  "paper2_next_gate": "non_WHISP_resolved_HI_asymmetry_crossmatch",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -197,5 +202,6 @@
   "halogas_candidate_moment_downloads_status": "candidate_moment_maps_downloaded_and_md5_verified_local_raw_only",
   "source_alias_crossmatch_status": "exact_name_crossmatch_complete",
   "halogas_moment_features_status": "derived_external_proxy_features_complete_no_velocity_endpoint",
-  "halogas_moment_proxy_readout_status": "small_overlap_weak_or_null_control_complete_no_velocity_endpoint"
+  "halogas_moment_proxy_readout_status": "small_overlap_weak_or_null_control_complete_no_velocity_endpoint",
+  "things_table3_expanded_overlap_status": "published_table3_overlap_complete_below_minimum_n_no_velocity_endpoint"
 }
