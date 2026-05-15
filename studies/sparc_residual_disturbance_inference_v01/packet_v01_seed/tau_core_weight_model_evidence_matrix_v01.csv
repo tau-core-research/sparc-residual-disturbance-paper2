@@ -1,0 +1,5 @@
+EvidenceID,Observation,Metric,Supports,DoesNotProve,Guardrail
+E01,Candidate residual score separates A/C systems.,TauCoreSignalCandidateScore_v01 AUC(C higher)=0.774159664,TPG residual carries structured non-local information.,Tau Core attribution or uniqueness.,model_gate_not_fit_not_tau_core_proof
+E02,Projection RMS remains strong.,Projection RMS AUC(C higher)=0.771008403,TPG residual amplitude is informative.,Whether amplitude is environment/observer weight rather than ordinary disturbance.,model_gate_not_fit_not_tau_core_proof
+E03,History improvement is strong.,History improvement AUC(C higher)=0.762605042; all-galaxy improvement fraction=0.933333333,Integrated radial state carries predictive information for outer points.,"External predictability, because the pilot uses inner observed residuals.",model_gate_not_fit_not_tau_core_proof
+E04,Abs final signed drift and history improvement are tightly coupled.,Pearson=0.954744346,The useful correction is aligned with cumulative signed drift.,That the drift is not caused by systematics or non-circular motion.,model_gate_not_fit_not_tau_core_proof

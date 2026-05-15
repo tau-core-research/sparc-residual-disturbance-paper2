@@ -169,6 +169,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_w_tau_eff_branch_cl
 
 This audit records the supported claims, non-established claims, failure modes, and mandatory next gates before any map can be interpreted.
 
+The next model gate for the residual signal-candidate branch is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_tau_core_weight_model_gate_v01.py
+```
+
+This gate freezes the target interpretation before any new endpoint readout: TPG carries local Tau Core weights, while the remaining integrated state `W_env_obs(R)` must be predicted from predeclared history, geometry, environment, or observer-state proxies.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

@@ -102,6 +102,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "w_tau_eff_branch_claim_boundary_v01.csv",
         PACKET / "w_tau_eff_branch_failure_modes_v01.csv",
         PACKET / "w_tau_eff_branch_next_gate_v01.csv",
+        PACKET / "tau_core_weight_model_gate_v01.md",
+        PACKET / "tau_core_weight_model_gate_v01.csv",
+        PACKET / "tau_core_weight_model_evidence_matrix_v01.csv",
+        PACKET / "tau_core_weight_model_next_tests_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -162,6 +166,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_tau_core_signal_candidate_v01.py",
         STUDY / "make_w_tau_eff_field_seed_v01.py",
         STUDY / "make_w_tau_eff_branch_closure_audit_v01.py",
+        STUDY / "make_tau_core_weight_model_gate_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -642,6 +647,47 @@ def test_w_tau_eff_branch_closure_audit_blocks_premature_mapping_claims():
     assert "Closed for definition and seed generation" in text
     assert "Not closed for Tau Core attribution or field mapping" in text
     assert "not with interpretive sky maps" in text
+
+
+def test_tau_core_weight_model_gate_freezes_next_model_target():
+    with (PACKET / "tau_core_weight_model_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        components = {row["ComponentID"]: row for row in csv.DictReader(handle)}
+    assert set(components) == {"M01", "M02", "M03", "M04"}
+    assert components["M01"]["Symbol"] == "W_local_TPG(R)"
+    assert "local Tau Core weights" in components["M01"]["Definition"]
+    assert components["M02"]["Symbol"] == "W_env_obs(R)"
+    assert "environment_tuning" in components["M01"]["ForbiddenInputs"]
+    assert "current_point_residual" in components["M02"]["ForbiddenInputs"]
+    assert {row["Guardrail"] for row in components.values()} == {
+        "model_gate_not_fit_not_tau_core_proof"
+    }
+
+    with (PACKET / "tau_core_weight_model_evidence_matrix_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        evidence = {row["EvidenceID"]: row for row in csv.DictReader(handle)}
+    assert evidence["E01"]["Metric"] == "TauCoreSignalCandidateScore_v01 AUC(C higher)=0.774159664"
+    assert "all-galaxy improvement fraction=0.933333333" in evidence["E03"]["Metric"]
+    assert evidence["E04"]["Metric"] == "Pearson=0.954744346"
+
+    with (PACKET / "tau_core_weight_model_next_tests_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        tests = {row["TestID"]: row for row in csv.DictReader(handle)}
+    assert tests["T01"]["NextTest"] == "source_side_history_proxy"
+    assert tests["T02"]["NextTest"] == "systematics_competition"
+    assert tests["T03"]["NextTest"] == "map_readiness_join"
+    assert tests["T04"]["NextTest"] == "heldout_formula_freeze"
+    assert "Predeclared proxy" in tests["T01"]["PassCondition"]
+
+    text = (PACKET / "tau_core_weight_model_gate_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "TPG carries local Tau Core weights" in text
+    assert "S_tau_full(R)=1+g(W_env_obs(R))" in text
+    assert "does not prove Tau Core" in text
 
 
 def test_public_package_is_english_only():
