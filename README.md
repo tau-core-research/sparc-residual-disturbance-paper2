@@ -87,6 +87,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_predictive_s_tau_ru
 
 That rule uses only `EvidenceType` and `Confidence`; it explicitly forbids `Vobs`, `Vbar`, residuals, `Projection_RMS`, `S_tau_eff`, and the A/C class label as rule inputs.
 
+The no-refit velocity readout against the old `S_tau=1` baseline is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/evaluate_predictive_s_tau_velocity.py
+```
+
+This readout is intentionally allowed to use the derived velocity-level table only after the source-side rule is frozen.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

@@ -59,6 +59,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "predictive_s_tau_rule_v01.csv",
         PACKET / "predictive_s_tau_by_galaxy_v01.csv",
         PACKET / "predictive_s_tau_readout_v01.csv",
+        PACKET / "predictive_s_tau_velocity_readout.md",
+        PACKET / "predictive_s_tau_velocity_point_readout.csv",
+        PACKET / "predictive_s_tau_velocity_galaxy_summary.csv",
+        PACKET / "predictive_s_tau_velocity_metric_summary.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -109,6 +113,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_paper2_figures_and_draft.py",
         STUDY / "make_s_tau_eff_pilot.py",
         STUDY / "make_predictive_s_tau_rule.py",
+        STUDY / "evaluate_predictive_s_tau_velocity.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -195,6 +200,37 @@ def test_predictive_s_tau_rule_is_frozen_without_target_leakage():
     assert "Forbidden inputs: `Vobs`, `Vbar`, residuals" in text
     assert "Pearson(predicted source S_tau, empirical S_tau_eff): 0.171323258" in text
     assert "not a fitted improvement over TPG" in text
+
+
+def test_predictive_s_tau_velocity_readout_is_no_refit_and_mixed():
+    with (PACKET / "predictive_s_tau_velocity_metric_summary.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["Subset"]: row for row in csv.DictReader(handle)}
+    assert set(rows) == {"all", "A", "C"}
+    assert rows["all"]["MedianDeltaRMS_SourceMinusS1"] == "-0.003098856"
+    assert rows["all"]["FractionGalaxiesImproved"] == "0.511111111"
+    assert rows["A"]["MedianDeltaRMS_SourceMinusS1"] == "-0.003098856"
+    assert rows["C"]["MedianDeltaRMS_SourceMinusS1"] == "0.007165785"
+    assert {row["InterpretationGuardrail"] for row in rows.values()} == {
+        "velocity_residual_readout_not_refit"
+    }
+
+    with (PACKET / "predictive_s_tau_velocity_galaxy_summary.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        galaxies = list(csv.DictReader(handle))
+    assert len(galaxies) == 45
+    assert {row["InterpretationGuardrail"] for row in galaxies} == {
+        "source_rule_vs_s_tau1_no_refit"
+    }
+
+    text = (PACKET / "predictive_s_tau_velocity_readout.md").read_text(
+        encoding="utf-8"
+    )
+    assert "No coefficients are refit" in text
+    assert "weak or mixed result" in text
+    assert "radial or kinematic source information" in text
 
 
 def test_public_package_is_english_only():

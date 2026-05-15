@@ -25,6 +25,10 @@
     "predictive_s_tau_readout_v01.csv",
     "predictive_s_tau_rule_v01.csv",
     "predictive_s_tau_rule_v01.md",
+    "predictive_s_tau_velocity_galaxy_summary.csv",
+    "predictive_s_tau_velocity_metric_summary.csv",
+    "predictive_s_tau_velocity_point_readout.csv",
+    "predictive_s_tau_velocity_readout.md",
     "residual_disturbance_inference_seed.md",
     "residual_disturbance_score_v01.csv",
     "residual_feature_table.csv",
@@ -46,11 +50,12 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "evaluate_frozen_s_tau_rule_against_tpg_s_tau_equals_1",
+  "paper2_next_gate": "radial_or_kinematic_s_tau_rule_needed_if_source_rule_weak",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
   "paper2_figures_and_draft_status": "public_figures_and_first_full_draft_ready",
   "s_tau_eff_pilot_status": "empirical_backsolved_diagnostic_ready",
-  "predictive_s_tau_rule_status": "source_side_rule_frozen_no_vobs_no_residual_inputs"
+  "predictive_s_tau_rule_status": "source_side_rule_frozen_no_vobs_no_residual_inputs",
+  "predictive_s_tau_velocity_status": "source_rule_vs_s_tau1_no_refit_readout_complete"
 }

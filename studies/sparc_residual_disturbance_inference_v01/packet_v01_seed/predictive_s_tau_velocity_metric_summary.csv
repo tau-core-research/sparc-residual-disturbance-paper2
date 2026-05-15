@@ -1,0 +1,4 @@
+Subset,NGalaxies,MedianDeltaRMS_SourceMinusS1,MeanDeltaRMS_SourceMinusS1,FractionGalaxiesImproved,MedianRMS_S_tau1,MedianRMS_SourceRule,InterpretationGuardrail
+all,45,-0.003098856,0.001504926,0.511111111,0.173858302,0.175540367,velocity_residual_readout_not_refit
+A,17,-0.003098856,-0.004267073,0.529411765,0.124355655,0.113677894,velocity_residual_readout_not_refit
+C,28,0.007165785,0.005009354,0.500000000,0.208624150,0.245008420,velocity_residual_readout_not_refit
