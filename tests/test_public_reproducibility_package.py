@@ -266,6 +266,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_input_inventory_v01.csv",
         PACKET / "things_route2_input_download_manifest_v01.csv",
         PACKET / "things_route2_input_inventory_gate_v01.csv",
+        PACKET / "things_route2_primary_input_staging_v01.md",
+        PACKET / "things_route2_primary_input_staging_manifest_v01.csv",
+        PACKET / "things_route2_primary_input_staging_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -367,6 +370,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_things_mass_model_recovery_gate_v01.py",
         STUDY / "freeze_things_route2_mass_model_protocol_v01.py",
         STUDY / "make_things_route2_input_inventory_v01.py",
+        STUDY / "stage_things_route2_primary_inputs_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2713,6 +2717,46 @@ def test_things_route2_input_inventory_finds_two_candidates_without_scoring():
     assert "`NGC925`" in text
     assert "`NGC3031`" in text
     assert "not yet score-ready" in text
+
+
+def test_things_route2_primary_inputs_are_staged_but_not_score_ready():
+    with (PACKET / "things_route2_primary_input_staging_manifest_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 10
+    assert {row["GalaxyName"] for row in rows} == {"NGC925", "NGC3031"}
+    assert collections.Counter(row["SourceRole"] for row in rows) == {
+        "THINGS_HI_MOM0_NA": 2,
+        "THINGS_HI_MOM1_NA": 2,
+        "THINGS_HI_MOM0_RO": 2,
+        "THINGS_HI_MOM1_RO": 2,
+        "SINGS_IRAC1_3P6UM": 2,
+    }
+    assert sum(int(row["SizeBytes"]) for row in rows) == 149967360
+    assert all(row["Exists"] == "yes" for row in rows)
+    assert all(row["GitTracked"] == "no" for row in rows)
+    assert all(len(row["SHA256"]) == 64 for row in rows)
+    assert all(
+        row["RedistributionPolicy"] == "raw_file_ignored_source_url_and_checksum_only"
+        for row in rows
+    )
+
+    with (PACKET / "things_route2_primary_input_staging_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2STAGE01"]["Status"] == "primary_raw_inputs_staged_for_two_galaxies"
+    assert gates["R2STAGE01"]["Galaxies"] == "NGC3031;NGC925"
+    assert gates["R2STAGE01"]["CanScoreNow"] == "no"
+    assert gates["R2STAGE02"]["Status"] == "raw_inputs_not_git_tracked"
+
+    text = (PACKET / "things_route2_primary_input_staging_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Staged files: 10" in text
+    assert "Raw files are under `data/raw/`, which is ignored by git" in text
+    assert "No `W_tau_eff` score is computed here" in text
 
 
 def test_public_package_is_english_only():

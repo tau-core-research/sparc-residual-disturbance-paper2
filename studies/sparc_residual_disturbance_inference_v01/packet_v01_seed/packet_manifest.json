@@ -176,6 +176,9 @@
     "things_route2_input_inventory_v01.csv",
     "things_route2_input_inventory_v01.md",
     "things_route2_mass_model_reconstruction_protocol_v01.md",
+    "things_route2_primary_input_staging_gate_v01.csv",
+    "things_route2_primary_input_staging_manifest_v01.csv",
+    "things_route2_primary_input_staging_v01.md",
     "things_route2_required_inputs_v01.csv",
     "things_route2_scoring_gate_v01.csv",
     "things_source_s_tau_failure_audit.md",
@@ -252,7 +255,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "route2_stage_NGC925_NGC3031_inputs_outside_public_repo",
+  "paper2_next_gate": "route2_component_array_derivation_for_NGC925_NGC3031",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -309,5 +312,6 @@
   "things_missing_mass_model_source_probe_status": "SPARC_negative_THINGS_HI_available_but_not_score_ready",
   "things_mass_model_recovery_gate_status": "route1_not_score_ready_route2_protocol_required",
   "things_route2_mass_model_protocol_status": "frozen_protocol_only_no_new_scores",
-  "things_route2_input_inventory_status": "two_primary_source_input_candidates_identified_not_score_ready"
+  "things_route2_input_inventory_status": "two_primary_source_input_candidates_identified_not_score_ready",
+  "things_route2_primary_input_staging_status": "NGC925_NGC3031_raw_inputs_staged_ignored_no_scores"
 }
