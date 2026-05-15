@@ -199,6 +199,8 @@
     "things_route2_solver_validation_targets_v01.csv",
     "things_route2_surface_density_conversion_policy_v01.csv",
     "things_route2_validation_beam_conversion_audit_v01.csv",
+    "things_route2_validation_sparc_surface_profile_join_v01.csv",
+    "things_route2_validation_sparc_surface_profile_metrics_v01.csv",
     "things_route2_validation_surface_density_gate_v01.csv",
     "things_route2_validation_surface_density_profiles_v01.csv",
     "things_route2_validation_surface_density_summary_v01.csv",
@@ -208,6 +210,8 @@
     "things_route2_validation_surface_profiles_v01.csv",
     "things_route2_validation_surface_profiles_v01.md",
     "things_route2_velocity_solver_policy_v01.csv",
+    "things_route2_velocity_solver_validation_gate_v01.csv",
+    "things_route2_velocity_solver_validation_gate_v01.md",
     "things_source_s_tau_failure_audit.md",
     "things_source_s_tau_failure_galaxy_audit.csv",
     "things_source_s_tau_failure_metric_summary.csv",
@@ -282,7 +286,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "route2_velocity_solver_validation_against_sparc_components",
+  "paper2_next_gate": "route2_freeze_background_subtraction_photometry_policy_before_solver",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -347,5 +351,6 @@
   "things_route2_solver_validation_input_staging_status": "three_overlap_validation_raw_inputs_staged_ignored_no_scores",
   "things_route2_solver_validation_fits_status": "validation_fits_headers_units_readable_no_component_arrays_no_scores",
   "things_route2_validation_surface_profile_status": "native_unit_profiles_derived_no_velocity_solver_no_scores",
-  "things_route2_validation_surface_density_status": "surface_density_proxy_profiles_converted_no_velocity_solver_no_scores"
+  "things_route2_validation_surface_density_status": "surface_density_proxy_profiles_converted_no_velocity_solver_no_scores",
+  "things_route2_velocity_solver_validation_status": "blocked_surface_profile_reference_check_failed_no_scores"
 }

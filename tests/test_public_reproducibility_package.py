@@ -296,6 +296,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_validation_beam_conversion_audit_v01.csv",
         PACKET / "things_route2_validation_surface_density_summary_v01.csv",
         PACKET / "things_route2_validation_surface_density_gate_v01.csv",
+        PACKET / "things_route2_velocity_solver_validation_gate_v01.md",
+        PACKET / "things_route2_validation_sparc_surface_profile_join_v01.csv",
+        PACKET / "things_route2_validation_sparc_surface_profile_metrics_v01.csv",
+        PACKET / "things_route2_velocity_solver_validation_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -405,6 +409,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "audit_things_route2_solver_validation_fits_v01.py",
         STUDY / "derive_things_route2_validation_surface_profiles_v01.py",
         STUDY / "convert_things_route2_validation_surface_density_v01.py",
+        STUDY / "validate_things_route2_surface_profiles_against_sparc_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3168,6 +3173,35 @@ def test_things_route2_validation_surface_density_conversion_is_not_solver():
     text = (PACKET / "things_route2_validation_surface_density_v01.md").read_text(
         encoding="utf-8"
     )
+    assert "No velocity component arrays are derived here" in text
+    assert "No `W_tau_eff` endpoint is opened here" in text
+
+
+def test_things_route2_velocity_solver_validation_is_blocked_by_profile_check():
+    with (
+        PACKET / "things_route2_validation_sparc_surface_profile_metrics_v01.csv"
+    ).open(newline="", encoding="utf-8") as handle:
+        metrics = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert set(metrics) == {"NGC2403", "NGC3198", "NGC5055"}
+    assert metrics["NGC2403"]["ValidationStatus"] == "fail_surface_profile_mismatch"
+    assert metrics["NGC3198"]["ValidationStatus"] == "fail_surface_profile_mismatch"
+    assert metrics["NGC5055"]["ValidationStatus"] == "fail_surface_profile_mismatch"
+    assert all(row["CanRunVelocitySolverNow"] == "no" for row in metrics.values())
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in metrics.values())
+
+    with (PACKET / "things_route2_velocity_solver_validation_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2VELVAL01"]["Status"] == "surface_profile_reference_check_failed"
+    assert gates["R2VELVAL01"]["CanRunVelocitySolverNow"] == "no"
+    assert gates["R2VELVAL02"]["Status"] == "missing_galaxy_route2_scores_blocked"
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in gates.values())
+
+    text = (PACKET / "things_route2_velocity_solver_validation_gate_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "not yet a validated route to SPARC-compatible stellar component curves" in text
     assert "No velocity component arrays are derived here" in text
     assert "No `W_tau_eff` endpoint is opened here" in text
 
