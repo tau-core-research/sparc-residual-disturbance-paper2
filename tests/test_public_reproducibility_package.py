@@ -222,6 +222,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "yu2022_alfalfa_af_ac_w_tau_eff_join_v01.csv",
         PACKET / "yu2022_alfalfa_af_ac_w_tau_eff_metrics_v01.csv",
         PACKET / "yu2022_alfalfa_af_ac_w_tau_eff_decision_v01.csv",
+        PACKET / "spatial_kinematic_proxy_next_gate_v01.md",
+        PACKET / "spatial_kinematic_proxy_next_gate_matrix_v01.csv",
+        PACKET / "spatial_kinematic_proxy_next_gate_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -312,6 +315,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_yu2022_alfalfa_seed_expansion_freeze_v01.py",
         STUDY / "score_yu2022_alfalfa_expanded_w_tau_eff_v01.py",
         STUDY / "evaluate_yu2022_alfalfa_af_ac_directional_readout_v01.py",
+        STUDY / "make_spatial_kinematic_proxy_next_gate_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2157,6 +2161,46 @@ def test_yu2022_alfalfa_af_ac_directional_readout_is_not_supported():
     )
     assert "It does not fit coefficients and does not validate a Tau Core field model." in text
     assert "This is a source-side external hint, not a validation." in text
+
+
+def test_spatial_kinematic_proxy_next_gate_selects_whisp_with_things_control():
+    with (PACKET / "spatial_kinematic_proxy_next_gate_matrix_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        matrix = {row["CandidateGate"]: row for row in csv.DictReader(handle)}
+    assert matrix["WHISP_P07_radial_lopsidedness_family"]["UseNext"] == (
+        "primary_source_family_extension"
+    )
+    assert matrix["WHISP_P07_radial_lopsidedness_family"]["CoverageN"] == "10"
+    assert matrix["WHISP_P07_radial_lopsidedness_family"]["PrimaryValue"] == "0.760000000"
+    assert matrix["THINGS_P03_P05_kinematic_control"]["UseNext"] == (
+        "mandatory_systematics_competition_control"
+    )
+    assert matrix["Yu2022_ALFALFA_global_profile_asymmetry"]["ResultDirection"] == (
+        "not_supported"
+    )
+    assert matrix["HALOGAS_LR_cube_moment_stress"]["UseNext"] == (
+        "control_only_until_overlap_expands"
+    )
+
+    with (PACKET / "spatial_kinematic_proxy_next_gate_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["SKG01"]["Status"] == (
+        "select_WHISP_radial_lopsidedness_extension"
+    )
+    assert decisions["SKG02"]["Status"] == (
+        "retain_THINGS_non_circular_competition_control"
+    )
+    assert decisions["SKG03"]["Status"] == "do_not_promote_Yu_global_Af_Ac"
+
+    text = (PACKET / "spatial_kinematic_proxy_next_gate_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not fit a new endpoint" in text
+    assert "WHISP is prioritized" in text
+    assert "THINGS remains mandatory" in text
 
 
 def test_public_package_is_english_only():
