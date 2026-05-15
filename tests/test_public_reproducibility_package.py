@@ -258,6 +258,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_mass_model_recovery_gate_v01.csv",
         PACKET / "things_mass_model_route2_reconstruction_plan_v01.csv",
         PACKET / "things_mass_model_recovery_gate_decision_v01.csv",
+        PACKET / "things_route2_mass_model_reconstruction_protocol_v01.md",
+        PACKET / "things_route2_required_inputs_v01.csv",
+        PACKET / "things_route2_frozen_rules_v01.csv",
+        PACKET / "things_route2_scoring_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -357,6 +361,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_things_missing_rotmod_acquisition_audit_v01.py",
         STUDY / "make_things_missing_source_probe_v01.py",
         STUDY / "make_things_mass_model_recovery_gate_v01.py",
+        STUDY / "freeze_things_route2_mass_model_protocol_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2595,6 +2600,58 @@ def test_things_mass_model_recovery_gate_closes_route1_before_route2():
     assert "first attempt direct recovery" in text
     assert "This closes route 1 for immediate scoring" in text
     assert "Route 2 is allowed only as a pre-registered reconstruction protocol" in text
+
+
+def test_things_route2_protocol_is_frozen_before_any_new_score():
+    with (PACKET / "things_route2_required_inputs_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        inputs = {row["InputID"]: row for row in csv.DictReader(handle)}
+    assert inputs["R2I01"]["RequiredField"] == "R_kpc;Vobs_kms;eVobs_kms"
+    assert inputs["R2I02"]["RequiredField"] == "Vgas_kms"
+    assert inputs["R2I03"]["RequiredField"] == "Vdisk_kms"
+    assert inputs["R2I04"]["RequiredField"] == (
+        "Vbul_kms_or_zero_with_documented_no_bulge_policy"
+    )
+    assert inputs["R2I05"]["RequiredField"] == (
+        "source_url;download_date;file_size_or_checksum;processing_script"
+    )
+    assert inputs["R2I02"]["Forbidden"] == "tune_gas_curve_to_match_Vobs_or_W_tau_eff"
+    assert inputs["R2I03"]["Forbidden"] == "fit_disk_ML_to_velocity_residuals"
+    assert inputs["R2I04"]["Forbidden"] == (
+        "toggle_bulge_component_after_viewing_score_direction"
+    )
+
+    with (PACKET / "things_route2_frozen_rules_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rules = {row["RuleID"]: row for row in csv.DictReader(handle)}
+    assert rules["R2F01"]["FrozenChoice"] == "complete_inputs_and_protocol_first_then_score"
+    assert rules["R2F03"]["FrozenChoice"] == (
+        "thin_disk_HI_component_with_1p4_helium_metals_factor_if_deriving_from_HI_surface_density"
+    )
+    assert rules["R2F06"]["FrozenChoice"] == (
+        "score_only_galaxies_with_at_least_eight_valid_radial_points_and_all_required_components"
+    )
+    assert rules["R2F07"]["FrozenChoice"] == (
+        "route2_outputs_are_THINGS_control_inputs_not_tau_validation"
+    )
+
+    with (PACKET / "things_route2_scoring_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2G01"]["CurrentStatus"] == "passed_protocol_only_no_scores"
+    assert gates["R2G02"]["CurrentStatus"] == "not_started"
+    assert gates["R2G04"]["CurrentStatus"] == "blocked_until_inputs_complete"
+
+    text = (PACKET / "things_route2_mass_model_reconstruction_protocol_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "no new `W_tau_eff` score is computed here" in text
+    assert "Fix the 3.6 micron stellar mass-to-light policy before scoring" in text
+    assert "Do not claim THINGS N>=15" in text
+    assert "it remains a THINGS control expansion" in text
 
 
 def test_public_package_is_english_only():

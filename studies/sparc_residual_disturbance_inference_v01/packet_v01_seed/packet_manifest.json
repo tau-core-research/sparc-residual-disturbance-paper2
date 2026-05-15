@@ -170,6 +170,10 @@
     "things_missing_rotmod_acquisition_audit_v01.csv",
     "things_missing_rotmod_acquisition_audit_v01.md",
     "things_missing_rotmod_acquisition_plan_v01.csv",
+    "things_route2_frozen_rules_v01.csv",
+    "things_route2_mass_model_reconstruction_protocol_v01.md",
+    "things_route2_required_inputs_v01.csv",
+    "things_route2_scoring_gate_v01.csv",
     "things_source_s_tau_failure_audit.md",
     "things_source_s_tau_failure_galaxy_audit.csv",
     "things_source_s_tau_failure_metric_summary.csv",
@@ -244,7 +248,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "write_route2_frozen_THINGS_mass_model_protocol",
+  "paper2_next_gate": "route2_per_galaxy_input_inventory_before_downloads",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -299,5 +303,6 @@
   "things_table3_expanded_control_readout_status": "does_not_absorb_WHISP_direction_control_only_below_N15",
   "things_missing_rotmod_acquisition_status": "need_public_mass_model_columns_for_two_missing_THINGS_galaxies",
   "things_missing_mass_model_source_probe_status": "SPARC_negative_THINGS_HI_available_but_not_score_ready",
-  "things_mass_model_recovery_gate_status": "route1_not_score_ready_route2_protocol_required"
+  "things_mass_model_recovery_gate_status": "route1_not_score_ready_route2_protocol_required",
+  "things_route2_mass_model_protocol_status": "frozen_protocol_only_no_new_scores"
 }
