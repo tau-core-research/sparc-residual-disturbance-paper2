@@ -111,6 +111,14 @@ python studies/sparc_residual_disturbance_inference_v01/evaluate_things_source_s
 
 This optional gate uses the copied THINGS overlap readout in `path_b_source_only_stau_readout_joined_points.csv`. It reports both frozen bounded mappings, does not refit any coefficient, and does not select a mapping by outcome.
 
+The post-outcome failure audit for that gate is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/audit_things_source_s_tau_failure.py
+```
+
+This audit compares the source-side mappings to the empirical `S_tau_eff` diagnostic only to explain the failure mode. It is not a new rule and must not be used as model selection.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

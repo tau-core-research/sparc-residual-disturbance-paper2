@@ -74,6 +74,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_source_s_tau_velocity_point_readout.csv",
         PACKET / "things_source_s_tau_velocity_galaxy_summary.csv",
         PACKET / "things_source_s_tau_velocity_metric_summary.csv",
+        PACKET / "things_source_s_tau_failure_audit.md",
+        PACKET / "things_source_s_tau_failure_point_audit.csv",
+        PACKET / "things_source_s_tau_failure_galaxy_audit.csv",
+        PACKET / "things_source_s_tau_failure_metric_summary.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -127,6 +131,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_predictive_s_tau_velocity.py",
         STUDY / "evaluate_radial_s_tau_rule.py",
         STUDY / "evaluate_things_source_s_tau_velocity.py",
+        STUDY / "audit_things_source_s_tau_failure.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -320,6 +325,38 @@ def test_things_source_s_tau_velocity_gate_is_small_overlap_and_no_refit():
     )
     assert "does not select one by outcome" in text
     assert "not external validation and not a Tau Core proof" in text
+
+
+def test_things_source_s_tau_failure_audit_explains_direction_without_rule_selection():
+    with (PACKET / "things_source_s_tau_failure_point_audit.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        points = list(csv.DictReader(handle))
+    assert len(points) == 245
+    assert {row["InterpretationGuardrail"] for row in points} == {
+        "post_outcome_failure_diagnostic_not_rule_selection"
+    }
+
+    with (PACKET / "things_source_s_tau_failure_metric_summary.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["Group"]: row for row in csv.DictReader(handle)}
+    assert rows["all"]["MedianDeltaAbsError_SourcePercentileMinusS1"] == "0.255945686"
+    assert rows["all"]["MedianDeltaAbsError_SourceLogMinusS1"] == "0.528276275"
+    assert rows["all"]["FractionPercentileTooLow"] == "0.751020408"
+    assert rows["all"]["FractionLogTooLow"] == "0.889795918"
+    assert rows["all"]["PearsonStress_EmpiricalS_tau_eff"] == "-0.325117821"
+    assert rows["C"]["MedianDeltaAbsError_SourcePercentileMinusS1"] == "-0.127651156"
+    assert rows["radius_outer"]["FractionLogTooLow"] == "1.000000000"
+    assert {row["InterpretationGuardrail"] for row in rows.values()} == {
+        "post_outcome_failure_diagnostic_not_rule_selection"
+    }
+
+    text = (PACKET / "things_source_s_tau_failure_audit.md").read_text(
+        encoding="utf-8"
+    )
+    assert "must not be used to choose a new rule" in text
+    assert "stress magnitude alone is therefore an incomplete proxy" in text
 
 
 def test_public_package_is_english_only():

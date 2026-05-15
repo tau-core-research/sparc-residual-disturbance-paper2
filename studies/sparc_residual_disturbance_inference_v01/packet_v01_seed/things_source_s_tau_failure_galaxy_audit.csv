@@ -1,0 +1,8 @@
+GalaxyName,Class,NPoints,MedianDeltaAbsError_SourcePercentileMinusS1,MedianDeltaAbsError_SourceLogMinusS1,RMSDeltaAbsError_SourcePercentileMinusS1,RMSDeltaAbsError_SourceLogMinusS1,FractionPointsImprovedPercentile,FractionPointsImprovedLog,FractionPercentileTooLow,FractionLogTooLow,InterpretationGuardrail
+DDO154,A,12,0.968247776,0.981328676,0.866185606,0.877117563,0.083333333,0.083333333,1.000000000,1.000000000,post_outcome_failure_diagnostic_not_rule_selection
+NGC2366,C,26,0.268653730,0.338454914,0.426996135,0.444613157,0.423076923,0.230769231,1.000000000,1.000000000,post_outcome_failure_diagnostic_not_rule_selection
+NGC2403,A,73,0.477570335,0.650154021,0.551082408,0.713232930,0.000000000,0.000000000,1.000000000,1.000000000,post_outcome_failure_diagnostic_not_rule_selection
+NGC2976,C,27,0.491786526,0.502318586,0.598464647,0.622629615,0.222222222,0.222222222,0.888888889,0.888888889,post_outcome_failure_diagnostic_not_rule_selection
+NGC3198,A,43,0.525165132,0.678532229,0.721871070,0.799468379,0.116279070,0.116279070,0.930232558,0.930232558,post_outcome_failure_diagnostic_not_rule_selection
+NGC5055,C,28,-0.162880853,-0.199777672,0.324019271,0.459944683,1.000000000,0.571428571,0.000000000,0.571428571,post_outcome_failure_diagnostic_not_rule_selection
+NGC7331,A,36,-0.245945621,-0.091754900,0.343300667,0.460249737,0.833333333,0.611111111,0.250000000,0.750000000,post_outcome_failure_diagnostic_not_rule_selection

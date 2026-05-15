@@ -1,0 +1,10 @@
+Group,NPoints,MedianDeltaAbsError_SourcePercentileMinusS1,MedianDeltaAbsError_SourceLogMinusS1,FractionPointsImprovedPercentile,FractionPointsImprovedLog,FractionPercentileTooLow,FractionLogTooLow,PearsonStress_EmpiricalS_tau_eff,InterpretationGuardrail
+all,245,0.255945686,0.528276275,0.330612245,0.228571429,0.751020408,0.889795918,-0.325117821,post_outcome_failure_diagnostic_not_rule_selection
+A,164,0.360956907,0.587477929,0.219512195,0.170731707,0.817073171,0.926829268,-0.238639068,post_outcome_failure_diagnostic_not_rule_selection
+C,81,-0.127651156,0.109323389,0.555555556,0.345679012,0.617283951,0.814814815,-0.325974193,post_outcome_failure_diagnostic_not_rule_selection
+radius_inner,121,0.477570335,0.583105668,0.380165289,0.380165289,0.719008264,0.776859504,,post_outcome_failure_diagnostic_not_rule_selection
+radius_middle,64,0.344204592,0.579154572,0.265625000,0.156250000,0.734375000,1.000000000,,post_outcome_failure_diagnostic_not_rule_selection
+radius_outer,60,0.138869711,0.492004366,0.300000000,0.000000000,0.833333333,1.000000000,,post_outcome_failure_diagnostic_not_rule_selection
+acceleration_high_acc,122,0.491058881,0.583108426,0.368852459,0.344262295,0.647540984,0.803278689,,post_outcome_failure_diagnostic_not_rule_selection
+acceleration_low_acc,80,0.197588241,0.511103985,0.250000000,0.087500000,0.900000000,1.000000000,,post_outcome_failure_diagnostic_not_rule_selection
+acceleration_mid_acc,43,0.162151539,0.436302003,0.372093023,0.162790698,0.767441860,0.930232558,,post_outcome_failure_diagnostic_not_rule_selection
