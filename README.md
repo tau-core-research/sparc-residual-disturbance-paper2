@@ -315,6 +315,14 @@ python studies/sparc_residual_disturbance_inference_v01/audit_reynolds2020_sparc
 
 This records derived availability, point counts, and checksums for locally available SPARC rotmod inputs. It does not redistribute raw SPARC data and does not compute an expanded directional readout.
 
+The Yu et al. 2022 ALFALFA profile-asymmetry coverage audit is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/audit_yu2022_alfalfa_profile_asymmetry_coverage_v01.py
+```
+
+This ingests the VizieR `J/ApJS/261/21` table, uses the AGC-to-UGC convention documented in the catalogue, and checks coverage against the current `W_tau_eff` seed and the local SPARC rotmod inventory. It is coverage-only and does not compute an Af/Ac directional readout.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

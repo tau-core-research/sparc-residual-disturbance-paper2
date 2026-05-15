@@ -203,6 +203,12 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "reynolds2020_sparc_rotmod_availability_v01.csv",
         PACKET / "reynolds2020_sparc_rotmod_availability_summary_v01.csv",
         PACKET / "reynolds2020_sparc_rotmod_availability_decision_v01.csv",
+        PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_v01.md",
+        PACKET / "yu2022_alfalfa_download_manifest_v01.csv",
+        PACKET / "yu2022_alfalfa_profile_asymmetry_catalog_v01.csv",
+        PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_v01.csv",
+        PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_summary_v01.csv",
+        PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -289,6 +295,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_reynolds2020_coverage_ceiling_audit_v01.py",
         STUDY / "make_reynolds2020_seed_expansion_freeze_v01.py",
         STUDY / "audit_reynolds2020_sparc_rotmod_availability_v01.py",
+        STUDY / "audit_yu2022_alfalfa_profile_asymmetry_coverage_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1912,6 +1919,72 @@ def test_reynolds2020_sparc_rotmod_availability_remains_below_gate():
     )
     assert "does not redistribute raw SPARC rotmod files" in text
     assert "too small for a paper-grade Reynolds directional validation" in text
+
+
+def test_yu2022_alfalfa_profile_asymmetry_coverage_is_promising_but_closed():
+    with (PACKET / "yu2022_alfalfa_download_manifest_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        downloads = {row["FileName"]: row for row in csv.DictReader(handle)}
+    assert set(downloads) == {"ReadMe.txt", "table2.dat.gz", "table2.dat"}
+    assert {row["Status"] for row in downloads.values()} == {"downloaded"}
+    assert {row["PublicPacketUse"] for row in downloads.values()} == {
+        "derived_catalog_and_coverage_only"
+    }
+
+    with (PACKET / "yu2022_alfalfa_profile_asymmetry_catalog_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        catalog = list(csv.DictReader(handle))
+    assert len(catalog) == 29958
+    assert catalog[0]["AllowedUse"] == "global_HI_profile_asymmetry_proxy_only"
+
+    with (PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        summary = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert summary["current_w_tau_eff_seed_overlap"]["Value"] == "7"
+    assert summary["local_sparc_rotmod_overlap"]["Value"] == "26"
+    assert summary["new_seed_expansion_candidates"]["Value"] == "19"
+    assert summary["minimum_n_gate_after_potential_expansion"]["Value"] == "met"
+
+    with (PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        coverage = list(csv.DictReader(handle))
+    assert len(coverage) == 26
+    assert {row["ReadoutPermission"] for row in coverage} == {
+        "coverage_only_no_directional_readout"
+    }
+    assert {
+        row["CanonicalSPARCNameCandidate"]
+        for row in coverage
+        if row["InWTauEffSeed"] == "yes"
+    } == {
+        "UGC00128",
+        "UGC00191",
+        "UGC02455",
+        "UGC05716",
+        "UGC05764",
+        "UGC05829",
+        "UGC07603",
+    }
+
+    with (PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["YU22D01"]["Status"] == (
+        "promising_for_predeclared_seed_expansion"
+    )
+    assert decisions["YU22D02"]["Status"] == "closed"
+
+    text = (PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "coverage audit only" in text
+    assert "does not compute an Af/Ac directional readout" not in text
+    assert "freeze the expansion rule before computing" in text
 
 
 def test_public_package_is_english_only():
