@@ -213,6 +213,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "yu2022_alfalfa_seed_expansion_policy_v01.csv",
         PACKET / "yu2022_alfalfa_seed_expansion_queue_v01.csv",
         PACKET / "yu2022_alfalfa_seed_expansion_gate_v01.csv",
+        PACKET / "yu2022_alfalfa_expanded_w_tau_eff_scoring_v01.md",
+        PACKET / "yu2022_alfalfa_expanded_w_tau_eff_point_trace_v01.csv",
+        PACKET / "yu2022_alfalfa_expanded_w_tau_eff_scores_v01.csv",
+        PACKET / "yu2022_alfalfa_expanded_w_tau_eff_summary_v01.csv",
+        PACKET / "yu2022_alfalfa_expanded_w_tau_eff_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -301,6 +306,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "audit_reynolds2020_sparc_rotmod_availability_v01.py",
         STUDY / "audit_yu2022_alfalfa_profile_asymmetry_coverage_v01.py",
         STUDY / "make_yu2022_alfalfa_seed_expansion_freeze_v01.py",
+        STUDY / "score_yu2022_alfalfa_expanded_w_tau_eff_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2036,6 +2042,72 @@ def test_yu2022_alfalfa_seed_expansion_freezes_queue_before_scoring():
     )
     assert "does not calculate expanded residual scores" in text
     assert "Af/Ac directional readout remains forbidden" in text
+
+
+def test_yu2022_alfalfa_expanded_w_tau_eff_scoring_is_frozen_before_directional_readout():
+    with (PACKET / "yu2022_alfalfa_expanded_w_tau_eff_scores_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        scores = list(csv.DictReader(handle))
+    assert len(scores) == 26
+    assert collections.Counter(row["FreezeRole"] for row in scores) == {
+        "anchor_existing_seed": 7,
+        "predeclared_expansion_candidate": 19,
+    }
+    assert collections.Counter(row["ScoringStatus"] for row in scores) == {
+        "anchor_not_refit": 7,
+        "scored": 15,
+        "excluded": 4,
+    }
+    assert {
+        row["GalaxyName"]
+        for row in scores
+        if row["ScoringStatus"] == "excluded"
+    } == {"UGC00634", "UGC00891", "UGC05999", "UGC07261"}
+    assert all(
+        row["AnchorPolicy"] == "retained_without_refit"
+        for row in scores
+        if row["FreezeRole"] == "anchor_existing_seed"
+    )
+    assert all(
+        row["W_tau_eff_readout_score_v01"] == ""
+        for row in scores
+        if row["ScoringStatus"] == "excluded"
+    )
+    assert "Af" not in scores[0]
+    assert "Ac" not in scores[0]
+
+    with (PACKET / "yu2022_alfalfa_expanded_w_tau_eff_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        summary = {row["Subset"]: row for row in csv.DictReader(handle)}
+    assert summary["anchors"]["NGalaxies"] == "7"
+    assert summary["scored_expansion_candidates"]["NGalaxies"] == "15"
+    assert summary["excluded_expansion_candidates"]["NGalaxies"] == "4"
+    assert summary["directional_readout_ready_rows"]["NGalaxies"] == "22"
+    assert (
+        summary["directional_readout_ready_rows"][
+            "Median_W_tau_eff_readout_score_v01"
+        ]
+        == "0.413636363"
+    )
+
+    with (PACKET / "yu2022_alfalfa_expanded_w_tau_eff_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["YU22S01"]["Status"] == "met"
+    assert decisions["YU22S01"]["N"] == "15"
+    assert decisions["YU22S02"]["Status"] == "ready_after_commit"
+    assert decisions["YU22S02"]["N"] == "22"
+    assert decisions["YU22S03"]["Status"] == "satisfied"
+    assert decisions["YU22S03"]["N"] == "7"
+
+    text = (PACKET / "yu2022_alfalfa_expanded_w_tau_eff_scoring_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "It does not compute the Af/Ac directional readout." in text
+    assert "Existing `W_tau_eff` seed overlaps are retained as anchors without refit." in text
 
 
 def test_public_package_is_english_only():
