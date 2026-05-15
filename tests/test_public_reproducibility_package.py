@@ -199,6 +199,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "reynolds2020_seed_expansion_policy_v01.csv",
         PACKET / "reynolds2020_seed_expansion_candidate_queue_v01.csv",
         PACKET / "reynolds2020_seed_expansion_gate_v01.csv",
+        PACKET / "reynolds2020_sparc_rotmod_availability_audit_v01.md",
+        PACKET / "reynolds2020_sparc_rotmod_availability_v01.csv",
+        PACKET / "reynolds2020_sparc_rotmod_availability_summary_v01.csv",
+        PACKET / "reynolds2020_sparc_rotmod_availability_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -284,6 +288,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_lvh_alias_resolved_reynolds2020_crossmatch_v01.py",
         STUDY / "make_reynolds2020_coverage_ceiling_audit_v01.py",
         STUDY / "make_reynolds2020_seed_expansion_freeze_v01.py",
+        STUDY / "audit_reynolds2020_sparc_rotmod_availability_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1846,6 +1851,67 @@ def test_reynolds2020_seed_expansion_freezes_queue_before_readout():
     )
     assert "does not calculate any new residual score" in text
     assert "A Reynolds Amap/Avel directional readout is still forbidden" in text
+
+
+def test_reynolds2020_sparc_rotmod_availability_remains_below_gate():
+    with (PACKET / "reynolds2020_sparc_rotmod_availability_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["CanonicalSPARCNameCandidate"]: row for row in csv.DictReader(handle)}
+    available = [row for row in rows.values() if row["RotmodAvailable"] == "yes"]
+    passed = [
+        row
+        for row in rows.values()
+        if row["PassesMinimumRadialPointGate"] == "yes"
+    ]
+    assert {row["CanonicalSPARCNameCandidate"] for row in available} == {
+        "NGC0300",
+        "NGC0247",
+        "NGC2915",
+        "ESO444-G084",
+        "UGCA442",
+        "NGC7793",
+    }
+    assert {row["CanonicalSPARCNameCandidate"] for row in passed} == {
+        "NGC0300",
+        "NGC0247",
+        "NGC2915",
+        "UGCA442",
+        "NGC7793",
+    }
+    assert rows["ESO444-G084"]["NRotmodPoints"] == "7"
+    assert {row["AllowedPublicUse"] for row in rows.values()} == {
+        "derived_availability_manifest_only"
+    }
+
+    with (PACKET / "reynolds2020_sparc_rotmod_availability_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        summary = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert summary["predeclared_expansion_candidates"]["Value"] == "123"
+    assert summary["rotmod_available_candidates"]["Value"] == "6"
+    assert summary["minimum_radial_point_gate_passed"]["Value"] == "5"
+    assert summary["high_priority_avel_passed"]["Value"] == "5"
+    assert summary["expanded_validation_minimum_n_gate"]["Value"] == "not_met"
+    assert summary["lvhis_candidate_passed_rotmod_gate"]["Value"] == "5"
+    assert summary["viva_candidate_passed_rotmod_gate"]["Value"] == "0"
+    assert summary["halogas_candidate_passed_rotmod_gate"]["Value"] == "0"
+
+    with (PACKET / "reynolds2020_sparc_rotmod_availability_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["R20A01"]["Status"] == (
+        "current_local_sparc_rotmod_overlap_below_minimum_n"
+    )
+    assert decisions["R20A02"]["Status"] == "raw_sparc_rotmods_not_redistributed"
+    assert decisions["R20A03"]["Status"] == "closed"
+
+    text = (PACKET / "reynolds2020_sparc_rotmod_availability_audit_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not redistribute raw SPARC rotmod files" in text
+    assert "too small for a paper-grade Reynolds directional validation" in text
 
 
 def test_public_package_is_english_only():
