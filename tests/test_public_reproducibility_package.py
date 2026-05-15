@@ -3595,6 +3595,10 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
     assert "External-validation status" in tex
     assert "source-family holdout" in tex
     assert "If the effect disappears, reverses, or becomes dominated" in tex
+    assert "\\section{Conclusion}" in tex
+    assert "This paper finds that fixed residual-shape features recover" in tex
+    assert "The paper does not establish a new gravity model" in tex
+    assert "The next decisive test is a held-out external source-family replication" in tex
     assert "Lelli2016SPARC" in bib
     assert "Trachternach2008THINGS" in bib
     assert "Reynolds2020HIAsymmetries" in bib

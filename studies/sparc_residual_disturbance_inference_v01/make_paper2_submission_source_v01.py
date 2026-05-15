@@ -1092,6 +1092,16 @@ Forbidden claims: Tau Core validation, gravity-model selection, projection-formu
 
 The next paper-grade step is a held-out external source-family test with $N\geq15$, a frozen evidence rule, no velocity-endpoint refit, explicit observability covariates, and predefined failure conditions. A negative Phase II result should be treated as evidence that the present association is SPARC-specific, proxy-specific, or observability-driven.
 
+\clearpage
+\section{Conclusion}
+
+This paper finds that fixed residual-shape features recover externally reviewed A/C disturbance classes better than chance within the current SPARC packet. The strongest internal endpoint is Projection RMS, with LOOGO AUC=0.771008403. MOND-simple and empirical RAR-like residual scores also separate the classes, while the Newtonian baryonic RMS control is near chance. The result points to a low-acceleration residual-family association with structural disturbance, not to a projection-formula-specific detection.
+
+The paper does not establish a new gravity model, does not validate Tau Core, and does not replace external disturbance labels with residual-only labels. It also does not provide completed external validation. CamB and the other named failure cases show that residual burden can be high in externally regular systems, and the observability checks show that distance, radial coverage, inclination, point count, and H\,I data quality remain live alternative explanations.
+
+The next decisive test is a held-out external source-family replication with a frozen evidence rule, at least $N\geq15$ score-ready galaxies, observability covariates, and predefined failure conditions. If that test supports the same residual-disturbance direction, the present result becomes a stronger phenomenological claim. If it fails, the appropriate interpretation is that the association is SPARC-specific, proxy-specific, or observability-driven.
+
+\clearpage
 \section{ROC appendix}
 
 \begin{figure}[H]
