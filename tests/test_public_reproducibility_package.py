@@ -269,6 +269,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_primary_input_staging_v01.md",
         PACKET / "things_route2_primary_input_staging_manifest_v01.csv",
         PACKET / "things_route2_primary_input_staging_gate_v01.csv",
+        PACKET / "things_route2_fits_readiness_v01.md",
+        PACKET / "things_route2_fits_header_readiness_v01.csv",
+        PACKET / "things_route2_component_derivation_readiness_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -371,6 +374,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "freeze_things_route2_mass_model_protocol_v01.py",
         STUDY / "make_things_route2_input_inventory_v01.py",
         STUDY / "stage_things_route2_primary_inputs_v01.py",
+        STUDY / "audit_things_route2_fits_readiness_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2757,6 +2761,49 @@ def test_things_route2_primary_inputs_are_staged_but_not_score_ready():
     assert "Staged files: 10" in text
     assert "Raw files are under `data/raw/`, which is ignored by git" in text
     assert "No `W_tau_eff` score is computed here" in text
+
+
+def test_things_route2_fits_readiness_blocks_scoring_until_solver_freeze():
+    with (PACKET / "things_route2_fits_header_readiness_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 10
+    assert {row["GalaxyName"] for row in rows} == {"NGC925", "NGC3031"}
+    assert collections.Counter(row["SourceRole"] for row in rows) == {
+        "THINGS_HI_MOM0": 4,
+        "THINGS_HI_MOM1": 4,
+        "SINGS_IRAC1_3P6UM": 2,
+    }
+    assert all(row["HeaderReadable"] == "yes" for row in rows)
+    assert all(row["GitTrackedRaw"] == "no" for row in rows)
+    bunit_by_role = collections.defaultdict(set)
+    for row in rows:
+        bunit_by_role[row["SourceRole"]].add(row["BUNIT"])
+    assert bunit_by_role["SINGS_IRAC1_3P6UM"] == {"MJy/sr"}
+    assert bunit_by_role["THINGS_HI_MOM0"] == {"JY/B*M/S"}
+    assert bunit_by_role["THINGS_HI_MOM1"] == {"METR/SEC"}
+
+    with (PACKET / "things_route2_component_derivation_readiness_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2FITS01"]["Status"] == (
+        "fits_headers_readable_for_two_primary_galaxies"
+    )
+    assert gates["R2FITS01"]["CanDeriveComponentArraysNow"] == (
+        "not_without_geometry_and_mass_model_solver"
+    )
+    assert gates["R2FITS02"]["Status"] == "source_units_identified"
+    assert gates["R2FITS03"]["Status"] == "component_arrays_not_yet_derived"
+    assert all(row["CanScoreNow"] == "no" for row in gates.values())
+
+    text = (PACKET / "things_route2_fits_readiness_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "THINGS MOM0/MOM1 products are readable" in text
+    assert "Component arrays are still not derived" in text
+    assert "Apply a frozen disk-potential or external solver rule" in text
 
 
 def test_public_package_is_english_only():
