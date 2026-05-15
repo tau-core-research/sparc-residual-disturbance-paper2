@@ -98,6 +98,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "w_tau_eff_field_seed_v01.md",
         PACKET / "w_tau_eff_field_seed_v01.csv",
         PACKET / "w_tau_eff_field_seed_summary_v01.csv",
+        PACKET / "w_tau_eff_branch_closure_audit_v01.md",
+        PACKET / "w_tau_eff_branch_claim_boundary_v01.csv",
+        PACKET / "w_tau_eff_branch_failure_modes_v01.csv",
+        PACKET / "w_tau_eff_branch_next_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -157,6 +161,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_history_s_tau_rule.py",
         STUDY / "make_tau_core_signal_candidate_v01.py",
         STUDY / "make_w_tau_eff_field_seed_v01.py",
+        STUDY / "make_w_tau_eff_branch_closure_audit_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -591,6 +596,52 @@ def test_w_tau_eff_field_seed_closes_branch_without_map_claim():
     assert "TPG`: effective baseline carrying local Tau Core weights" in text
     assert "not claim a Tau Core field map" in text
     assert "RA, Dec, distance, distance uncertainty" in text
+
+
+def test_w_tau_eff_branch_closure_audit_blocks_premature_mapping_claims():
+    with (PACKET / "w_tau_eff_branch_claim_boundary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        claims = {row["ClaimID"]: row for row in csv.DictReader(handle)}
+    assert claims["C01"]["Status"] == "supported"
+    assert claims["C02"]["Status"] == "supported"
+    assert claims["C03"]["Status"] == "supported"
+    assert claims["C04"]["Status"] == "not_established"
+    assert claims["C05"]["Status"] == "not_established"
+    assert "W_tau_eff is the Tau Core field" in claims["C04"]["Claim"]
+    assert {row["Guardrail"] for row in claims.values()} == {
+        "w_tau_eff_branch_closed_not_map_not_tau_core_proof"
+    }
+
+    with (PACKET / "w_tau_eff_branch_failure_modes_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        failures = list(csv.DictReader(handle))
+    assert len(failures) == 5
+    alternatives = {row["AlternativeExplanation"] for row in failures}
+    assert "Non-circular or non-equilibrium gas motions" in alternatives
+    assert "Observability and resolution bias" in alternatives
+    assert "Inclination and deprojection uncertainty" in alternatives
+    assert "Baryonic mass-model mismatch" in alternatives
+    assert "Environmental galaxy dynamics rather than observer-weight field" in alternatives
+
+    with (PACKET / "w_tau_eff_branch_next_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert set(gates) == {"G01", "G02", "G03", "G04"}
+    assert gates["G01"]["Gate"] == "coordinate_distance_join"
+    assert gates["G02"]["Gate"] == "systematics_join"
+    assert gates["G03"]["Gate"] == "environment_join"
+    assert gates["G04"]["Gate"] == "map_null_tests"
+    assert "visual sky maps are treated as evidence without null tests" in gates["G04"]["DoNotProceedIf"]
+
+    text = (PACKET / "w_tau_eff_branch_closure_audit_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Closed for definition and seed generation" in text
+    assert "Not closed for Tau Core attribution or field mapping" in text
+    assert "not with interpretive sky maps" in text
 
 
 def test_public_package_is_english_only():

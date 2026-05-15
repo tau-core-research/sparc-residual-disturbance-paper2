@@ -161,6 +161,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_w_tau_eff_field_see
 
 This closes the residual-weight branch by defining a map-ready galaxy-level seed. It is not a Tau Core field map; sky coordinates, distances, environment proxies, and systematics controls must be joined before mapping.
 
+The final branch-closure audit is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_w_tau_eff_branch_closure_audit_v01.py
+```
+
+This audit records the supported claims, non-established claims, failure modes, and mandatory next gates before any map can be interpreted.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
