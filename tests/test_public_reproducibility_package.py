@@ -313,6 +313,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_expansion_closure_decision_v01.csv",
         PACKET / "things_route2_expansion_closure_evidence_v01.csv",
         PACKET / "things_route2_expansion_claim_boundary_v01.csv",
+        PACKET / "paper2_external_validation_status_board_v02.md",
+        PACKET / "paper2_external_validation_status_board_v02.csv",
+        PACKET / "paper2_claim_boundary_v02.csv",
+        PACKET / "paper2_readiness_table_v02.csv",
+        PACKET / "paper2_next_step_decision_v02.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -426,6 +431,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "audit_things_route2_photometry_policy_v01.py",
         STUDY / "audit_things_published_mass_model_recovery_v02.py",
         STUDY / "close_things_route2_expansion_v01.py",
+        STUDY / "make_paper2_status_board_v02.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3354,6 +3360,53 @@ def test_things_route2_expansion_is_closed_not_score_ready():
     assert "Route 2 is closed as not score-ready" in text
     assert "No route2 `W_tau_eff` score is computed here" in text
     assert "No synthetic mass-model columns are created here" in text
+
+
+def test_paper2_status_board_v02_reflects_route2_closure_and_claim_boundary():
+    with (PACKET / "paper2_external_validation_status_board_v02.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        status = {row["FamilyID"]: row for row in csv.DictReader(handle)}
+    assert status["CORE"]["Status"] == "paper_candidate_with_caveats"
+    assert status["WHISP_RESOLVED"]["Status"] == "directional_support_but_small_overlap"
+    assert status["REYNOLDS_LVH"]["Status"] == "promising_below_minimum_n"
+    assert status["ALFALFA"]["Status"] == "weak_or_non_directional"
+    assert status["THINGS_ROUTE2"]["Status"] == "closed_not_score_ready"
+    assert status["THINGS_ROUTE2"]["ForbiddenClaim"] == (
+        "THINGS N>=15 or route2 paper-grade external validation"
+    )
+    assert all("Tau Core validation" not in row["AllowedClaim"] for row in status.values())
+
+    with (PACKET / "paper2_claim_boundary_v02.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        claims = {row["ClaimID"]: row for row in csv.DictReader(handle)}
+    assert claims["P2V02_C01"]["Status"] == "required"
+    assert "not a Tau Core validation paper" in claims["P2V02_C01"]["AllowedClaim"]
+    assert "THINGS route2 is closed" in claims["P2V02_C04"]["AllowedClaim"]
+
+    with (PACKET / "paper2_readiness_table_v02.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        readiness = {row["Area"]: row for row in csv.DictReader(handle)}
+    assert readiness["External validation"]["Status"] == "not_paper_grade_as_validation"
+    assert readiness["THINGS route2"]["Status"] == "closed_not_score_ready"
+    assert readiness["Paper 2 manuscript"]["NextAction"] == (
+        "regenerate/rewrite manuscript around v02 claims"
+    )
+
+    with (PACKET / "paper2_next_step_decision_v02.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["P2V02D01"]["Status"] == "diagnostic_external_proxy_audit"
+    assert decisions["P2V02D02"]["Status"] == "manuscript_rewrite_before_more_data_chasing"
+
+    text = (PACKET / "paper2_external_validation_status_board_v02.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Route2 is closed as not score-ready" in text
+    assert "must not claim Tau Core validation" in text
 
 
 def test_public_package_is_english_only():

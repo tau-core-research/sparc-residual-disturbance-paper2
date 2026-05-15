@@ -1,0 +1,5 @@
+Area,Status,Evidence,BlockingIssue,NextAction,Guardrail
+Primary SPARC diagnostic,ready_with_caveats,frozen residual features and null tests exist,,write concise diagnostic framing,paper2_v02_route2_closed_no_tau_validation_no_velocity_endpoint
+External validation,not_paper_grade_as_validation,WHISP positive but small; non-WHISP mixed/underpowered,no independent N>=15 directional family with strong result,"frame as external-proxy audit, not validation",paper2_v02_route2_closed_no_tau_validation_no_velocity_endpoint
+THINGS route2,closed_not_score_ready,closure packet,no machine mass-model columns and failed photometry validation,do not use as positive evidence,paper2_v02_route2_closed_no_tau_validation_no_velocity_endpoint
+Paper 2 manuscript,outline_ready_needs_rewrite,claim boundary v02 and status board v02,old text may overstate validation,regenerate/rewrite manuscript around v02 claims,paper2_v02_route2_closed_no_tau_validation_no_velocity_endpoint
