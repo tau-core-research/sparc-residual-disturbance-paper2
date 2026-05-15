@@ -281,6 +281,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_solver_validation_targets_v01.csv",
         PACKET / "things_route2_solver_validation_requirements_v01.csv",
         PACKET / "things_route2_solver_validation_gate_v01.csv",
+        PACKET / "things_route2_solver_validation_input_staging_v01.md",
+        PACKET / "things_route2_solver_validation_input_staging_manifest_v01.csv",
+        PACKET / "things_route2_solver_validation_input_staging_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -386,6 +389,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "audit_things_route2_fits_readiness_v01.py",
         STUDY / "freeze_things_route2_geometry_solver_v01.py",
         STUDY / "make_things_route2_solver_validation_gate_v01.py",
+        STUDY / "stage_things_route2_solver_validation_inputs_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2958,6 +2962,50 @@ def test_things_route2_solver_validation_gate_blocks_missing_scores():
     )
     assert "No missing-galaxy score may be computed from route 2" in text
     assert "No solver or tolerance may be selected using `W_tau_eff` direction" in text
+
+
+def test_things_route2_solver_validation_inputs_are_staged_without_scores():
+    with (
+        PACKET / "things_route2_solver_validation_input_staging_manifest_v01.csv"
+    ).open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 6
+    assert {row["GalaxyName"] for row in rows} == {"NGC2403", "NGC3198", "NGC5055"}
+    assert collections.Counter(row["SourceRole"] for row in rows) == {
+        "THINGS_HI_MOM0_NA": 3,
+        "SINGS_IRAC1_3P6UM": 3,
+    }
+    assert all(row["Exists"] == "yes" for row in rows)
+    assert all(row["GitTracked"] == "no" for row in rows)
+    assert all(len(row["SHA256"]) == 64 for row in rows)
+    assert all(
+        row["RedistributionPolicy"] == "raw_file_ignored_source_url_and_checksum_only"
+        for row in rows
+    )
+    assert all(
+        row["ValidationUse"] == "solver_reconstruction_accuracy_only_not_tau_endpoint"
+        for row in rows
+    )
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in rows)
+
+    with (
+        PACKET / "things_route2_solver_validation_input_staging_gate_v01.csv"
+    ).open(newline="", encoding="utf-8") as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2VALSTAGE01"]["Status"] == (
+        "validation_raw_inputs_staged_for_three_overlap_galaxies"
+    )
+    assert gates["R2VALSTAGE01"]["NCompleteGalaxies"] == "3"
+    assert gates["R2VALSTAGE01"]["CanValidateSolverNow"] == "yes"
+    assert gates["R2VALSTAGE01"]["CanScoreMissingGalaxiesNow"] == "no"
+    assert gates["R2VALSTAGE02"]["Status"] == "validation_raw_inputs_not_git_tracked"
+
+    text = (
+        PACKET / "things_route2_solver_validation_input_staging_v01.md"
+    ).read_text(encoding="utf-8")
+    assert "Validation galaxies: `NGC2403`, `NGC3198`, `NGC5055`" in text
+    assert "No missing-galaxy score is computed here" in text
+    assert "No `W_tau_eff` endpoint is opened here" in text
 
 
 def test_public_package_is_english_only():
