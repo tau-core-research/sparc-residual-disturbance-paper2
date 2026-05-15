@@ -166,6 +166,14 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "halogas_zenodo_file_index_v01.csv",
         PACKET / "halogas_candidate_moment_downloads_v01.md",
         PACKET / "halogas_candidate_moment_downloads_v01.csv",
+        PACKET / "source_alias_crossmatch_v01.md",
+        PACKET / "source_alias_crossmatch_v01.csv",
+        PACKET / "halogas_moment_features_v01.md",
+        PACKET / "halogas_moment_feature_summary_v01.csv",
+        PACKET / "halogas_moment_w_tau_eff_join_v01.csv",
+        PACKET / "halogas_moment_proxy_readout_v01.md",
+        PACKET / "halogas_moment_proxy_metrics_v01.csv",
+        PACKET / "halogas_moment_proxy_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -243,6 +251,9 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_external_source_acquisition_plan_v01.py",
         STUDY / "download_external_validation_sources_v01.py",
         STUDY / "download_halogas_candidate_moments_v01.py",
+        STUDY / "make_source_alias_crossmatch_v01.py",
+        STUDY / "derive_halogas_moment_features_v01.py",
+        STUDY / "evaluate_halogas_moment_proxy_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1444,6 +1455,93 @@ def test_halogas_candidate_moment_downloads_are_md5_verified_and_no_cubes():
     assert "Large cubes are intentionally excluded" in text
     assert "Verified files: 30" in text
     assert "Verified bytes: 117547200" in text
+
+
+def test_source_alias_crossmatch_exact_matches_current_external_sources():
+    with (PACKET / "source_alias_crossmatch_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 15
+    assert sum(row["InWTauEff"] == "yes" for row in rows) == 14
+    assert sum(row["InWTauEff"] == "no" for row in rows) == 1
+    assert {
+        row["ExternalName"] for row in rows if row["InWTauEff"] == "no"
+    } == {"DDO168"}
+    assert {row["SourceFamily"] for row in rows} == {
+        "HALOGAS",
+        "LITTLE_THINGS",
+        "THINGS",
+    }
+    assert {row["AllowedUse"] for row in rows} == {"join_key_only"}
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "alias_crossmatch_join_only_no_velocity_endpoint"
+    }
+
+    text = (PACKET / "source_alias_crossmatch_v01.md").read_text(encoding="utf-8")
+    assert "join audit only" in text
+    assert "Matched to `W_tau_eff`: 14" in text
+
+
+def test_halogas_moment_features_are_derived_external_proxies_only():
+    with (PACKET / "halogas_moment_feature_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        features = list(csv.DictReader(handle))
+    assert len(features) == 30
+    assert {row["Product"] for row in features} == {"coldens", "mom0", "mom1"}
+    assert {row["Resolution"] for row in features} == {"HR", "LR"}
+    assert {row["AllowedUse"] for row in features} == {
+        "external_halogas_moment_proxy_only"
+    }
+
+    with (PACKET / "halogas_moment_w_tau_eff_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        joined = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert set(joined) == {"NGC2403", "NGC3198", "NGC4559", "NGC5055", "NGC5585"}
+    assert joined["NGC2403"]["HALOGAS_moment_stress_proxy_v01"] == "138.580994941"
+    assert joined["NGC5055"]["Class"] == "C"
+    assert {row["ReadoutUse"] for row in joined.values()} == {
+        "HALOGAS_moment_proxy_no_velocity_endpoint"
+    }
+    assert {row["InterpretationGuardrail"] for row in joined.values()} == {
+        "halogas_moment_features_external_proxy_only_no_velocity_endpoint"
+    }
+
+    text = (PACKET / "halogas_moment_features_v01.md").read_text(encoding="utf-8")
+    assert "does not use SPARC velocity residuals as predictors" in text
+    assert "does not open a velocity endpoint" in text
+
+
+def test_halogas_moment_proxy_readout_remains_weak_control():
+    with (PACKET / "halogas_moment_proxy_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "5"
+    assert metrics["coverage_joined"]["SecondaryValue"] == "A;C"
+    assert (
+        metrics["pearson_halogas_moment_stress_vs_w_tau_score"]["Value"]
+        == "0.216413317"
+    )
+    assert metrics["auc_high_vs_low_halogas_moment_stress"]["Value"] == "0.500000000"
+
+    with (PACKET / "halogas_moment_proxy_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["HMP01"]["Status"] == "weak_or_null_halogas_moment_proxy_control"
+    assert decisions["HMP01"]["NextAction"] == (
+        "retain_HALOGAS_as_weak_control_prioritize_THINGS_or_non_WHISP_asymmetry"
+    )
+    assert decisions["HMP02"]["Status"] == "velocity_endpoint_still_closed"
+
+    text = (PACKET / "halogas_moment_proxy_readout_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "small-overlap external control" in text
+    assert "does not open a velocity endpoint" in text
 
 
 def test_public_package_is_english_only():

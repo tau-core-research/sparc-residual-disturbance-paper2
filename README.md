@@ -257,6 +257,16 @@ python studies/sparc_residual_disturbance_inference_v01/download_halogas_candida
 
 This downloads only the candidate non-cube FITS products and verifies their MD5 checksums. Large HALOGAS cubes remain excluded from this step.
 
+The source alias crossmatch and HALOGAS moment-feature derivation are:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_source_alias_crossmatch_v01.py
+python studies/sparc_residual_disturbance_inference_v01/derive_halogas_moment_features_v01.py
+python studies/sparc_residual_disturbance_inference_v01/evaluate_halogas_moment_proxy_v01.py
+```
+
+These commands build the exact-name external-source join, derive small HALOGAS moment-map proxy features, and evaluate the proxy as a small external control. They do not use SPARC velocity residuals as predictors and do not open a velocity endpoint.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
