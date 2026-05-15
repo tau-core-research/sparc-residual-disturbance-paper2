@@ -193,6 +193,14 @@ python studies/sparc_residual_disturbance_inference_v01/freeze_w_env_obs_proxy_d
 
 This design freezes P01 as the broad prior, P07 as the source-family holdout, P03/P04 as small sanity checks, and P09 as a mandatory systematics control. It blocks velocity endpoint readouts until a formula is frozen.
 
+The frozen P01 direction readout against `W_tau_eff` is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/evaluate_proxy_direction_vs_w_tau_eff_v01.py
+```
+
+This readout checks whether the residual-blind P01 burden direction aligns with the existing `W_tau_eff` candidate score. It still does not evaluate a velocity endpoint or fit coefficients.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

@@ -113,6 +113,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "w_env_obs_proxy_design_v01.csv",
         PACKET / "w_env_obs_proxy_rule_freeze_v01.csv",
         PACKET / "w_env_obs_proxy_endpoint_plan_v01.csv",
+        PACKET / "proxy_direction_w_tau_eff_readout_v01.md",
+        PACKET / "proxy_direction_w_tau_eff_join_v01.csv",
+        PACKET / "proxy_direction_w_tau_eff_metric_summary_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -176,6 +179,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_tau_core_weight_model_gate_v01.py",
         STUDY / "make_source_side_history_proxy_inventory_v01.py",
         STUDY / "freeze_w_env_obs_proxy_design_v01.py",
+        STUDY / "evaluate_proxy_direction_vs_w_tau_eff_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -772,6 +776,42 @@ def test_w_env_obs_proxy_design_freezes_roles_and_blocks_velocity_endpoint():
     assert "Primary broad prior: `P01`" in text
     assert "No `S_tau_full` coefficient selection" in text
     assert "No velocity endpoint readout" in text
+
+
+def test_proxy_direction_vs_w_tau_eff_is_positive_without_velocity_endpoint():
+    with (PACKET / "proxy_direction_w_tau_eff_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 45
+    assert {row["ReadoutUse"] for row in rows} == {
+        "frozen_P01_direction_vs_existing_W_tau_eff_no_velocity_endpoint"
+    }
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "proxy_direction_readout_no_velocity_endpoint_no_coefficient_fit"
+    }
+    assert {row["P01BurdenTier"] for row in rows} == {"low", "high"}
+
+    with (PACKET / "proxy_direction_w_tau_eff_metric_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "45"
+    assert metrics["coverage_scored_low_medium_high"]["SecondaryValue"] == "low=17;medium=0;high=28"
+    assert metrics["median_score_low"]["Value"] == "0.304545455"
+    assert metrics["median_score_high"]["Value"] == "0.579545455"
+    assert metrics["auc_high_vs_low_score"]["Value"] == "0.774159664"
+    assert metrics["pearson_ordinal_vs_score"]["Value"] == "0.457880425"
+    assert {row["InterpretationGuardrail"] for row in metrics.values()} == {
+        "proxy_direction_readout_no_velocity_endpoint_no_coefficient_fit"
+    }
+
+    text = (PACKET / "proxy_direction_w_tau_eff_readout_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not evaluate velocity residuals" in text
+    assert "AUC high-vs-low score: 0.774159664" in text
+    assert "must not be promoted to a velocity formula" in text
 
 
 def test_public_package_is_english_only():
