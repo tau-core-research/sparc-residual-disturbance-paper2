@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import json
 import random
 import shutil
@@ -480,7 +481,13 @@ def effect_latex_rows() -> str:
 
 def save_pdf(name: str) -> None:
     SOURCE_FIGURES.mkdir(parents=True, exist_ok=True)
-    plt.savefig(SOURCE_FIGURES / name, format="pdf", bbox_inches="tight")
+    metadata = {
+        "Creator": "sparc-residual-disturbance-paper2",
+        "Producer": "matplotlib",
+        "CreationDate": None,
+        "ModDate": None,
+    }
+    plt.savefig(SOURCE_FIGURES / name, format="pdf", bbox_inches="tight", metadata=metadata)
     plt.close()
 
 
@@ -1375,9 +1382,12 @@ def figure_audit_md() -> str:
 def compile_pdf() -> str:
     if shutil.which("tectonic") is None:
         return "pdf_blocked_no_tectonic"
+    env = os.environ.copy()
+    env.setdefault("SOURCE_DATE_EPOCH", "0")
     result = subprocess.run(
         ["tectonic", "main.tex"],
         cwd=SOURCE,
+        env=env,
         text=True,
         capture_output=True,
         check=False,
