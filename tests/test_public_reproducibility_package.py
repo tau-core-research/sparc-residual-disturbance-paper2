@@ -262,6 +262,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_required_inputs_v01.csv",
         PACKET / "things_route2_frozen_rules_v01.csv",
         PACKET / "things_route2_scoring_gate_v01.csv",
+        PACKET / "things_route2_input_inventory_v01.md",
+        PACKET / "things_route2_input_inventory_v01.csv",
+        PACKET / "things_route2_input_download_manifest_v01.csv",
+        PACKET / "things_route2_input_inventory_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -362,6 +366,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_things_missing_source_probe_v01.py",
         STUDY / "make_things_mass_model_recovery_gate_v01.py",
         STUDY / "freeze_things_route2_mass_model_protocol_v01.py",
+        STUDY / "make_things_route2_input_inventory_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2652,6 +2657,62 @@ def test_things_route2_protocol_is_frozen_before_any_new_score():
     assert "Fix the 3.6 micron stellar mass-to-light policy before scoring" in text
     assert "Do not claim THINGS N>=15" in text
     assert "it remains a THINGS control expansion" in text
+
+
+def test_things_route2_input_inventory_finds_two_candidates_without_scoring():
+    with (PACKET / "things_route2_input_inventory_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        inventory = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    primary = {
+        name for name, row in inventory.items() if row["CandidatePriority"] == "primary_candidate"
+    }
+    assert primary == {"NGC925", "NGC3031"}
+    assert inventory["NGC925"]["MLPolicySeed"] == "disk_ML_3p6_equals_0p65"
+    assert inventory["NGC925"]["BulgePolicySeed"] == (
+        "zero_bulge_candidate_from_deBlok_text_before_scoring"
+    )
+    assert inventory["NGC3031"]["MLPolicySeed"] == (
+        "disk_ML_3p6_equals_0p8_central_component_ML_3p6_equals_1p0"
+    )
+    assert inventory["NGC3031"]["BulgePolicySeed"] == (
+        "central_component_required_from_deBlok_text_before_scoring"
+    )
+    assert all(row["CanScoreNow"] == "no" for row in inventory.values())
+    assert all(
+        row["CurrentCompleteness"] == "source_inputs_identified_not_component_arrays"
+        for row in inventory.values()
+    )
+
+    with (PACKET / "things_route2_input_download_manifest_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        manifest = list(csv.DictReader(handle))
+    roles = {(row["GalaxyName"], row["SourceRole"]): row for row in manifest}
+    assert roles[("NGC925", "THINGS_HI_MOM0_NA")]["SizeBytes"] == "4253760"
+    assert roles[("NGC925", "SINGS_IRAC1_3p6um")]["SizeBytes"] == "13046400"
+    assert roles[("NGC3031", "THINGS_HI_MOM0_NA")]["SizeBytes"] == "19465920"
+    assert roles[("NGC3031", "SINGS_IRAC1_3p6um")]["SizeBytes"] == "42042240"
+    assert all(
+        row["RedistributionPolicy"] == "source_url_only_no_raw_redistribution"
+        for row in manifest
+    )
+
+    with (PACKET / "things_route2_input_inventory_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2INV01"]["Status"] == "at_least_two_primary_candidates_identified"
+    assert gates["R2INV02"]["Status"] == "component_arrays_not_yet_derived"
+    assert gates["R2INV03"]["Status"] == "N15_gate_still_blocked"
+    assert all(row["CanScoreNow"] == "no" for row in gates.values())
+
+    text = (PACKET / "things_route2_input_inventory_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "`NGC925`" in text
+    assert "`NGC3031`" in text
+    assert "not yet score-ready" in text
 
 
 def test_public_package_is_english_only():
