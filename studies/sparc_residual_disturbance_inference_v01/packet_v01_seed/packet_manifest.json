@@ -160,6 +160,9 @@
     "things_control_gate_decision_v01.csv",
     "things_control_gate_v01.md",
     "things_expanded_score_resolver_audit_v01.csv",
+    "things_missing_mass_model_source_probe_decision_v01.csv",
+    "things_missing_mass_model_source_probe_v01.csv",
+    "things_missing_mass_model_source_probe_v01.md",
     "things_missing_rotmod_acquisition_audit_v01.csv",
     "things_missing_rotmod_acquisition_audit_v01.md",
     "things_missing_rotmod_acquisition_plan_v01.csv",
@@ -237,7 +240,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "recover_THINGS_mass_model_tables_or_continue_non_WHISP_replication",
+  "paper2_next_gate": "recover_two_public_THINGS_baryonic_mass_models_or_build_frozen_reconstruction_pipeline",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -290,5 +293,6 @@
   "things_control_gate_status": "THINGS_controls_do_not_absorb_WHISP_direction_small_overlap_control_only",
   "things_table3_expanded_w_tau_eff_status": "expanded_to_all_local_rotmod_THINGS_rows_below_N15",
   "things_table3_expanded_control_readout_status": "does_not_absorb_WHISP_direction_control_only_below_N15",
-  "things_missing_rotmod_acquisition_status": "need_public_mass_model_columns_for_two_missing_THINGS_galaxies"
+  "things_missing_rotmod_acquisition_status": "need_public_mass_model_columns_for_two_missing_THINGS_galaxies",
+  "things_missing_mass_model_source_probe_status": "SPARC_negative_THINGS_HI_available_but_not_score_ready"
 }

@@ -251,6 +251,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_missing_rotmod_acquisition_audit_v01.md",
         PACKET / "things_missing_rotmod_acquisition_audit_v01.csv",
         PACKET / "things_missing_rotmod_acquisition_plan_v01.csv",
+        PACKET / "things_missing_mass_model_source_probe_v01.md",
+        PACKET / "things_missing_mass_model_source_probe_v01.csv",
+        PACKET / "things_missing_mass_model_source_probe_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -348,6 +351,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "score_things_table3_expanded_w_tau_eff_v01.py",
         STUDY / "evaluate_things_table3_expanded_control_readout_v01.py",
         STUDY / "make_things_missing_rotmod_acquisition_audit_v01.py",
+        STUDY / "make_things_missing_source_probe_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2492,6 +2496,48 @@ def test_things_missing_rotmod_acquisition_audit_freezes_no_synthetic_expansion(
     assert "Missing local SPARC-like rotmod inputs: 5" in text
     assert "Published rotation curves alone are insufficient" in text
     assert "at least two of the missing galaxies" in text
+
+
+def test_things_missing_mass_model_source_probe_keeps_things_gate_closed():
+    with (PACKET / "things_missing_mass_model_source_probe_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        probes = {row["SourceID"]: row for row in csv.DictReader(handle)}
+    assert probes["SPARC_ROTMod_LTG"]["ProbeResult"] == "no_missing_five_found"
+    assert probes["SPARC_ROTMod_LTG"]["UsableForWtauEff"] == "no"
+    assert probes["SPARC_TABLE2_MRT"]["ProbeResult"] == "no_missing_five_found"
+    assert probes["SPARC_TABLE2_MRT"]["UsableForWtauEff"] == "no"
+    assert probes["THINGS_DATA_PRODUCTS"]["ProbeResult"] == (
+        "hi_fits_products_exist_for_missing_five"
+    )
+    assert probes["THINGS_DATA_PRODUCTS"]["UsableForWtauEff"] == "not_directly"
+    assert probes["DEBLOK2008_ARXIV_SOURCE"]["UsableForWtauEff"] == "not_directly"
+    assert all(
+        row["Guardrail"]
+        == "source_probe_no_raw_data_redistribution_no_synthetic_mass_models"
+        for row in probes.values()
+    )
+
+    with (PACKET / "things_missing_mass_model_source_probe_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["TMSP01"]["Status"] == (
+        "SPARC_public_rotmod_does_not_resolve_missing_five"
+    )
+    assert decisions["TMSP01"]["ForbiddenAction"] == (
+        "claim_THINGS_N15_or_score_from_rotation_curve_only"
+    )
+    assert decisions["TMSP02"]["Status"] == (
+        "THINGS_HI_products_are_available_but_not_score_ready"
+    )
+
+    text = (PACKET / "things_missing_mass_model_source_probe_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "SPARC LTG rotmod archive" in text
+    assert "do not resolve the missing five" in text
+    assert "at least two missing galaxies" in text
 
 
 def test_public_package_is_english_only():
