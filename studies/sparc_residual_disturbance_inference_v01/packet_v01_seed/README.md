@@ -10,7 +10,7 @@ paper-grade claim remains bounded by shuffled-label null tests,
 observability stress tests, baseline-family comparisons, calibration
 uncertainty, and the frozen B-class policy.
 
-The current next gate is a publication-grade figure set and a first full
-Paper 2 manuscript draft from `paper2_manuscript_skeleton.md`.
+The current next gate is to freeze a predictive `S_tau` rule that does not use
+`Vobs` or target residuals.
 
 Paper 2 must be framed as a diagnostic audit, not as Tau Core validation.

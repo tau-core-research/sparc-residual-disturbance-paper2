@@ -13,6 +13,7 @@
     "paper2_claim_boundary.csv",
     "paper2_figure_plan.csv",
     "paper2_final_metric_table.csv",
+    "paper2_manuscript_draft.md",
     "paper2_manuscript_skeleton.md",
     "paper2_newtonian_scope.csv",
     "paper2_observability_stress.csv",
@@ -31,15 +32,20 @@
     "residual_inference_metric_summary.csv",
     "residual_inference_projection_rms_error_audit.csv",
     "residual_inference_projection_rms_error_audit.md",
-    "residual_inference_projection_rms_error_summary.csv"
+    "residual_inference_projection_rms_error_summary.csv",
+    "s_tau_eff_galaxy_summary.csv",
+    "s_tau_eff_pilot.md",
+    "s_tau_eff_point_pilot.csv"
   ],
   "guardrail": "residuals_are_predictors_here_not_blinded_labels",
   "loogo_validation_status": "first_heldout_sanity_check_complete_not_paper_grade",
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "publication_grade_figures_and_full_draft",
+  "paper2_next_gate": "freeze_predictive_s_tau_rule_without_vobs_target_leakage",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
-  "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready"
+  "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
+  "paper2_figures_and_draft_status": "public_figures_and_first_full_draft_ready",
+  "s_tau_eff_pilot_status": "empirical_backsolved_diagnostic_ready"
 }

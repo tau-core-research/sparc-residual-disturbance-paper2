@@ -44,6 +44,7 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "README.md",
         PACKET / "packet_manifest.json",
         PACKET / "paper2_manuscript_skeleton.md",
+        PACKET / "paper2_manuscript_draft.md",
         PACKET / "paper2_final_metric_table.csv",
         PACKET / "paper2_readiness_table.csv",
         PACKET / "paper2_figure_plan.csv",
@@ -51,11 +52,18 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "paper2_related_work.md",
         PACKET / "paper2_validation_controls.md",
         PACKET / "paper2_calibration_policy.md",
+        PACKET / "s_tau_eff_pilot.md",
+        PACKET / "s_tau_eff_point_pilot.csv",
+        PACKET / "s_tau_eff_galaxy_summary.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
         PACKET / "residual_inference_projection_rms_error_audit.csv",
         PACKET / "residual_inference_projection_rms_error_summary.csv",
+        ROOT / "figures/paper2_projection_rms_distribution.svg",
+        ROOT / "figures/paper2_baseline_auc_comparison.svg",
+        ROOT / "figures/paper2_error_audit.svg",
+        ROOT / "figures/paper2_distance_stress.svg",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -78,6 +86,11 @@ def test_final_metrics_and_claim_boundaries_are_guardrailed():
     assert "Forbidden: Tau Core validation" in manuscript
     assert "replacement of external labels by residual-only labels" in manuscript
 
+    draft = (PACKET / "paper2_manuscript_draft.md").read_text(encoding="utf-8")
+    assert "## 12. Phase II" in draft
+    assert "not as a Tau Core validation result" in draft
+    assert "does not establish projection-formula uniqueness" in draft
+
 
 def test_regeneration_scripts_exist_in_expected_order():
     required = [
@@ -89,6 +102,8 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_paper2_validation_controls.py",
         STUDY / "make_paper2_calibration_policy.py",
         STUDY / "make_paper2_manuscript_packet.py",
+        STUDY / "make_paper2_figures_and_draft.py",
+        STUDY / "make_s_tau_eff_pilot.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -113,6 +128,34 @@ def test_raw_sparc_inputs_are_not_tracked():
     assert not any(path.startswith("data/sparc/Rotmod_LTG/") for path in tracked_paths)
 
 
+def test_effective_s_tau_pilot_is_diagnostic_and_not_predictive():
+    with (PACKET / "s_tau_eff_galaxy_summary.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 45
+    a_values = [
+        float(row["Median_S_tau_eff_clipped"])
+        for row in rows
+        if row["Class"] == "A"
+    ]
+    c_values = [
+        float(row["Median_S_tau_eff_clipped"])
+        for row in rows
+        if row["Class"] == "C"
+    ]
+    assert round(sorted(a_values)[len(a_values) // 2], 9) == 1.093121010
+    assert round((sorted(c_values)[13] + sorted(c_values)[14]) / 2, 9) == 0.888249933
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "derived_from_vobs_not_heldout_prediction"
+    }
+
+    text = (PACKET / "s_tau_eff_pilot.md").read_text(encoding="utf-8")
+    assert "`S_tau=1` is the old TPG/projection baseline" in text
+    assert "not a predictive model yet" in text
+    assert "without using the target residual" in text
+
+
 def test_public_package_is_english_only():
     public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
@@ -120,6 +163,7 @@ def test_public_package_is_english_only():
             ROOT / "README.md",
             ROOT / "DATA_NOTICE.md",
             PACKET / "paper2_manuscript_skeleton.md",
+            PACKET / "paper2_manuscript_draft.md",
             PACKET / "packet_manifest.json",
         ]
     )

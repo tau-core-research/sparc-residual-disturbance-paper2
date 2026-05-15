@@ -62,10 +62,22 @@ python studies/sparc_residual_disturbance_inference_v01/make_paper2_seed_packet.
 python studies/sparc_residual_disturbance_inference_v01/make_paper2_validation_controls.py
 python studies/sparc_residual_disturbance_inference_v01/make_paper2_calibration_policy.py
 python studies/sparc_residual_disturbance_inference_v01/make_paper2_manuscript_packet.py
+python studies/sparc_residual_disturbance_inference_v01/make_paper2_figures_and_draft.py
 python -m pytest -q
 ```
 
 The commands regenerate the same packet paths listed above.
+
+## Optional Effective S_tau Pilot
+
+The repository includes derived `S_tau_eff` pilot tables. They can be regenerated only if the raw SPARC rotmod files are available locally:
+
+```bash
+SPARC_ROTMOD_DIR=/path/to/Rotmod_LTG \
+  python studies/sparc_residual_disturbance_inference_v01/make_s_tau_eff_pilot.py
+```
+
+This optional pilot back-solves an empirical `S_tau_eff(R)` from `Vobs` and `Vbar`. It is a diagnostic map, not a predictive model, because it uses the observed velocity target.
 
 ## Scope
 

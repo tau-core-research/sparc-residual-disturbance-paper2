@@ -11,3 +11,5 @@ SPARC Zenodo archive:
 Lelli, F., McGaugh, S. S., & Schombert, J. M. 2016, "SPARC Galaxy Rotation Curve", Zenodo, doi:10.5281/zenodo.16284118.
 
 The included Paper 1 inputs are derived reproducibility artifacts copied only because the Paper 2 scripts require those exact relative paths. Downstream users should cite the original SPARC paper, the SPARC Zenodo data release, and the Paper 1 reproducibility package when using those derived inputs.
+
+The optional `S_tau_eff` pilot tables are also derived from local SPARC rotmod inputs. The raw rotmod files remain excluded; only derived diagnostic summaries are included.
