@@ -12,3 +12,5 @@ data/sparc/Rotmod_LTG/
 arxiv/*.aux
 arxiv/*.log
 arxiv/*.out
+paper2_submission_source/*.log
+paper2_submission_source/preview_page_*.png

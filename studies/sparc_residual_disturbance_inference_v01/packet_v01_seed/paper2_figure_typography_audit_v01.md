@@ -1,0 +1,12 @@
+# Paper 2 Figure Typography Audit v0.1
+
+All submission-candidate figures are regenerated as vector PDF files under `paper2_submission_source/figures/`.
+
+- `paper2_projection_rms_distribution.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `residual_feature_table.csv;paper2_calibration_uncertainty.csv`.
+- `paper2_baseline_auc_comparison.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `paper2_baseline_family_loogo.csv;paper2_newtonian_scope.csv`.
+- `paper2_error_audit.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `residual_inference_projection_rms_error_audit.csv`.
+- `paper2_distance_stress.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `paper2_observability_stress.csv`.
+
+The figures remain reproducible from packet tables and do not introduce new data or endpoint tuning.
+
+Guardrail: `paper2_submission_source_ready_no_tau_validation_no_external_overclaim`

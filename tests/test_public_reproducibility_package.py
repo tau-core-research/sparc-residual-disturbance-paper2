@@ -20,6 +20,13 @@ def test_publication_repo_checklist_files_exist():
         ROOT / "CITATION.cff",
         ROOT / "DATA_NOTICE.md",
         ROOT / "requirements.txt",
+        ROOT / "paper2_submission_source/main.tex",
+        ROOT / "paper2_submission_source/references.bib",
+        ROOT / "paper2_submission_source/main.pdf",
+        ROOT / "paper2_submission_source/figures/paper2_projection_rms_distribution.pdf",
+        ROOT / "paper2_submission_source/figures/paper2_baseline_auc_comparison.pdf",
+        ROOT / "paper2_submission_source/figures/paper2_error_audit.pdf",
+        ROOT / "paper2_submission_source/figures/paper2_distance_stress.pdf",
         ROOT / "figures/README.md",
         ROOT / "tests",
         STUDY / "README.md",
@@ -59,6 +66,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "paper2_submission_readiness_v01.md",
         PACKET / "paper2_submission_readiness_v01.csv",
         PACKET / "paper2_submission_next_actions_v01.csv",
+        PACKET / "paper2_submission_readiness_v02.md",
+        PACKET / "paper2_submission_readiness_v02.csv",
+        PACKET / "paper2_submission_source_gate_v01.csv",
+        PACKET / "paper2_figure_typography_audit_v01.md",
+        PACKET / "paper2_figure_typography_audit_v01.csv",
         PACKET / "paper2_final_metric_table.csv",
         PACKET / "paper2_readiness_table.csv",
         PACKET / "paper2_figure_plan.csv",
@@ -448,6 +460,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_paper2_manuscript_v02.py",
         STUDY / "make_paper2_manuscript_v03.py",
         STUDY / "make_paper2_submission_readiness_v01.py",
+        STUDY / "make_paper2_submission_source_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3541,16 +3554,68 @@ def test_paper2_submission_readiness_tracks_publication_blockers():
     assert "THINGS route2 positive evidence" in text
 
 
+def test_paper2_submission_source_closes_previous_publication_blockers():
+    source = ROOT / "paper2_submission_source"
+    assert (source / "main.tex").exists()
+    assert (source / "references.bib").exists()
+    assert (source / "main.pdf").exists()
+    assert (source / "main.pdf").stat().st_size > 50_000
+
+    tex = (source / "main.tex").read_text(encoding="utf-8")
+    bib = (source / "references.bib").read_text(encoding="utf-8")
+    assert "\\bibliography{references}" in tex
+    assert "not a Tau Core validation claim" in tex
+    assert "Forbidden claims: Tau Core validation" in tex
+    assert "Lelli2016SPARC" in bib
+    assert "Trachternach2008THINGS" in bib
+    assert "Reynolds2020HIAsymmetries" in bib
+    assert "Yu2022ALFALFA" in bib
+
+    with (PACKET / "paper2_submission_source_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["P2SRC01"]["Status"] == "latex_source_generated"
+    assert gates["P2SRC02"]["Status"] == "bibliography_generated"
+    assert gates["P2SRC03"]["Status"] == "figures_audited_publication_candidate"
+    assert gates["P2SRC04"]["Status"] == "pdf_compiled_with_tectonic"
+    assert {row["BlocksSubmission"] for row in gates.values()} == {"no"}
+    assert {row["CanClaimTauValidation"] for row in gates.values()} == {"no"}
+
+    with (PACKET / "paper2_figure_typography_audit_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        figures = list(csv.DictReader(handle))
+    assert len(figures) == 4
+    assert {row["TypographyStatus"] for row in figures} == {"publication_candidate"}
+    assert {row["VectorExport"] for row in figures} == {"pdf"}
+
+    with (PACKET / "paper2_submission_readiness_v02.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        readiness = {row["Area"]: row for row in csv.DictReader(handle)}
+    assert readiness["Submission source"]["Status"] == "ready"
+    assert readiness["Bibliography"]["Status"] == "ready"
+    assert readiness["Figures"]["Status"] == "ready_as_publication_candidate"
+
+    text = (PACKET / "paper2_submission_readiness_v02.md").read_text(encoding="utf-8")
+    assert "the three previous publication blockers are closed" in text
+    assert "does not claim Tau Core validation" in text
+
+
 def test_public_package_is_english_only():
     public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
         for path in [
             ROOT / "README.md",
             ROOT / "DATA_NOTICE.md",
+            ROOT / "paper2_submission_source/main.tex",
+            ROOT / "paper2_submission_source/references.bib",
             PACKET / "paper2_manuscript_skeleton.md",
             PACKET / "paper2_manuscript_draft.md",
             PACKET / "paper2_manuscript_draft_v03.md",
             PACKET / "paper2_abstract_v03.md",
+            PACKET / "paper2_submission_readiness_v02.md",
             PACKET / "packet_manifest.json",
         ]
     )
