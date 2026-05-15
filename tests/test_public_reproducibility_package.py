@@ -209,6 +209,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_v01.csv",
         PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_summary_v01.csv",
         PACKET / "yu2022_alfalfa_profile_asymmetry_coverage_decision_v01.csv",
+        PACKET / "yu2022_alfalfa_seed_expansion_freeze_v01.md",
+        PACKET / "yu2022_alfalfa_seed_expansion_policy_v01.csv",
+        PACKET / "yu2022_alfalfa_seed_expansion_queue_v01.csv",
+        PACKET / "yu2022_alfalfa_seed_expansion_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -296,6 +300,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_reynolds2020_seed_expansion_freeze_v01.py",
         STUDY / "audit_reynolds2020_sparc_rotmod_availability_v01.py",
         STUDY / "audit_yu2022_alfalfa_profile_asymmetry_coverage_v01.py",
+        STUDY / "make_yu2022_alfalfa_seed_expansion_freeze_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1985,6 +1990,52 @@ def test_yu2022_alfalfa_profile_asymmetry_coverage_is_promising_but_closed():
     assert "coverage audit only" in text
     assert "does not compute an Af/Ac directional readout" not in text
     assert "freeze the expansion rule before computing" in text
+
+
+def test_yu2022_alfalfa_seed_expansion_freezes_queue_before_scoring():
+    with (PACKET / "yu2022_alfalfa_seed_expansion_queue_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 26
+    assert collections.Counter(row["FreezeRole"] for row in rows) == {
+        "anchor_existing_seed": 7,
+        "predeclared_expansion_candidate": 19,
+    }
+    assert collections.Counter(row["ScoringPermission"] for row in rows) == {
+        "anchor_only_no_refit": 7,
+        "allowed_after_expanded_scoring_script_committed": 19,
+    }
+    assert {row["ProfileQualityFlag"] for row in rows} == {"primary_quality"}
+    assert {row["DirectionalReadoutPermission"] for row in rows} == {
+        "closed_until_expanded_scores_committed"
+    }
+
+    with (PACKET / "yu2022_alfalfa_seed_expansion_policy_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        policies = {row["RuleID"]: row for row in csv.DictReader(handle)}
+    assert policies["YU22F01"]["NRows"] == "19"
+    assert policies["YU22F02"]["NRows"] == "19"
+    assert policies["YU22F03"]["NRows"] == "7"
+    assert policies["YU22F04"]["AllowedUse"] == "locks_the_next_endpoint"
+
+    with (PACKET / "yu2022_alfalfa_seed_expansion_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["YU22G01"]["Status"] == "met"
+    assert gates["YU22G01"]["N"] == "19"
+    assert gates["YU22G02"]["N"] == "19"
+    assert gates["YU22G03"]["Status"] == "met"
+    assert gates["YU22G03"]["N"] == "26"
+    assert gates["YU22G04"]["Status"] == "closed"
+
+    text = (PACKET / "yu2022_alfalfa_seed_expansion_freeze_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not calculate expanded residual scores" in text
+    assert "Af/Ac directional readout remains forbidden" in text
 
 
 def test_public_package_is_english_only():

@@ -188,14 +188,18 @@
     "yu2022_alfalfa_profile_asymmetry_coverage_decision_v01.csv",
     "yu2022_alfalfa_profile_asymmetry_coverage_summary_v01.csv",
     "yu2022_alfalfa_profile_asymmetry_coverage_v01.csv",
-    "yu2022_alfalfa_profile_asymmetry_coverage_v01.md"
+    "yu2022_alfalfa_profile_asymmetry_coverage_v01.md",
+    "yu2022_alfalfa_seed_expansion_freeze_v01.md",
+    "yu2022_alfalfa_seed_expansion_gate_v01.csv",
+    "yu2022_alfalfa_seed_expansion_policy_v01.csv",
+    "yu2022_alfalfa_seed_expansion_queue_v01.csv"
   ],
   "guardrail": "residuals_are_predictors_here_not_blinded_labels",
   "loogo_validation_status": "first_heldout_sanity_check_complete_not_paper_grade",
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "freeze_yu2022_seed_expansion_queue_before_scoring",
+  "paper2_next_gate": "write_expanded_w_tau_eff_scoring_script",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -238,5 +242,6 @@
   "reynolds2020_coverage_ceiling_status": "current_seed_hard_ceiling_below_minimum_n",
   "reynolds2020_seed_expansion_freeze_status": "candidate_queue_frozen_no_directional_readout",
   "reynolds2020_sparc_rotmod_availability_status": "current_local_rotmod_overlap_below_minimum_n",
-  "yu2022_alfalfa_coverage_status": "promising_for_predeclared_seed_expansion_no_directional_readout"
+  "yu2022_alfalfa_coverage_status": "promising_for_predeclared_seed_expansion_no_directional_readout",
+  "yu2022_alfalfa_seed_expansion_freeze_status": "candidate_queue_frozen_no_directional_readout"
 }

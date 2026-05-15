@@ -323,6 +323,14 @@ python studies/sparc_residual_disturbance_inference_v01/audit_yu2022_alfalfa_pro
 
 This ingests the VizieR `J/ApJS/261/21` table, uses the AGC-to-UGC convention documented in the catalogue, and checks coverage against the current `W_tau_eff` seed and the local SPARC rotmod inventory. It is coverage-only and does not compute an Af/Ac directional readout.
 
+The Yu et al. 2022 ALFALFA seed-expansion freeze is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_yu2022_alfalfa_seed_expansion_freeze_v01.py
+```
+
+This freezes the ALFALFA expansion queue and primary-quality gate before any expanded score is computed. It keeps the Af/Ac directional readout closed until the expanded scoring script and expanded score table are committed.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
