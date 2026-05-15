@@ -127,6 +127,14 @@ python studies/sparc_residual_disturbance_inference_v01/evaluate_contextual_s_ta
 
 This post-audit candidate stays close to `S_tau=1` and uses only radius fraction, acceleration regime, and the THINGS stress proxy. It is hypothesis-generating until tested on a held-out source family.
 
+The integrated signed-residual drift diagnostic is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_integrated_tau_drift_v01.py
+```
+
+This diagnostic asks whether the fixed TPG/projection baseline departs through cumulative radial drift rather than pointwise random scatter. It is not an `S_tau` rule; it motivates a possible history-dependent `S_tau` gate.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

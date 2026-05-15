@@ -83,6 +83,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "contextual_s_tau_velocity_point_readout.csv",
         PACKET / "contextual_s_tau_velocity_galaxy_summary.csv",
         PACKET / "contextual_s_tau_velocity_metric_summary.csv",
+        PACKET / "integrated_tau_drift_v01.md",
+        PACKET / "integrated_tau_drift_point_trace_v01.csv",
+        PACKET / "integrated_tau_drift_galaxy_summary_v01.csv",
+        PACKET / "integrated_tau_drift_metric_summary_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -138,6 +142,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_things_source_s_tau_velocity.py",
         STUDY / "audit_things_source_s_tau_failure.py",
         STUDY / "evaluate_contextual_s_tau_rule.py",
+        STUDY / "make_integrated_tau_drift_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -406,6 +411,43 @@ def test_contextual_s_tau_rule_is_conservative_and_hypothesis_generating():
     text = (PACKET / "contextual_s_tau_rule_v01.md").read_text(encoding="utf-8")
     assert "post-audit candidate, not validation" in text
     assert "held-out source-family gate" in text
+
+
+def test_integrated_tau_drift_supports_history_dependent_diagnostic_gate():
+    with (PACKET / "integrated_tau_drift_point_trace_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        points = list(csv.DictReader(handle))
+    assert len(points) == 926
+    assert {row["InterpretationGuardrail"] for row in points} == {
+        "signed_residual_drift_diagnostic_not_predictive_s_tau_rule"
+    }
+
+    with (PACKET / "integrated_tau_drift_galaxy_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        galaxies = list(csv.DictReader(handle))
+    assert len(galaxies) == 45
+    assert {row["InterpretationGuardrail"] for row in galaxies} == {
+        "signed_residual_drift_diagnostic_not_predictive_s_tau_rule"
+    }
+
+    with (PACKET / "integrated_tau_drift_metric_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {(row["Group"], row["Metric"]): row for row in csv.DictReader(handle)}
+    assert rows[("all", "AbsFinalMeanSignedResidual")]["AUC_C_higher"] == "0.783613445"
+    assert rows[("all", "MaxAbsCumulativeMeanResidual")]["AUC_C_higher"] == "0.670168067"
+    assert rows[("all", "SignImbalance")]["AUC_C_higher"] == "0.685924370"
+    assert rows[("all", "MaxSameSignRunFraction")]["AUC_C_higher"] == "0.710084034"
+    assert rows[("A", "AbsFinalMeanSignedResidual")]["Median"] == "0.070366381"
+    assert rows[("C", "AbsFinalMeanSignedResidual")]["Median"] == "0.173436672"
+    assert rows[("A", "MaxSameSignRunFraction")]["Median"] == "0.750000000"
+    assert rows[("C", "MaxSameSignRunFraction")]["Median"] == "0.970588235"
+
+    text = (PACKET / "integrated_tau_drift_v01.md").read_text(encoding="utf-8")
+    assert "cumulative radial drift rather than pointwise random scatter" in text
+    assert "integrated or history-dependent quantity" in text
 
 
 def test_public_package_is_english_only():

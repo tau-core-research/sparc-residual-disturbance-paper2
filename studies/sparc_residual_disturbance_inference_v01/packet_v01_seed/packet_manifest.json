@@ -9,6 +9,10 @@
     "contextual_s_tau_velocity_galaxy_summary.csv",
     "contextual_s_tau_velocity_metric_summary.csv",
     "contextual_s_tau_velocity_point_readout.csv",
+    "integrated_tau_drift_galaxy_summary_v01.csv",
+    "integrated_tau_drift_metric_summary_v01.csv",
+    "integrated_tau_drift_point_trace_v01.csv",
+    "integrated_tau_drift_v01.md",
     "packet_manifest.json",
     "paper2_b_class_policy.csv",
     "paper2_baseline_family_loogo.csv",
@@ -70,7 +74,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "heldout_source_family_test_required_for_contextual_s_tau",
+  "paper2_next_gate": "test_history_dependent_s_tau_candidate_from_drift_features",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -81,5 +85,6 @@
   "radial_s_tau_rule_status": "frozen_radial_source_rule_no_refit_readout_complete",
   "things_source_s_tau_velocity_status": "things_source_only_s_tau_velocity_readout_complete_no_refit",
   "things_source_s_tau_failure_audit_status": "post_outcome_failure_diagnostic_complete",
-  "contextual_s_tau_rule_status": "post_audit_candidate_velocity_readout_complete"
+  "contextual_s_tau_rule_status": "post_audit_candidate_velocity_readout_complete",
+  "integrated_tau_drift_status": "signed_residual_cumulative_drift_diagnostic_complete"
 }
