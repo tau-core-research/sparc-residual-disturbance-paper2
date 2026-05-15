@@ -65,6 +65,9 @@
     "s_tau_eff_galaxy_summary.csv",
     "s_tau_eff_pilot.md",
     "s_tau_eff_point_pilot.csv",
+    "source_side_history_proxy_inventory_v01.csv",
+    "source_side_history_proxy_inventory_v01.md",
+    "source_side_history_proxy_readiness_v01.csv",
     "tau_core_signal_candidate_galaxy_summary_v01.csv",
     "tau_core_signal_candidate_relation_summary_v01.csv",
     "tau_core_signal_candidate_v01.md",
@@ -93,7 +96,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "source_side_or_geometry_proxy_for_w_env_obs_before_velocity_endpoint",
+  "paper2_next_gate": "freeze_primary_source_side_w_env_obs_proxy_design",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -110,5 +113,6 @@
   "tau_core_signal_candidate_status": "residual_signal_candidate_framing_complete",
   "w_tau_eff_field_seed_status": "residual_inferred_effective_weight_seed_complete",
   "w_tau_eff_branch_closure_status": "closed_for_definition_seed_not_for_attribution",
-  "tau_core_weight_model_gate_status": "local_plus_environment_observer_weight_model_target_frozen"
+  "tau_core_weight_model_gate_status": "local_plus_environment_observer_weight_model_target_frozen",
+  "source_side_history_proxy_inventory_status": "proxy_inventory_complete_no_endpoint_readout"
 }

@@ -177,6 +177,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_tau_core_weight_mod
 
 This gate freezes the target interpretation before any new endpoint readout: TPG carries local Tau Core weights, while the remaining integrated state `W_env_obs(R)` must be predicted from predeclared history, geometry, environment, or observer-state proxies.
 
+The source-side proxy inventory for `W_env_obs(R)` is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_source_side_history_proxy_inventory_v01.py
+```
+
+This inventory lists residual-free proxy families and systematics controls. It does not evaluate a velocity endpoint or select a rule.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

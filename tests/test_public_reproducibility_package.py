@@ -106,6 +106,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "tau_core_weight_model_gate_v01.csv",
         PACKET / "tau_core_weight_model_evidence_matrix_v01.csv",
         PACKET / "tau_core_weight_model_next_tests_v01.csv",
+        PACKET / "source_side_history_proxy_inventory_v01.md",
+        PACKET / "source_side_history_proxy_inventory_v01.csv",
+        PACKET / "source_side_history_proxy_readiness_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -167,6 +170,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_w_tau_eff_field_seed_v01.py",
         STUDY / "make_w_tau_eff_branch_closure_audit_v01.py",
         STUDY / "make_tau_core_weight_model_gate_v01.py",
+        STUDY / "make_source_side_history_proxy_inventory_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -688,6 +692,40 @@ def test_tau_core_weight_model_gate_freezes_next_model_target():
     assert "TPG carries local Tau Core weights" in text
     assert "S_tau_full(R)=1+g(W_env_obs(R))" in text
     assert "does not prove Tau Core" in text
+
+
+def test_source_side_history_proxy_inventory_has_no_endpoint_readout():
+    with (PACKET / "source_side_history_proxy_inventory_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["ProxyID"]: row for row in csv.DictReader(handle)}
+    assert set(rows) == {"P01", "P02", "P03", "P04", "P05", "P06", "P07", "P08", "P09"}
+    assert rows["P01"]["ReadinessTier"] == "ready_as_broad_prior"
+    assert rows["P07"]["ReadinessTier"] == "ready_for_source_family_holdout"
+    assert rows["P03"]["ReadinessTier"] == "ready_for_small_heldout_sanity_check"
+    assert rows["P09"]["ReadinessTier"] == "control_required"
+    assert rows["P01"]["CoverageGalaxies"] == "73"
+    assert rows["P07"]["CoverageGalaxies"] == "14"
+    assert "TPG_residual" in rows["P01"]["ForbiddenInputs"]
+    assert {row["Guardrail"] for row in rows.values()} == {
+        "proxy_inventory_only_no_velocity_endpoint_no_rule_selection"
+    }
+
+    with (PACKET / "source_side_history_proxy_readiness_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        readiness = {row["ReadinessTier"]: row for row in csv.DictReader(handle)}
+    assert readiness["ready_as_broad_prior"]["ProxyIDs"] == "P01"
+    assert readiness["ready_for_source_family_holdout"]["ProxyIDs"] == "P07"
+    assert readiness["ready_for_small_heldout_sanity_check"]["ProxyIDs"] == "P03;P04"
+    assert readiness["control_required"]["ProxyIDs"] == "P09"
+
+    text = (PACKET / "source_side_history_proxy_inventory_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "No velocity endpoint is evaluated here" in text
+    assert "Ready broad/holdout proxy IDs: P01, P07" in text
+    assert "Do not tune a velocity formula from this inventory" in text
 
 
 def test_public_package_is_english_only():
