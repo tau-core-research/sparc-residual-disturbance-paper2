@@ -1,0 +1,4 @@
+GalaxyName,FileName,BeamSource,BmajDeg,BminDeg,BpaDeg,BmajArcsec,BminArcsec,RestFrequencyGHz,BeamParsed,Guardrail
+NGC2403,NGC_2403_NA_MOM0_THINGS.FITS,AIPS_CLEAN_HISTORY,0.0024308,0.0021246,25.160000,8.750880,7.648560,1.420405751,yes,route2_validation_surface_density_conversion_no_velocity_solver_no_scores
+NGC3198,NGC_3198_NA_MOM0_THINGS.FITS,AIPS_CLEAN_HISTORY,0.0031753,0.0026007,-80.430000,11.431080,9.362520,1.420405751,yes,route2_validation_surface_density_conversion_no_velocity_solver_no_scores
+NGC5055,NGC_5055_NA_MOM0_THINGS.FITS,AIPS_CLEAN_HISTORY,0.0027939,0.0024066,-40.010000,10.058040,8.663760,1.420405751,yes,route2_validation_surface_density_conversion_no_velocity_solver_no_scores

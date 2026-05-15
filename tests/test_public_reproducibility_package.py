@@ -291,6 +291,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_validation_surface_profiles_v01.csv",
         PACKET / "things_route2_validation_surface_profile_summary_v01.csv",
         PACKET / "things_route2_validation_surface_profile_gate_v01.csv",
+        PACKET / "things_route2_validation_surface_density_v01.md",
+        PACKET / "things_route2_validation_surface_density_profiles_v01.csv",
+        PACKET / "things_route2_validation_beam_conversion_audit_v01.csv",
+        PACKET / "things_route2_validation_surface_density_summary_v01.csv",
+        PACKET / "things_route2_validation_surface_density_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -399,6 +404,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "stage_things_route2_solver_validation_inputs_v01.py",
         STUDY / "audit_things_route2_solver_validation_fits_v01.py",
         STUDY / "derive_things_route2_validation_surface_profiles_v01.py",
+        STUDY / "convert_things_route2_validation_surface_density_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3099,6 +3105,67 @@ def test_things_route2_validation_surface_profiles_are_native_unit_only():
     assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in gates.values())
 
     text = (PACKET / "things_route2_validation_surface_profiles_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "No velocity component arrays are derived here" in text
+    assert "No `W_tau_eff` endpoint is opened here" in text
+
+
+def test_things_route2_validation_surface_density_conversion_is_not_solver():
+    with (PACKET / "things_route2_validation_beam_conversion_audit_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        beams = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert set(beams) == {"NGC2403", "NGC3198", "NGC5055"}
+    assert all(row["BeamParsed"] == "yes" for row in beams.values())
+    assert all(row["BeamSource"] == "AIPS_CLEAN_HISTORY" for row in beams.values())
+    assert all(float(row["BmajArcsec"]) > 0 for row in beams.values())
+    assert all(float(row["BminArcsec"]) > 0 for row in beams.values())
+
+    with (PACKET / "things_route2_validation_surface_density_profiles_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) >= 60
+    assert {row["GalaxyName"] for row in rows} == {"NGC2403", "NGC3198", "NGC5055"}
+    assert {row["SourceRole"] for row in rows} == {
+        "THINGS_HI_MOM0",
+        "SINGS_IRAC1_3P6UM",
+    }
+    assert all(
+        row["ValidationUse"] == "surface_density_profile_only_not_velocity_solver"
+        for row in rows
+    )
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in rows)
+    quantities = {row["ConvertedQuantity"] for row in rows}
+    assert "SigmaGasWithHelium_MsunPc2" in quantities
+    assert "I3p6_LsunPc2_AB_Msun6p02" in quantities
+
+    with (PACKET / "things_route2_validation_surface_density_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        summary = list(csv.DictReader(handle))
+    assert len(summary) == 6
+    assert all(
+        row["ConversionStatus"] == "converted_surface_density_proxy"
+        for row in summary
+    )
+    assert all(int(row["NConvertedBins"]) >= 5 for row in summary)
+
+    with (PACKET / "things_route2_validation_surface_density_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2VALDENS01"]["Status"] == (
+        "surface_density_proxy_profiles_converted_for_three_validation_galaxies"
+    )
+    assert gates["R2VALDENS01"]["CanValidateSolverNow"] == (
+        "not_until_velocity_solver_maps_surface_density_to_components"
+    )
+    assert gates["R2VALDENS02"]["Status"] == "velocity_solver_not_run"
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in gates.values())
+
+    text = (PACKET / "things_route2_validation_surface_density_v01.md").read_text(
         encoding="utf-8"
     )
     assert "No velocity component arrays are derived here" in text
