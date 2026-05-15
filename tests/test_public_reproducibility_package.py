@@ -235,6 +235,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "whisp_holwerda2011_w_tau_eff_join_v01.csv",
         PACKET / "whisp_holwerda2011_w_tau_eff_metrics_v01.csv",
         PACKET / "whisp_holwerda2011_w_tau_eff_decision_v01.csv",
+        PACKET / "things_control_gate_v01.md",
+        PACKET / "things_expanded_score_resolver_audit_v01.csv",
+        PACKET / "things_vs_whisp_control_matrix_v01.csv",
+        PACKET / "things_control_gate_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -328,6 +332,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_spatial_kinematic_proxy_next_gate_v01.py",
         STUDY / "evaluate_whisp_expanded_w_tau_eff_readout_v01.py",
         STUDY / "evaluate_whisp_holwerda2011_morphology_readout_v01.py",
+        STUDY / "make_things_expanded_resolver_control_gate_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2324,6 +2329,47 @@ def test_whisp_holwerda2011_morphology_clears_n15_but_stays_whisp_family_only():
     )
     assert "clears the N>=15 source-family gate" in text
     assert "not a fully independent external-family validation" in text
+
+
+def test_things_control_gate_does_not_absorb_whisp_direction():
+    with (PACKET / "things_expanded_score_resolver_audit_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        audit = list(csv.DictReader(handle))
+    assert len(audit) == 18
+    assert sum(row["InExpandedWTauEffResolver"] == "yes" for row in audit) == 8
+    assert sum(
+        row["InOriginalWTauEffSeed"] == "no"
+        and row["InExpandedWTauEffResolver"] == "yes"
+        for row in audit
+    ) == 0
+
+    with (PACKET / "things_vs_whisp_control_matrix_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        matrix = {row["Readout"]: row for row in csv.DictReader(handle)}
+    assert matrix["WHISP_Holwerda2011_morphology"]["PrimaryValue"] == "0.644230769"
+    assert matrix["WHISP_vanEymeren2011_lopsidedness"]["PrimaryValue"] == "0.714285714"
+    assert matrix["THINGS_Trachternach2008_Table3"]["PrimaryValue"] == "0.187500000"
+    assert matrix["THINGS_Trachternach2008_Table3"]["SecondaryValue"] == "-0.087767676"
+    assert matrix["THINGS_P05_harmonic_control"]["PrimaryValue"] == "0.333333333"
+
+    with (PACKET / "things_control_gate_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["TCG01"]["Status"] == (
+        "no_new_THINGS_overlap_from_expanded_resolver"
+    )
+    assert decisions["TCG02"]["Status"] == (
+        "THINGS_controls_do_not_absorb_WHISP_direction"
+    )
+    assert decisions["TCG03"]["Status"] == "control_only_below_THINGS_validation_n"
+
+    text = (PACKET / "things_control_gate_v01.md").read_text(encoding="utf-8")
+    assert "does not fit coefficients" in text
+    assert "THINGS non-circular controls do not reproduce the WHISP-positive direction" in text
+    assert "non-WHISP resolved-HI replication" in text
 
 
 def test_public_package_is_english_only():

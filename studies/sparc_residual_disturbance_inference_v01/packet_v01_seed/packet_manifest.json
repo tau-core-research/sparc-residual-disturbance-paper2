@@ -157,6 +157,9 @@
     "tau_core_weight_model_gate_v01.csv",
     "tau_core_weight_model_gate_v01.md",
     "tau_core_weight_model_next_tests_v01.csv",
+    "things_control_gate_decision_v01.csv",
+    "things_control_gate_v01.md",
+    "things_expanded_score_resolver_audit_v01.csv",
     "things_source_s_tau_failure_audit.md",
     "things_source_s_tau_failure_galaxy_audit.csv",
     "things_source_s_tau_failure_metric_summary.csv",
@@ -170,6 +173,7 @@
     "things_table3_w_tau_eff_metrics_v01.csv",
     "things_table3_w_tau_eff_overlap_v01.csv",
     "things_trachternach2008_table3_v01.csv",
+    "things_vs_whisp_control_matrix_v01.csv",
     "w_env_obs_proxy_design_v01.csv",
     "w_env_obs_proxy_design_v01.md",
     "w_env_obs_proxy_endpoint_plan_v01.csv",
@@ -221,7 +225,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "THINGS_control_then_non_WHISP_replication",
+  "paper2_next_gate": "non_WHISP_resolved_HI_replication",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -270,5 +274,6 @@
   "yu2022_alfalfa_af_ac_directional_readout_status": "weak_external_source_side_directional_hint_not_validation",
   "spatial_kinematic_proxy_next_gate_status": "WHISP_radial_lopsidedness_extension_selected_THINGS_control_required",
   "whisp_expanded_w_tau_eff_readout_status": "positive_but_below_external_validation_minimum_n",
-  "whisp_holwerda2011_morphology_readout_status": "positive_WHISP_family_N_ge_15_not_independent_family_validation"
+  "whisp_holwerda2011_morphology_readout_status": "positive_WHISP_family_N_ge_15_not_independent_family_validation",
+  "things_control_gate_status": "THINGS_controls_do_not_absorb_WHISP_direction_small_overlap_control_only"
 }
