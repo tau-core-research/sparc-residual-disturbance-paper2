@@ -299,6 +299,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_reynolds2020_covera
 
 This closes the simple-alias expansion route by documenting that the current frozen `W_tau_eff` seed can provide only six Reynolds et al. matches after LVHIS ID resolution.
 
+The Reynolds et al. 2020 seed-expansion freeze is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_reynolds2020_seed_expansion_freeze_v01.py
+```
+
+This predeclares the candidate universe for a possible expanded `W_tau_eff` seed. It does not calculate new residual scores and keeps the Reynolds Amap/Avel directional readout closed until a SPARC rotmod availability audit and expanded scoring table are committed.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.

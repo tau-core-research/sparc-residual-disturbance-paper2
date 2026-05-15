@@ -1,3 +1,4 @@
+import collections
 import csv
 import subprocess
 from pathlib import Path
@@ -194,6 +195,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "reynolds2020_coverage_ceiling_audit_v01.md",
         PACKET / "reynolds2020_coverage_ceiling_audit_v01.csv",
         PACKET / "reynolds2020_coverage_ceiling_next_actions_v01.csv",
+        PACKET / "reynolds2020_seed_expansion_freeze_v01.md",
+        PACKET / "reynolds2020_seed_expansion_policy_v01.csv",
+        PACKET / "reynolds2020_seed_expansion_candidate_queue_v01.csv",
+        PACKET / "reynolds2020_seed_expansion_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -278,6 +283,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_reynolds2020_asymmetry_crossmatch_v01.py",
         STUDY / "make_lvh_alias_resolved_reynolds2020_crossmatch_v01.py",
         STUDY / "make_reynolds2020_coverage_ceiling_audit_v01.py",
+        STUDY / "make_reynolds2020_seed_expansion_freeze_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1789,6 +1795,57 @@ def test_reynolds2020_coverage_ceiling_closes_simple_alias_route():
     assert "This closes the simple-alias route" in text
     assert "does not use Vobs residuals" not in text
     assert "velocity-field asymmetry behaves differently from map asymmetry" in text
+
+
+def test_reynolds2020_seed_expansion_freezes_queue_before_readout():
+    with (PACKET / "reynolds2020_seed_expansion_candidate_queue_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 142
+    status_counts = collections.Counter(row["ExpansionStatus"] for row in rows)
+    assert status_counts["already_in_frozen_seed"] == 6
+    assert status_counts["predeclared_candidate_pending_sparc_rotmod_audit"] == 123
+    assert status_counts["excluded_before_scoring"] == 13
+    candidate_rows = [
+        row
+        for row in rows
+        if row["ExpansionStatus"]
+        == "predeclared_candidate_pending_sparc_rotmod_audit"
+    ]
+    assert collections.Counter(row["Survey"] for row in candidate_rows) == {
+        "LVHIS": 64,
+        "VIVA": 45,
+        "HALOGAS": 14,
+    }
+    assert sum(row["PreScorePriority"] == "high" for row in candidate_rows) == 91
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "reynolds2020_seed_expansion_freeze_no_directional_readout"
+    }
+
+    with (PACKET / "reynolds2020_seed_expansion_policy_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        policies = {row["RuleID"]: row for row in csv.DictReader(handle)}
+    assert policies["R20F01"]["NRows"] == "123"
+    assert policies["R20F02"]["NRows"] == "pending"
+    assert policies["R20F03"]["NRows"] == "91"
+    assert policies["R20F05"]["AllowedUse"] == "locks_the_next_endpoint"
+
+    with (PACKET / "reynolds2020_seed_expansion_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R20G01"]["Status"] == "met"
+    assert gates["R20G01"]["N"] == "123"
+    assert gates["R20G02"]["N"] == "91"
+    assert gates["R20G03"]["Status"] == "closed"
+
+    text = (PACKET / "reynolds2020_seed_expansion_freeze_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not calculate any new residual score" in text
+    assert "A Reynolds Amap/Avel directional readout is still forbidden" in text
 
 
 def test_public_package_is_english_only():
