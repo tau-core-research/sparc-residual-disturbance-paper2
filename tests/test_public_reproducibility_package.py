@@ -229,6 +229,12 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "whisp_expanded_w_tau_eff_readout_join_v01.csv",
         PACKET / "whisp_expanded_w_tau_eff_readout_metrics_v01.csv",
         PACKET / "whisp_expanded_w_tau_eff_readout_decision_v01.csv",
+        PACKET / "whisp_holwerda2011_morphology_readout_v01.md",
+        PACKET / "whisp_holwerda2011_download_manifest_v01.csv",
+        PACKET / "whisp_holwerda2011_morphology_catalog_v01.csv",
+        PACKET / "whisp_holwerda2011_w_tau_eff_join_v01.csv",
+        PACKET / "whisp_holwerda2011_w_tau_eff_metrics_v01.csv",
+        PACKET / "whisp_holwerda2011_w_tau_eff_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -321,6 +327,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_yu2022_alfalfa_af_ac_directional_readout_v01.py",
         STUDY / "make_spatial_kinematic_proxy_next_gate_v01.py",
         STUDY / "evaluate_whisp_expanded_w_tau_eff_readout_v01.py",
+        STUDY / "evaluate_whisp_holwerda2011_morphology_readout_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2251,6 +2258,72 @@ def test_whisp_expanded_readout_is_positive_but_below_validation_gate():
     )
     assert "Original seed scores are retained without refit" in text
     assert "below the frozen N>=15 external-validation gate" in text
+
+
+def test_whisp_holwerda2011_morphology_clears_n15_but_stays_whisp_family_only():
+    with (PACKET / "whisp_holwerda2011_download_manifest_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        manifest = {row["FileName"]: row for row in csv.DictReader(handle)}
+    assert set(manifest) == {"ReadMe.txt", "tablea1.dat", "tablea2.dat"}
+    assert manifest["tablea1.dat"]["Bytes"] == "46343"
+    assert manifest["tablea2.dat"]["Bytes"] == "42855"
+    assert {row["PublicPacketUse"] for row in manifest.values()} == {
+        "derived_catalog_and_crossmatch_only"
+    }
+
+    with (PACKET / "whisp_holwerda2011_morphology_catalog_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        catalog = list(csv.DictReader(handle))
+    assert len(catalog) == 141
+    assert collections.Counter(row["SurveyTable"] for row in catalog) == {
+        "Swaters2002_WHISP": 73,
+        "Noordermeer2005_WHISP": 68,
+    }
+
+    with (PACKET / "whisp_holwerda2011_w_tau_eff_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 25
+    assert collections.Counter(row["ScoreSource"] for row in rows) == {
+        "frozen_original_w_tau_eff_seed": 17,
+        "expanded_yu2022_rotmod_scoring_frozen_w_tau_eff_calibration": 8,
+    }
+    assert collections.Counter(row["AsymmetryASplit"] for row in rows) == {
+        "low": 13,
+        "high": 12,
+    }
+
+    with (PACKET / "whisp_holwerda2011_w_tau_eff_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "25"
+    assert metrics["coverage_joined"]["SecondaryValue"] == "original_seed=17;expanded=8"
+    assert metrics["spearman_AsymmetryA_vs_w_tau_score"]["Value"] == "0.235045205"
+    assert metrics["pearson_AsymmetryA_vs_w_tau_score"]["Value"] == "0.161199465"
+    assert metrics["auc_high_vs_low_AsymmetryA"]["Value"] == "0.644230769"
+    assert metrics["median_score_low_AsymmetryA"]["Value"] == "0.554545455"
+    assert metrics["median_score_high_AsymmetryA"]["Value"] == "0.690909091"
+
+    with (PACKET / "whisp_holwerda2011_w_tau_eff_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["WHM01"]["Status"] == "met"
+    assert decisions["WHM01"]["N"] == "25"
+    assert decisions["WHM02"]["Status"] == "positive_source_family_replication"
+    assert decisions["WHM03"]["Status"] == (
+        "WHISP_source_family_only_not_independent_family"
+    )
+
+    text = (PACKET / "whisp_holwerda2011_morphology_readout_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "clears the N>=15 source-family gate" in text
+    assert "not a fully independent external-family validation" in text
 
 
 def test_public_package_is_english_only():
