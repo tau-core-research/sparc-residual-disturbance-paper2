@@ -284,6 +284,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_solver_validation_input_staging_v01.md",
         PACKET / "things_route2_solver_validation_input_staging_manifest_v01.csv",
         PACKET / "things_route2_solver_validation_input_staging_gate_v01.csv",
+        PACKET / "things_route2_solver_validation_fits_v01.md",
+        PACKET / "things_route2_solver_validation_fits_header_v01.csv",
+        PACKET / "things_route2_solver_validation_fits_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -390,6 +393,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "freeze_things_route2_geometry_solver_v01.py",
         STUDY / "make_things_route2_solver_validation_gate_v01.py",
         STUDY / "stage_things_route2_solver_validation_inputs_v01.py",
+        STUDY / "audit_things_route2_solver_validation_fits_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3006,6 +3010,44 @@ def test_things_route2_solver_validation_inputs_are_staged_without_scores():
     assert "Validation galaxies: `NGC2403`, `NGC3198`, `NGC5055`" in text
     assert "No missing-galaxy score is computed here" in text
     assert "No `W_tau_eff` endpoint is opened here" in text
+
+
+def test_things_route2_solver_validation_fits_audit_blocks_missing_scores():
+    with (PACKET / "things_route2_solver_validation_fits_header_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 6
+    assert {row["GalaxyName"] for row in rows} == {"NGC2403", "NGC3198", "NGC5055"}
+    assert collections.Counter(row["SourceRole"] for row in rows) == {
+        "THINGS_HI_MOM0": 3,
+        "SINGS_IRAC1_3P6UM": 3,
+    }
+    assert all(row["HeaderReadable"] == "yes" for row in rows)
+    assert all(row["GitTrackedRaw"] == "no" for row in rows)
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in rows)
+    bunit_by_role = collections.defaultdict(set)
+    for row in rows:
+        bunit_by_role[row["SourceRole"]].add(row["BUNIT"])
+    assert bunit_by_role["THINGS_HI_MOM0"] == {"JY/B*M/S"}
+    assert bunit_by_role["SINGS_IRAC1_3P6UM"] == {"MJy/sr"}
+
+    with (PACKET / "things_route2_solver_validation_fits_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2VALFITS01"]["Status"] == (
+        "validation_fits_headers_readable_for_three_overlap_galaxies"
+    )
+    assert gates["R2VALFITS02"]["Status"] == "source_units_identified"
+    assert gates["R2VALFITS03"]["Status"] == "component_arrays_not_yet_derived"
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in gates.values())
+
+    text = (PACKET / "things_route2_solver_validation_fits_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "No component arrays are derived here" in text
+    assert "No missing-galaxy score is computed here" in text
 
 
 def test_public_package_is_english_only():
