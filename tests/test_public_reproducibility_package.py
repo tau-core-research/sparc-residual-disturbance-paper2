@@ -51,6 +51,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "paper2_abstract_v02.md",
         PACKET / "paper2_section_plan_v02.csv",
         PACKET / "paper2_manuscript_v02_gate.csv",
+        PACKET / "paper2_manuscript_draft_v03.md",
+        PACKET / "paper2_abstract_v03.md",
+        PACKET / "paper2_results_summary_v03.csv",
+        PACKET / "paper2_external_proxy_summary_v03.csv",
+        PACKET / "paper2_manuscript_v03_gate.csv",
         PACKET / "paper2_final_metric_table.csv",
         PACKET / "paper2_readiness_table.csv",
         PACKET / "paper2_figure_plan.csv",
@@ -438,6 +443,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "close_things_route2_expansion_v01.py",
         STUDY / "make_paper2_status_board_v02.py",
         STUDY / "make_paper2_manuscript_v02.py",
+        STUDY / "make_paper2_manuscript_v03.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3449,6 +3455,55 @@ def test_paper2_manuscript_v02_is_diagnostic_and_route2_guardrailed():
     assert {row["CanClaimTauValidation"] for row in gates.values()} == {"no"}
 
 
+def test_paper2_manuscript_v03_is_publication_style_but_still_caveated():
+    draft = (PACKET / "paper2_manuscript_draft_v03.md").read_text(encoding="utf-8")
+    abstract = (PACKET / "paper2_abstract_v03.md").read_text(encoding="utf-8")
+    combined = "\n".join([draft, abstract])
+
+    assert "Residual-shape inference and external-proxy audit" in combined
+    assert "not a Tau Core validation claim" in abstract
+    assert "not gravity-model selection" in abstract
+    assert "The external evidence therefore supports the paper as an audit" in draft
+    assert "THINGS expansion route" in draft
+    assert "closed as not score-ready" in draft
+    assert "Forbidden claims: Tau Core validation" in draft
+    assert "validates Tau Core" not in combined
+    assert "THINGS N>=15" in draft
+    assert "does not claim THINGS N>=15" in draft
+
+    with (PACKET / "paper2_results_summary_v03.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        results = {row["ResultID"]: row for row in csv.DictReader(handle)}
+    assert results["R1"]["Value"] == "0.771008403"
+    assert results["R2"]["Value"] == "0.002000000"
+    assert results["R5"]["Value"] == "0.506302521"
+    assert results["R3"]["ClaimBoundary"] == "reduces projection uniqueness claim"
+
+    with (PACKET / "paper2_external_proxy_summary_v03.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        external = {row["FamilyID"]: row for row in csv.DictReader(handle)}
+    assert external["WHISP_RESOLVED"]["Status"] == "directional_support_but_small_overlap"
+    assert external["REYNOLDS_LVH"]["Status"] == "promising_below_minimum_n"
+    assert external["ALFALFA"]["Status"] == "weak_or_non_directional"
+    assert external["THINGS_ROUTE2"]["Status"] == "closed_not_score_ready"
+    assert external["THINGS_ROUTE2"]["ForbiddenClaim"] == (
+        "THINGS N>=15 or route2 paper-grade external validation"
+    )
+
+    with (PACKET / "paper2_manuscript_v03_gate.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["P2MSV03G01"]["Status"] == "publication_style_draft_generated"
+    assert gates["P2MSV03G02"]["Status"] == (
+        "external_proxy_table_integrated_with_caveats"
+    )
+    assert gates["P2MSV03G03"]["Status"] == "negative_things_route2_audit_retained"
+    assert {row["CanClaimTauValidation"] for row in gates.values()} == {"no"}
+
+
 def test_public_package_is_english_only():
     public_text = "\n".join(
         path.read_text(encoding="utf-8", errors="ignore")
@@ -3457,6 +3512,8 @@ def test_public_package_is_english_only():
             ROOT / "DATA_NOTICE.md",
             PACKET / "paper2_manuscript_skeleton.md",
             PACKET / "paper2_manuscript_draft.md",
+            PACKET / "paper2_manuscript_draft_v03.md",
+            PACKET / "paper2_abstract_v03.md",
             PACKET / "packet_manifest.json",
         ]
     )
