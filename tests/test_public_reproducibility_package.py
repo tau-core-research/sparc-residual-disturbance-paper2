@@ -140,6 +140,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "distance_resolution_environment_join_v01.csv",
         PACKET / "distance_resolution_environment_metrics_v01.csv",
         PACKET / "distance_resolution_environment_decision_v01.csv",
+        PACKET / "multivariable_no_velocity_stress_v01.md",
+        PACKET / "multivariable_no_velocity_stress_join_v01.csv",
+        PACKET / "multivariable_no_velocity_stress_metrics_v01.csv",
+        PACKET / "multivariable_no_velocity_stress_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -209,6 +213,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_p05_things_non_circular_control_v01.py",
         STUDY / "evaluate_p09_observability_decomposition_v01.py",
         STUDY / "evaluate_distance_resolution_environment_join_v01.py",
+        STUDY / "evaluate_multivariable_no_velocity_stress_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1079,6 +1084,50 @@ def test_distance_resolution_environment_join_keeps_formula_endpoint_closed():
     )
     assert "before any velocity formula is opened" in text
     assert "does not select or validate a Tau Core velocity formula" in text
+
+
+def test_multivariable_no_velocity_stress_supports_observer_distance_hypothesis_only():
+    with (PACKET / "multivariable_no_velocity_stress_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 45
+    assert {row["ReadoutUse"] for row in rows} == {
+        "observer_distance_tau_candidate_stress_no_velocity_endpoint"
+    }
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "multivariable_stress_no_velocity_endpoint_no_formula_selection"
+    }
+    assert {row["Class"] for row in rows} == {"A", "C"}
+
+    with (PACKET / "multivariable_no_velocity_stress_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "45"
+    assert metrics["pearson_tau_distance_raw_vs_w_tau_score"]["Value"] == "0.404324367"
+    assert metrics["auc_nearer_vs_farther_tau_distance_raw"]["Value"] == "0.771739130"
+    assert metrics[
+        "partial_pearson_tau_distance_after_nuisance_vs_score_after_nuisance"
+    ]["Value"] == "0.434416486"
+    assert metrics["partial_auc_tau_distance_residual_high_vs_low_score_residual"]["Value"] == "0.662000000"
+    assert metrics["nuisance_model_r2_for_w_tau_score"]["Value"] == "0.207747757"
+
+    with (PACKET / "multivariable_no_velocity_stress_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["MV01"]["Status"] == "observer_distance_candidate_survives_nuisance_stress"
+    assert decisions["MV01"]["NextAction"] == (
+        "freeze_as_hypothesis_not_formula_then_seek_external_environment_distance_validation"
+    )
+    assert decisions["MV02"]["Status"] == "velocity_endpoint_still_closed"
+
+    text = (PACKET / "multivariable_no_velocity_stress_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "without opening a velocity endpoint" in text
+    assert "does not establish a Tau Core field" in text
 
 
 def test_public_package_is_english_only():
