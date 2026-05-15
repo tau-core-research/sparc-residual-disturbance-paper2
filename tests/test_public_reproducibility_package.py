@@ -92,6 +92,9 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "history_s_tau_velocity_point_readout.csv",
         PACKET / "history_s_tau_velocity_galaxy_summary.csv",
         PACKET / "history_s_tau_velocity_metric_summary.csv",
+        PACKET / "tau_core_signal_candidate_v01.md",
+        PACKET / "tau_core_signal_candidate_galaxy_summary_v01.csv",
+        PACKET / "tau_core_signal_candidate_relation_summary_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -149,6 +152,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_contextual_s_tau_rule.py",
         STUDY / "make_integrated_tau_drift_v01.py",
         STUDY / "evaluate_history_s_tau_rule.py",
+        STUDY / "make_tau_core_signal_candidate_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -502,6 +506,48 @@ def test_history_s_tau_rule_uses_inner_residual_history_and_improves_readout():
     text = (PACKET / "history_s_tau_rule_v01.md").read_text(encoding="utf-8")
     assert "current point residual, future points" in text
     assert "source-side proxy for the history state" in text
+
+
+def test_tau_core_signal_candidate_is_framed_without_attribution_claim():
+    with (PACKET / "tau_core_signal_candidate_galaxy_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        galaxies = list(csv.DictReader(handle))
+    assert len(galaxies) == 45
+    assert {row["InterpretationGuardrail"] for row in galaxies} == {
+        "tau_core_signal_candidate_not_attribution_or_proof"
+    }
+
+    with (PACKET / "tau_core_signal_candidate_relation_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["Relation"]: row for row in csv.DictReader(handle)}
+    assert rows["Projection_RMS__vs__TauCoreSignalCandidateScore_v01"]["Pearson"] == "0.731059386"
+    assert rows["Projection_RMS__vs__TauCoreSignalCandidateScore_v01"]["RightAUC_C_higher"] == "0.774159664"
+    assert rows["AbsFinalMeanSignedResidual__vs__HistoryImprovement_PositiveIsBetter"]["Pearson"] == "0.954744346"
+    assert rows["HistoryImprovement_PositiveIsBetter__vs__TauCoreSignalCandidateScore_v01"]["LeftAUC_C_higher"] == "0.762605042"
+    assert {row["InterpretationGuardrail"] for row in rows.values()} == {
+        "tau_core_signal_candidate_not_attribution_or_proof"
+    }
+
+    a_scores = [
+        float(row["TauCoreSignalCandidateScore_v01"])
+        for row in galaxies
+        if row["Class"] == "A"
+    ]
+    c_scores = [
+        float(row["TauCoreSignalCandidateScore_v01"])
+        for row in galaxies
+        if row["Class"] == "C"
+    ]
+    assert round(sorted(a_scores)[len(a_scores) // 2], 9) == 0.304545455
+    assert round((sorted(c_scores)[13] + sorted(c_scores)[14]) / 2, 9) == 0.579545455
+
+    text = (PACKET / "tau_core_signal_candidate_v01.md").read_text(encoding="utf-8")
+    assert "TPG prescription already carries the local Tau Core weights" in text
+    assert "It does not identify the residual itself with Tau Core" in text
+    assert "environment/observer weights" in text
+    assert "Attribution requires external source-side predictors or controls" in text
 
 
 def test_public_package_is_english_only():
