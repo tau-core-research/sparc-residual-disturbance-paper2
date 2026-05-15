@@ -148,6 +148,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "observer_distance_hypothesis_claim_boundary_v01.csv",
         PACKET / "observer_distance_hypothesis_validation_plan_v01.csv",
         PACKET / "observer_distance_hypothesis_readiness_v01.csv",
+        PACKET / "observer_distance_whisp_external_validation_v01.md",
+        PACKET / "observer_distance_whisp_external_validation_join_v01.csv",
+        PACKET / "observer_distance_whisp_external_validation_metrics_v01.csv",
+        PACKET / "observer_distance_whisp_external_validation_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -219,6 +223,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "evaluate_distance_resolution_environment_join_v01.py",
         STUDY / "evaluate_multivariable_no_velocity_stress_v01.py",
         STUDY / "make_observer_distance_hypothesis_gate_v01.py",
+        STUDY / "evaluate_observer_distance_whisp_external_validation_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1179,6 +1184,54 @@ def test_observer_distance_hypothesis_gate_freezes_claim_boundary_and_validation
     assert "hypothesis-level result only" in text
     assert "does not claim a Tau Core field detection" in text
     assert "At least one external source-family validation" in text
+
+
+def test_observer_distance_whisp_external_validation_is_guardrailed():
+    with (PACKET / "observer_distance_whisp_external_validation_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 10
+    assert {row["Class"] for row in rows} == {"C"}
+    assert {row["ReadoutUse"] for row in rows} == {
+        "WHISP_observer_distance_external_validation_no_velocity_endpoint"
+    }
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "whisp_external_validation_no_velocity_endpoint_no_formula_selection"
+    }
+
+    with (PACKET / "observer_distance_whisp_external_validation_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "10"
+    assert metrics["class_coverage"]["Value"] == "C"
+    assert metrics["pearson_tau_distance_raw_vs_w_tau_score"]["Value"] == "0.167726020"
+    assert metrics["auc_nearer_vs_farther_tau_distance_raw"]["Value"] == "0.560000000"
+    assert (
+        metrics["partial_pearson_tau_distance_after_whisp_controls"]["Value"]
+        == "-0.224079320"
+    )
+    assert metrics["partial_auc_tau_distance_after_whisp_controls"]["Value"] == "0.360000000"
+
+    with (PACKET / "observer_distance_whisp_external_validation_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["ODW01"]["Status"] == (
+        "direction_not_reproduced_in_small_whisp_overlap"
+    )
+    assert decisions["ODW01"]["NextAction"] == (
+        "do_not_promote_observer_distance_hypothesis_before_other_external_checks"
+    )
+    assert decisions["ODW02"]["Status"] == "velocity_endpoint_still_closed"
+
+    text = (PACKET / "observer_distance_whisp_external_validation_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not open a velocity endpoint" in text
+    assert "not class-balanced" in text
+    assert "cannot validate a Tau Core field or velocity formula" in text
 
 
 def test_public_package_is_english_only():

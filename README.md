@@ -209,6 +209,14 @@ python studies/sparc_residual_disturbance_inference_v01/evaluate_p07_whisp_holdo
 
 This readout checks whether published WHISP HI lopsidedness/asymmetry aligns with `W_tau_eff` in the overlap. It is a small source-family sanity check, not a final validation.
 
+The WHISP observer-distance external-validation sanity check is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/evaluate_observer_distance_whisp_external_validation_v01.py
+```
+
+This readout tests whether the observer-distance hypothesis direction reproduces inside the WHISP overlap after WHISP/systematics controls. It does not open a velocity endpoint and it is not class-balanced.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
