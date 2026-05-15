@@ -300,6 +300,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_validation_sparc_surface_profile_join_v01.csv",
         PACKET / "things_route2_validation_sparc_surface_profile_metrics_v01.csv",
         PACKET / "things_route2_velocity_solver_validation_gate_v01.csv",
+        PACKET / "things_route2_photometry_policy_v01.md",
+        PACKET / "things_route2_photometry_policy_v01.csv",
+        PACKET / "things_route2_photometry_policy_sparc_join_v01.csv",
+        PACKET / "things_route2_photometry_policy_metrics_v01.csv",
+        PACKET / "things_route2_photometry_policy_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -410,6 +415,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "derive_things_route2_validation_surface_profiles_v01.py",
         STUDY / "convert_things_route2_validation_surface_density_v01.py",
         STUDY / "validate_things_route2_surface_profiles_against_sparc_v01.py",
+        STUDY / "audit_things_route2_photometry_policy_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3202,6 +3208,58 @@ def test_things_route2_velocity_solver_validation_is_blocked_by_profile_check():
         encoding="utf-8"
     )
     assert "not yet a validated route to SPARC-compatible stellar component curves" in text
+    assert "No velocity component arrays are derived here" in text
+    assert "No `W_tau_eff` endpoint is opened here" in text
+
+
+def test_things_route2_background_only_photometry_policy_does_not_unblock_solver():
+    with (PACKET / "things_route2_photometry_policy_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        policies = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert set(policies) == {"NGC2403", "NGC3198", "NGC5055"}
+    assert all(
+        row["FrozenPolicy"]
+        == "subtract_outer_20_percent_radius_median_from_IRAC1_native_profile_floor_at_zero"
+        for row in policies.values()
+    )
+    assert all("W_tau_eff" in row["ForbiddenInputs"] for row in policies.values())
+    assert all(row["CanRunVelocitySolverNow"] == "no" for row in policies.values())
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in policies.values())
+
+    with (PACKET / "things_route2_photometry_policy_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert metrics["NGC2403"]["ValidationStatus"] == (
+        "fail_background_only_photometry_policy"
+    )
+    assert metrics["NGC3198"]["ValidationStatus"] == (
+        "fail_background_only_photometry_policy"
+    )
+    assert metrics["NGC5055"]["ValidationStatus"] == (
+        "fail_background_only_photometry_policy"
+    )
+    assert all(row["CanRunVelocitySolverNow"] == "no" for row in metrics.values())
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in metrics.values())
+
+    with (PACKET / "things_route2_photometry_policy_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2PHOTG01"]["Status"] == (
+        "background_only_photometry_policy_failed_reference_check"
+    )
+    assert gates["R2PHOTG02"]["Status"] == (
+        "route2_missing_galaxy_expansion_remains_blocked"
+    )
+    assert all(row["CanRunVelocitySolverNow"] == "no" for row in gates.values())
+    assert all(row["CanScoreMissingGalaxiesNow"] == "no" for row in gates.values())
+
+    text = (PACKET / "things_route2_photometry_policy_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not validate route 2 stellar photometry" in text
     assert "No velocity component arrays are derived here" in text
     assert "No `W_tau_eff` endpoint is opened here" in text
 

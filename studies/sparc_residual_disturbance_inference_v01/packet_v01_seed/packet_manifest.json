@@ -182,6 +182,11 @@
     "things_route2_input_inventory_v01.csv",
     "things_route2_input_inventory_v01.md",
     "things_route2_mass_model_reconstruction_protocol_v01.md",
+    "things_route2_photometry_policy_gate_v01.csv",
+    "things_route2_photometry_policy_metrics_v01.csv",
+    "things_route2_photometry_policy_sparc_join_v01.csv",
+    "things_route2_photometry_policy_v01.csv",
+    "things_route2_photometry_policy_v01.md",
     "things_route2_primary_input_staging_gate_v01.csv",
     "things_route2_primary_input_staging_manifest_v01.csv",
     "things_route2_primary_input_staging_v01.md",
@@ -286,7 +291,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "route2_freeze_background_subtraction_photometry_policy_before_solver",
+  "paper2_next_gate": "route2_recover_published_mass_model_columns_or_close_route2_expansion",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -352,5 +357,6 @@
   "things_route2_solver_validation_fits_status": "validation_fits_headers_units_readable_no_component_arrays_no_scores",
   "things_route2_validation_surface_profile_status": "native_unit_profiles_derived_no_velocity_solver_no_scores",
   "things_route2_validation_surface_density_status": "surface_density_proxy_profiles_converted_no_velocity_solver_no_scores",
-  "things_route2_velocity_solver_validation_status": "blocked_surface_profile_reference_check_failed_no_scores"
+  "things_route2_velocity_solver_validation_status": "blocked_surface_profile_reference_check_failed_no_scores",
+  "things_route2_photometry_policy_status": "background_only_policy_failed_sparc_reference_check_solver_blocked"
 }
