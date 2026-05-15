@@ -9,6 +9,10 @@
     "contextual_s_tau_velocity_galaxy_summary.csv",
     "contextual_s_tau_velocity_metric_summary.csv",
     "contextual_s_tau_velocity_point_readout.csv",
+    "distance_resolution_environment_decision_v01.csv",
+    "distance_resolution_environment_join_v01.csv",
+    "distance_resolution_environment_join_v01.md",
+    "distance_resolution_environment_metrics_v01.csv",
     "history_s_tau_rule_v01.csv",
     "history_s_tau_rule_v01.md",
     "history_s_tau_velocity_galaxy_summary.csv",
@@ -123,7 +127,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "distance_resolution_environment_join_before_formula",
+  "paper2_next_gate": "multivariable_no_velocity_endpoint_stress_test",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -147,5 +151,6 @@
   "p07_whisp_holdout_status": "source_family_holdout_complete_no_velocity_endpoint",
   "w_env_obs_systematics_competition_status": "systematics_competition_matrix_complete_no_attribution",
   "p05_things_non_circular_control_status": "small_overlap_control_complete_no_velocity_endpoint",
-  "p09_observability_decomposition_status": "galaxy_level_observability_decomposition_complete_no_velocity_endpoint"
+  "p09_observability_decomposition_status": "galaxy_level_observability_decomposition_complete_no_velocity_endpoint",
+  "distance_resolution_environment_join_status": "covariate_decomposition_complete_no_formula_endpoint"
 }

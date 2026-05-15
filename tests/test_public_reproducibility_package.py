@@ -136,6 +136,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "p09_observability_decomposition_join_v01.csv",
         PACKET / "p09_observability_decomposition_metrics_v01.csv",
         PACKET / "p09_observability_decomposition_decision_v01.csv",
+        PACKET / "distance_resolution_environment_join_v01.md",
+        PACKET / "distance_resolution_environment_join_v01.csv",
+        PACKET / "distance_resolution_environment_metrics_v01.csv",
+        PACKET / "distance_resolution_environment_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -204,6 +208,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_w_env_obs_systematics_competition_v01.py",
         STUDY / "evaluate_p05_things_non_circular_control_v01.py",
         STUDY / "evaluate_p09_observability_decomposition_v01.py",
+        STUDY / "evaluate_distance_resolution_environment_join_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1031,6 +1036,49 @@ def test_p09_observability_decomposition_keeps_observer_channel_but_flags_recons
     )
     assert "not as something to erase automatically" in text
     assert "observer geometry should not be dismissed as mere nuisance" in text
+
+
+def test_distance_resolution_environment_join_keeps_formula_endpoint_closed():
+    with (PACKET / "distance_resolution_environment_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 45
+    assert {row["ReadoutUse"] for row in rows} == {
+        "distance_resolution_environment_join_no_formula_endpoint"
+    }
+    assert {row["InterpretationGuardrail"] for row in rows} == {
+        "distance_resolution_environment_control_no_formula_endpoint"
+    }
+    assert sum(1 for row in rows if row["EnvironmentCuePresent"] == "true") == 15
+    assert {row["Class"] for row in rows} == {"A", "C"}
+
+    with (PACKET / "distance_resolution_environment_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "45"
+    assert metrics["environment_cue_coverage"]["Value"] == "15"
+    assert metrics["pearson_DistanceMpc_vs_w_tau_score"]["Value"] == "-0.329848302"
+    assert metrics["spearman_DistanceMpc_vs_w_tau_score"]["Value"] == "-0.447379969"
+    assert metrics["auc_high_vs_low_DistanceSplit"]["Value"] == "0.269762846"
+    assert metrics["auc_high_vs_low_AngularRadiusProxySplit"]["Value"] == "0.432806324"
+    assert metrics["auc_high_vs_low_ReconstructionRiskSplit"]["Value"] == "0.750000000"
+    assert metrics["auc_high_vs_low_EnvMaxThetaSplit"]["Value"] == "0.602040816"
+
+    with (PACKET / "distance_resolution_environment_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["DRE01"]["Status"] == "reconstruction_risk_remains_primary_observability_blocker"
+    assert decisions["DRE01"]["NextAction"] == "freeze_multivariable_no_velocity_endpoint_stress_test"
+    assert decisions["DRE02"]["Status"] == "velocity_endpoint_still_closed"
+
+    text = (PACKET / "distance_resolution_environment_join_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "before any velocity formula is opened" in text
+    assert "does not select or validate a Tau Core velocity formula" in text
 
 
 def test_public_package_is_english_only():
