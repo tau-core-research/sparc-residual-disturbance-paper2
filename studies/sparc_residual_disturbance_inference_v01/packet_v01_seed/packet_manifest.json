@@ -185,6 +185,10 @@
     "w_tau_eff_field_seed_summary_v01.csv",
     "w_tau_eff_field_seed_v01.csv",
     "w_tau_eff_field_seed_v01.md",
+    "whisp_expanded_w_tau_eff_readout_decision_v01.csv",
+    "whisp_expanded_w_tau_eff_readout_join_v01.csv",
+    "whisp_expanded_w_tau_eff_readout_metrics_v01.csv",
+    "whisp_expanded_w_tau_eff_readout_v01.md",
     "whisp_vaneymeren2011_overlap.csv",
     "yu2022_alfalfa_af_ac_directional_readout_v01.md",
     "yu2022_alfalfa_af_ac_w_tau_eff_decision_v01.csv",
@@ -211,7 +215,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "WHISP_radial_lopsidedness_expansion_with_THINGS_control",
+  "paper2_next_gate": "THINGS_control_then_non_WHISP_replication_N_ge_15",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -258,5 +262,6 @@
   "yu2022_alfalfa_seed_expansion_freeze_status": "candidate_queue_frozen_no_directional_readout",
   "yu2022_alfalfa_expanded_w_tau_eff_scoring_status": "expanded_scores_committed_directional_readout_ready_after_commit",
   "yu2022_alfalfa_af_ac_directional_readout_status": "weak_external_source_side_directional_hint_not_validation",
-  "spatial_kinematic_proxy_next_gate_status": "WHISP_radial_lopsidedness_extension_selected_THINGS_control_required"
+  "spatial_kinematic_proxy_next_gate_status": "WHISP_radial_lopsidedness_extension_selected_THINGS_control_required",
+  "whisp_expanded_w_tau_eff_readout_status": "positive_but_below_external_validation_minimum_n"
 }

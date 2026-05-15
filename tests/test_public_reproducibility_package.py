@@ -225,6 +225,10 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "spatial_kinematic_proxy_next_gate_v01.md",
         PACKET / "spatial_kinematic_proxy_next_gate_matrix_v01.csv",
         PACKET / "spatial_kinematic_proxy_next_gate_decision_v01.csv",
+        PACKET / "whisp_expanded_w_tau_eff_readout_v01.md",
+        PACKET / "whisp_expanded_w_tau_eff_readout_join_v01.csv",
+        PACKET / "whisp_expanded_w_tau_eff_readout_metrics_v01.csv",
+        PACKET / "whisp_expanded_w_tau_eff_readout_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -316,6 +320,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "score_yu2022_alfalfa_expanded_w_tau_eff_v01.py",
         STUDY / "evaluate_yu2022_alfalfa_af_ac_directional_readout_v01.py",
         STUDY / "make_spatial_kinematic_proxy_next_gate_v01.py",
+        STUDY / "evaluate_whisp_expanded_w_tau_eff_readout_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2201,6 +2206,51 @@ def test_spatial_kinematic_proxy_next_gate_selects_whisp_with_things_control():
     assert "does not fit a new endpoint" in text
     assert "WHISP is prioritized" in text
     assert "THINGS remains mandatory" in text
+
+
+def test_whisp_expanded_readout_is_positive_but_below_validation_gate():
+    with (PACKET / "whisp_expanded_w_tau_eff_readout_join_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 14
+    assert collections.Counter(row["ScoreSource"] for row in rows) == {
+        "frozen_original_w_tau_eff_seed": 10,
+        "expanded_yu2022_rotmod_scoring_frozen_w_tau_eff_calibration": 4,
+    }
+    assert collections.Counter(row["WHISP_BurdenSplit"] for row in rows) == {
+        "low": 7,
+        "high": 7,
+    }
+    assert {row["ReadoutUse"] for row in rows} == {
+        "WHISP_full_overlap_original_plus_expanded_W_tau_eff_no_refit"
+    }
+
+    with (PACKET / "whisp_expanded_w_tau_eff_readout_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["coverage_joined"]["Value"] == "14"
+    assert metrics["coverage_joined"]["SecondaryValue"] == "original_seed=10;expanded=4"
+    assert metrics["pearson_whisp_burden_vs_w_tau_score"]["Value"] == "0.391218683"
+    assert metrics["spearman_whisp_burden_vs_w_tau_score"]["Value"] == "0.362637363"
+    assert metrics["auc_high_vs_low_whisp_burden"]["Value"] == "0.714285714"
+    assert metrics["pearson_radial_contrast_vs_w_tau_score"]["Value"] == "0.374287364"
+    assert metrics["pearson_epsilon_kin_vs_w_tau_score"]["Value"] == "0.273373152"
+
+    with (PACKET / "whisp_expanded_w_tau_eff_readout_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["WXR01"]["Status"] == "positive_but_not_paper_grade"
+    assert decisions["WXR01"]["N"] == "14"
+    assert decisions["WXR02"]["Status"] == "diagnostic_only"
+
+    text = (PACKET / "whisp_expanded_w_tau_eff_readout_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Original seed scores are retained without refit" in text
+    assert "below the frozen N>=15 external-validation gate" in text
 
 
 def test_public_package_is_english_only():
