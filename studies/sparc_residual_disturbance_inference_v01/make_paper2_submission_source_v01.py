@@ -29,6 +29,7 @@ SAMPLE_TABLE = PACKET / "paper2_ac_sample_appendix_v01.csv"
 BASELINE_CI_TABLE = PACKET / "paper2_baseline_auc_ci_v01.csv"
 EXTERNAL_GATE_TABLE = PACKET / "paper2_external_proxy_gate_table_v01.csv"
 B_SENSITIVITY_TABLE = PACKET / "paper2_b_class_sensitivity_v01.csv"
+OBSERVABILITY_TABLE = PACKET / "paper2_observability_covariate_appendix_v01.csv"
 
 GUARDRAIL = "paper2_submission_source_ready_no_tau_validation_no_external_overclaim"
 
@@ -212,6 +213,60 @@ def b_sensitivity_rows() -> list[dict[str, str]]:
     ]
 
 
+def observability_rows() -> list[dict[str, str]]:
+    metrics = {
+        row["Metric"]: row for row in read_csv(PACKET / "multivariable_no_velocity_stress_metrics_v01.csv")
+    }
+    wanted = [
+        "partial_pearson_tau_distance_after_nuisance_vs_score_after_nuisance",
+        "partial_auc_tau_distance_residual_high_vs_low_score_residual",
+        "nuisance_model_r2_for_w_tau_score",
+        "pearson_NPoints_z_vs_w_tau_score",
+        "pearson_MeanErrVobsKms_z_vs_w_tau_score",
+        "pearson_InclinationErrorDeg_z_vs_w_tau_score",
+        "pearson_DistanceFractionalError_z_vs_w_tau_score",
+    ]
+    output = []
+    for metric in wanted:
+        row = metrics[metric]
+        output.append(
+            {
+                "Metric": metric,
+                "N": row["N"],
+                "Value": row["Value"],
+                "SecondaryValue": row["SecondaryValue"],
+                "Interpretation": "observability_covariate_stress_not_bias_erasure",
+                "Guardrail": GUARDRAIL,
+            }
+        )
+    return output
+
+
+def observability_latex_rows() -> str:
+    labels = {
+        "partial_pearson_tau_distance_after_nuisance_vs_score_after_nuisance": "partial distance residual correlation",
+        "partial_auc_tau_distance_residual_high_vs_low_score_residual": "partial distance residual AUC",
+        "nuisance_model_r2_for_w_tau_score": "nuisance-only model R2",
+        "pearson_NPoints_z_vs_w_tau_score": "point-count correlation",
+        "pearson_MeanErrVobsKms_z_vs_w_tau_score": "velocity-error correlation",
+        "pearson_InclinationErrorDeg_z_vs_w_tau_score": "inclination-error correlation",
+        "pearson_DistanceFractionalError_z_vs_w_tau_score": "distance-error correlation",
+    }
+    secondary = {
+        "partial_pearson_tau_distance_after_nuisance_vs_score_after_nuisance": "nuisance controls",
+        "partial_auc_tau_distance_residual_high_vs_low_score_residual": "residual split",
+        "nuisance_model_r2_for_w_tau_score": "nuisance-only",
+        "pearson_NPoints_z_vs_w_tau_score": "nuisance channel",
+        "pearson_MeanErrVobsKms_z_vs_w_tau_score": "nuisance channel",
+        "pearson_InclinationErrorDeg_z_vs_w_tau_score": "nuisance channel",
+        "pearson_DistanceFractionalError_z_vs_w_tau_score": "nuisance channel",
+    }
+    return "\n".join(
+        f"{latex_escape(labels[row['Metric']])} & {latex_escape(row['N'])} & {latex_escape(row['Value'])} & {latex_escape(secondary[row['Metric']])}\\\\"
+        for row in observability_rows()
+    )
+
+
 def save_pdf(name: str) -> None:
     SOURCE_FIGURES.mkdir(parents=True, exist_ok=True)
     plt.savefig(SOURCE_FIGURES / name, format="pdf", bbox_inches="tight")
@@ -274,28 +329,23 @@ def plot_projection_rms_distribution() -> None:
 
 
 def plot_baseline_auc_comparison() -> None:
-    baseline_rows = read_csv(PACKET / "paper2_baseline_family_loogo.csv")
-    newtonian = read_csv(PACKET / "paper2_newtonian_scope.csv")
-    values = {
-        "Projection": next(row for row in baseline_rows if row["Predictor"] == "Projection_RMS")[
-            "AUC_C_higher"
-        ],
-        "MOND": next(row for row in baseline_rows if row["Predictor"] == "MOND_RMS")[
-            "AUC_C_higher"
-        ],
-        "RAR": next(row for row in baseline_rows if row["Predictor"] == "RAR_RMS")[
-            "AUC_C_higher"
-        ],
-        "Newtonian": next(
-            row for row in newtonian if row["Predictor"] == "Newtonian_Baryonic_RMS"
-        )["AUC_C_higher"],
-    }
-    labels = list(values)
-    aucs = [float(values[label]) for label in labels]
+    ci_rows = baseline_ci_rows()
+    labels = ["Projection", "MOND", "RAR", "Newtonian"]
+    aucs = [float(row["AUC_C_higher"]) for row in ci_rows]
+    lows = [float(row["BootstrapCI95Low"]) for row in ci_rows]
+    highs = [float(row["BootstrapCI95High"]) for row in ci_rows]
+    yerr = [[auc - low for auc, low in zip(aucs, lows)], [high - auc for auc, high in zip(aucs, highs)]]
     colors = ["#2a6fbb", "#3f8f4f", "#7b5aa6", "#777777"]
 
     plt.figure(figsize=(6.4, 4.0))
-    bars = plt.bar(labels, aucs, color=colors, width=0.62)
+    bars = plt.bar(
+        labels,
+        aucs,
+        color=colors,
+        width=0.62,
+        yerr=yerr,
+        error_kw={"elinewidth": 1.2, "capsize": 3, "capthick": 1.2, "ecolor": "#222222"},
+    )
     plt.axhline(0.5, color="#333333", linewidth=1.0, linestyle=":", label="chance")
     plt.ylim(0.4, 0.85)
     plt.ylabel("LOOGO AUC")
@@ -349,6 +399,71 @@ def plot_error_audit() -> None:
     save_pdf("paper2_error_audit.pdf")
 
 
+def plot_confusion_matrix() -> None:
+    rows = [
+        row
+        for row in read_csv(PACKET / "residual_inference_loogo_predictions.csv")
+        if row["Predictor"] == "Projection_RMS"
+    ]
+    matrix = [[0, 0], [0, 0]]
+    for row in rows:
+        true_index = 0 if row["TrueClass"] == "A" else 1
+        pred_index = 0 if row["PredictedClass"] == "A" else 1
+        matrix[true_index][pred_index] += 1
+
+    fig, ax = plt.subplots(figsize=(4.4, 4.0))
+    im = ax.imshow(matrix, cmap="Blues", vmin=0, vmax=max(max(row) for row in matrix))
+    ax.set_xticks([0, 1], ["Pred. A", "Pred. C"])
+    ax.set_yticks([0, 1], ["True A", "True C"])
+    ax.set_title("Projection RMS confusion matrix")
+    for i, row in enumerate(matrix):
+        for j, value in enumerate(row):
+            ax.text(j, i, str(value), ha="center", va="center", color="#111111", fontsize=14)
+    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    plt.tight_layout()
+    save_pdf("paper2_confusion_matrix.pdf")
+
+
+def plot_projection_roc() -> None:
+    rows = [
+        row
+        for row in read_csv(PACKET / "residual_inference_loogo_predictions.csv")
+        if row["Predictor"] == "Projection_RMS"
+    ]
+    scores = [float(row["Score"]) for row in rows]
+    thresholds = [min(scores) - 1e-6] + sorted(set(scores)) + [max(scores) + 1e-6]
+    points = []
+    for threshold in thresholds:
+        tp = fp = tn = fn = 0
+        for row in rows:
+            pred_c = float(row["Score"]) >= threshold
+            true_c = row["TrueClass"] == "C"
+            if pred_c and true_c:
+                tp += 1
+            elif pred_c and not true_c:
+                fp += 1
+            elif not pred_c and true_c:
+                fn += 1
+            else:
+                tn += 1
+        tpr = tp / (tp + fn)
+        fpr = fp / (fp + tn)
+        points.append((fpr, tpr))
+    points = sorted(points)
+
+    plt.figure(figsize=(4.6, 4.2))
+    plt.plot([point[0] for point in points], [point[1] for point in points], color="#2a6fbb", linewidth=1.8)
+    plt.plot([0, 1], [0, 1], linestyle=":", color="#555555", linewidth=1.0)
+    plt.xlabel("False-positive rate")
+    plt.ylabel("True-positive rate")
+    plt.title("Projection RMS ROC curve")
+    plt.text(0.58, 0.14, "AUC=0.771", fontsize=11)
+    plt.xlim(-0.02, 1.02)
+    plt.ylim(-0.02, 1.02)
+    plt.tight_layout()
+    save_pdf("paper2_projection_roc.pdf")
+
+
 def plot_distance_stress() -> None:
     rows = read_csv(PACKET / "paper2_observability_stress.csv")
     labels = []
@@ -380,6 +495,8 @@ def generate_figures() -> None:
     plot_projection_rms_distribution()
     plot_baseline_auc_comparison()
     plot_error_audit()
+    plot_confusion_matrix()
+    plot_projection_roc()
     plot_distance_stress()
 
 
@@ -531,6 +648,7 @@ def tex_text() -> str:
         f"{latex_escape(b_rows[0]['BPredictedC_like'])} & "
         f"{latex_escape(b_rows[0]['BPredictedA_like'])} & descriptive only\\\\"
     )
+    observability_table = observability_latex_rows()
     tex = r"""\documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
@@ -542,7 +660,7 @@ def tex_text() -> str:
 
 \title{Residual-shape inference and external-proxy audit of structural disturbance in SPARC rotation curves}
 \author{Jozsef Olcsak}
-\date{Working submission candidate, 2026}
+\date{2026}
 
 \begin{document}
 \maketitle
@@ -562,6 +680,8 @@ The scope is deliberately narrow. This paper does not use residuals to redefine 
 The working A/C sample contains 45 SPARC galaxies inherited from the Paper 1 reproducibility packet: 17 externally regular A systems and 28 externally disturbed C systems. SPARC rotation-curve and mass-model context follows \cite{Lelli2016SPARC,Lelli2016SPARCZenodo}. B-class systems remain excluded from the primary target labels because they encode uncertainty by construction. The residual features are computed from the fixed Paper 1 point map and are not retrained on the external-proxy catalogues.
 
 The public packet contains the derived tables, scripts, figures, and audit records needed to regenerate the diagnostic results. Raw survey products and raw SPARC rotmod files are not redistributed by this repository.
+
+The projection-family score is treated operationally as a fixed residual map inherited from Paper 1, without requiring the physical correctness of the underlying projection ansatz. This convention is central to the audit: the paper tests residual information content, not the physical validity of the projection model.
 
 \section{Residual-shape endpoint and validation design}
 
@@ -643,6 +763,12 @@ The error audit is retained because a useful diagnostic must show where it fails
 \caption{Held-out classification outcome counts for the Projection RMS threshold rule.}
 \end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.58\linewidth]{figures/paper2_confusion_matrix.pdf}
+\caption{Confusion matrix for the held-out Projection RMS rule.}
+\end{figure}
+
 These failures are not relabeling evidence. They are targets for follow-up inspection, especially where residual morphology, inclination, radial coverage, and H\,I kinematic asymmetry disagree.
 
 \begin{table}[H]
@@ -695,6 +821,21 @@ Accordingly, the result should be read as a reproducible SPARC diagnostic associ
 
 The distance-stress labels are operational. Greedy unique matching pairs each A galaxy with one nearby C galaxy without reusing controls. Optimal ordered matching sorts both classes by distance and pairs by rank. The Mpc-caliper check keeps only pairs within the frozen maximum distance separation. These checks are not a full selection-function model.
 
+\begin{table}[H]
+\centering
+\caption{Observability and nuisance-covariate stress summaries.}
+\footnotesize
+\begin{tabular}{lrrl}
+\toprule
+Check & N & Value & Secondary value\\
+\midrule
+{observability_table}
+\bottomrule
+\end{tabular}
+\end{table}
+
+This appendix-style stress table is not a full hierarchical model or a claim of bias removal. It documents that observability channels were inspected and that residual association should remain caveated until a larger external holdout can support multivariable inference.
+
 \section{Claim boundary and Phase II}
 
 Allowed claim: fixed residual-shape features recover externally reviewed A/C disturbance class better than chance in the current SPARC packet, and several external proxy readouts provide mixed but informative context.
@@ -702,6 +843,14 @@ Allowed claim: fixed residual-shape features recover externally reviewed A/C dis
 Forbidden claims: Tau Core validation, gravity-model selection, projection-formula uniqueness, replacement of external labels by residual-only labels, broad independent external validation, or THINGS route2 positive evidence.
 
 The next paper-grade step is a held-out external source-family test with $N\geq15$, a frozen evidence rule, no velocity-endpoint refit, explicit observability covariates, and predefined failure conditions. A negative Phase II result should be treated as evidence that the present association is SPARC-specific, proxy-specific, or observability-driven.
+
+\section{ROC appendix}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.58\linewidth]{figures/paper2_projection_roc.pdf}
+\caption{ROC curve for the Projection RMS score using the frozen A/C labels.}
+\end{figure}
 
 \appendix
 
@@ -730,6 +879,7 @@ Galaxy & Class & Distance & Incl. & Points & Projection RMS\\
         tex.replace("{ci_table}", ci_table)
         .replace("{b_table}", b_table)
         .replace("{external_table}", external_table)
+        .replace("{observability_table}", observability_table)
         .replace("{sample_table}", sample_table)
     )
 
@@ -764,6 +914,22 @@ def figure_audit_rows() -> list[dict[str, str]]:
             "Figure": "paper2_distance_stress.pdf",
             "Source": "paper2_observability_stress.csv",
             "TypographyStatus": "publication_candidate",
+            "CaptionStatus": "short_descriptive_caption_in_latex",
+            "VectorExport": "pdf",
+            "Guardrail": GUARDRAIL,
+        },
+        {
+            "Figure": "paper2_confusion_matrix.pdf",
+            "Source": "residual_inference_loogo_predictions.csv",
+            "TypographyStatus": "publication_candidate",
+            "CaptionStatus": "short_descriptive_caption_in_latex",
+            "VectorExport": "pdf",
+            "Guardrail": GUARDRAIL,
+        },
+        {
+            "Figure": "paper2_projection_roc.pdf",
+            "Source": "residual_inference_loogo_predictions.csv",
+            "TypographyStatus": "appendix_candidate",
             "CaptionStatus": "short_descriptive_caption_in_latex",
             "VectorExport": "pdf",
             "Guardrail": GUARDRAIL,
@@ -940,6 +1106,7 @@ def update_manifest() -> None:
         BASELINE_CI_TABLE,
         EXTERNAL_GATE_TABLE,
         B_SENSITIVITY_TABLE,
+        OBSERVABILITY_TABLE,
     ]:
         files.add(path.name)
     manifest["files"] = sorted(files)
@@ -1018,6 +1185,11 @@ def main() -> None:
             "Interpretation",
             "Guardrail",
         ],
+    )
+    write_csv(
+        OBSERVABILITY_TABLE,
+        observability_rows(),
+        ["Metric", "N", "Value", "SecondaryValue", "Interpretation", "Guardrail"],
     )
     update_manifest()
     print(PDF)

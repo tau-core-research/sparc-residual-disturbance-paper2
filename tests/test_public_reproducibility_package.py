@@ -26,6 +26,8 @@ def test_publication_repo_checklist_files_exist():
         ROOT / "paper2_submission_source/figures/paper2_projection_rms_distribution.pdf",
         ROOT / "paper2_submission_source/figures/paper2_baseline_auc_comparison.pdf",
         ROOT / "paper2_submission_source/figures/paper2_error_audit.pdf",
+        ROOT / "paper2_submission_source/figures/paper2_confusion_matrix.pdf",
+        ROOT / "paper2_submission_source/figures/paper2_projection_roc.pdf",
         ROOT / "paper2_submission_source/figures/paper2_distance_stress.pdf",
         ROOT / "figures/README.md",
         ROOT / "tests",
@@ -75,6 +77,7 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "paper2_baseline_auc_ci_v01.csv",
         PACKET / "paper2_external_proxy_gate_table_v01.csv",
         PACKET / "paper2_b_class_sensitivity_v01.csv",
+        PACKET / "paper2_observability_covariate_appendix_v01.csv",
         PACKET / "paper2_final_metric_table.csv",
         PACKET / "paper2_readiness_table.csv",
         PACKET / "paper2_figure_plan.csv",
@@ -3570,6 +3573,8 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
     assert "\\bibliography{references}" in tex
     assert "not a Tau Core validation claim" in tex
     assert "Forbidden claims: Tau Core validation" in tex
+    assert "Working submission candidate" not in tex
+    assert "The projection-family score is treated operationally" in tex
     assert "r_{{m,gi}}" in tex
     assert "All points are weighted equally" in tex
     assert "1000 shuffles with random seed 20260515" in tex
@@ -3577,6 +3582,8 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
     assert "promising but sample-limited" in tex
     assert "Greedy unique matching" in tex
     assert "A/C sample table" in tex
+    assert "Observability and nuisance-covariate stress summaries" in tex
+    assert "ROC curve" in tex
     assert "Lelli2016SPARC" in bib
     assert "Trachternach2008THINGS" in bib
     assert "Reynolds2020HIAsymmetries" in bib
@@ -3597,8 +3604,8 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
         newline="", encoding="utf-8"
     ) as handle:
         figures = list(csv.DictReader(handle))
-    assert len(figures) == 4
-    assert {row["TypographyStatus"] for row in figures} == {"publication_candidate"}
+    assert len(figures) == 6
+    assert "appendix_candidate" in {row["TypographyStatus"] for row in figures}
     assert {row["VectorExport"] for row in figures} == {"pdf"}
 
     with (PACKET / "paper2_ac_sample_appendix_v01.csv").open(
@@ -3632,6 +3639,18 @@ def test_paper2_submission_source_closes_previous_publication_blockers():
         b_sensitivity = list(csv.DictReader(handle))
     assert b_sensitivity[0]["BPredictedC_like"] == "13"
     assert b_sensitivity[0]["BPredictedA_like"] == "15"
+
+    with (PACKET / "paper2_observability_covariate_appendix_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        observability = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert observability["nuisance_model_r2_for_w_tau_score"]["Value"] == "0.207747757"
+    assert (
+        observability[
+            "partial_pearson_tau_distance_after_nuisance_vs_score_after_nuisance"
+        ]["Value"]
+        == "0.434416486"
+    )
 
     with (PACKET / "paper2_submission_readiness_v02.csv").open(
         newline="", encoding="utf-8"

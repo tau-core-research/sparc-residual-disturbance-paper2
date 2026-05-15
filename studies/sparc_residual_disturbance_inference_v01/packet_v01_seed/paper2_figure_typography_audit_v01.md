@@ -6,6 +6,8 @@ All submission-candidate figures are regenerated as vector PDF files under `pape
 - `paper2_baseline_auc_comparison.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `paper2_baseline_family_loogo.csv;paper2_newtonian_scope.csv`.
 - `paper2_error_audit.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `residual_inference_projection_rms_error_audit.csv`.
 - `paper2_distance_stress.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `paper2_observability_stress.csv`.
+- `paper2_confusion_matrix.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `residual_inference_loogo_predictions.csv`.
+- `paper2_projection_roc.pdf`: appendix_candidate; short_descriptive_caption_in_latex; source `residual_inference_loogo_predictions.csv`.
 
 The figures remain reproducible from packet tables and do not introduce new data or endpoint tuning.
 
