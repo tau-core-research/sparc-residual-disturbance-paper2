@@ -174,6 +174,9 @@
     "things_route2_fits_header_readiness_v01.csv",
     "things_route2_fits_readiness_v01.md",
     "things_route2_frozen_rules_v01.csv",
+    "things_route2_geometry_policy_v01.csv",
+    "things_route2_geometry_solver_gate_v01.csv",
+    "things_route2_geometry_solver_protocol_v01.md",
     "things_route2_input_download_manifest_v01.csv",
     "things_route2_input_inventory_gate_v01.csv",
     "things_route2_input_inventory_v01.csv",
@@ -184,6 +187,8 @@
     "things_route2_primary_input_staging_v01.md",
     "things_route2_required_inputs_v01.csv",
     "things_route2_scoring_gate_v01.csv",
+    "things_route2_surface_density_conversion_policy_v01.csv",
+    "things_route2_velocity_solver_policy_v01.csv",
     "things_source_s_tau_failure_audit.md",
     "things_source_s_tau_failure_galaxy_audit.csv",
     "things_source_s_tau_failure_metric_summary.csv",
@@ -258,7 +263,7 @@
   "classifier_gate_status": "projection_rms_primary_baseline_frozen",
   "projection_rms_error_audit_status": "error_taxonomy_complete_no_residual_relabeling",
   "paper2_seed_status": "cautious_diagnostic_paper_seed_not_tau_validation",
-  "paper2_next_gate": "route2_freeze_geometry_and_surface_density_velocity_solver",
+  "paper2_next_gate": "route2_validate_solver_on_existing_sparc_overlap_before_missing_scores",
   "paper2_validation_controls_status": "shuffle_null_baseline_family_distance_stress_added",
   "paper2_calibration_policy_status": "calibration_b_policy_newtonian_scope_frozen",
   "paper2_manuscript_packet_status": "skeleton_final_tables_and_figure_plan_ready",
@@ -317,5 +322,6 @@
   "things_route2_mass_model_protocol_status": "frozen_protocol_only_no_new_scores",
   "things_route2_input_inventory_status": "two_primary_source_input_candidates_identified_not_score_ready",
   "things_route2_primary_input_staging_status": "NGC925_NGC3031_raw_inputs_staged_ignored_no_scores",
-  "things_route2_fits_readiness_status": "headers_readable_component_arrays_not_derived_no_scores"
+  "things_route2_fits_readiness_status": "headers_readable_component_arrays_not_derived_no_scores",
+  "things_route2_geometry_solver_status": "geometry_conversion_solver_policy_frozen_no_component_arrays_no_scores"
 }

@@ -272,6 +272,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_route2_fits_readiness_v01.md",
         PACKET / "things_route2_fits_header_readiness_v01.csv",
         PACKET / "things_route2_component_derivation_readiness_gate_v01.csv",
+        PACKET / "things_route2_geometry_solver_protocol_v01.md",
+        PACKET / "things_route2_geometry_policy_v01.csv",
+        PACKET / "things_route2_surface_density_conversion_policy_v01.csv",
+        PACKET / "things_route2_velocity_solver_policy_v01.csv",
+        PACKET / "things_route2_geometry_solver_gate_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -375,6 +380,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_things_route2_input_inventory_v01.py",
         STUDY / "stage_things_route2_primary_inputs_v01.py",
         STUDY / "audit_things_route2_fits_readiness_v01.py",
+        STUDY / "freeze_things_route2_geometry_solver_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -2804,6 +2810,82 @@ def test_things_route2_fits_readiness_blocks_scoring_until_solver_freeze():
     assert "THINGS MOM0/MOM1 products are readable" in text
     assert "Component arrays are still not derived" in text
     assert "Apply a frozen disk-potential or external solver rule" in text
+
+
+def test_things_route2_geometry_solver_policy_is_frozen_before_scoring():
+    with (PACKET / "things_route2_geometry_policy_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        geometry = {row["GalaxyName"]: row for row in csv.DictReader(handle)}
+    assert set(geometry) == {"NGC925", "NGC3031"}
+    assert geometry["NGC925"]["DistanceMpc"] == "9.2"
+    assert geometry["NGC925"]["InclinationDeg"] == "66.0"
+    assert geometry["NGC925"]["PositionAngleDeg"] == "286.6"
+    assert geometry["NGC925"]["VsysKms"] == "546.3"
+    assert geometry["NGC3031"]["DistanceMpc"] == "3.6"
+    assert geometry["NGC3031"]["InclinationDeg"] == "59.0"
+    assert geometry["NGC3031"]["PositionAngleDeg"] == "330.2"
+    assert geometry["NGC3031"]["VsysKms"] == "-39.8"
+    assert geometry["NGC3031"]["AliasResolution"] == (
+        "NGC3031_M81_header_alias_M81NORTH"
+    )
+    assert all(row["CanTuneAfterScore"] == "no" for row in geometry.values())
+    assert all(
+        row["ScoreUse"] == "frozen_geometry_seed_only_no_score_here"
+        for row in geometry.values()
+    )
+
+    with (PACKET / "things_route2_surface_density_conversion_policy_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        conversions = {row["Component"]: row for row in csv.DictReader(handle)}
+    assert conversions["HI_gas"]["InputBUNIT"] == "JY/B*M/S"
+    assert conversions["HI_gas"]["MassFactor"] == "1.4"
+    assert conversions["stellar_disk_NGC925"]["InputBUNIT"] == "MJy/sr"
+    assert conversions["stellar_disk_NGC925"]["MLPolicy"] == (
+        "disk_ML_3p6_equals_0p65_zero_bulge_candidate"
+    )
+    assert conversions["stellar_disk_and_central_component_NGC3031"]["MLPolicy"] == (
+        "disk_ML_3p6_equals_0p8_central_component_ML_3p6_equals_1p0_mu0_12p2_h_0p25kpc"
+    )
+    assert all(row["CanTuneAfterScore"] == "no" for row in conversions.values())
+    assert all(row["CanScoreNow"] == "no" for row in conversions.values())
+    assert all("W_tau_eff" in row["ForbiddenInputs"] for row in conversions.values())
+
+    with (PACKET / "things_route2_velocity_solver_policy_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        solvers = {row["SolverID"]: row for row in csv.DictReader(handle)}
+    assert solvers["R2SOLVER01"]["ValidationRequirement"] == (
+        "validate_against_existing_THINGS_SPARC_overlap_before_scoring_missing_galaxies"
+    )
+    assert solvers["R2SOLVER02"]["ValidationRequirement"] == (
+        "must_reproduce_existing_SPARC_component_curves_with_predeclared_tolerance_before_use"
+    )
+    assert all(row["CanTuneAfterScore"] == "no" for row in solvers.values())
+    assert all(row["CanScoreNow"] == "no" for row in solvers.values())
+    assert all("W_tau_eff" in row["ForbiddenInputs"] for row in solvers.values())
+
+    with (PACKET / "things_route2_geometry_solver_gate_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["R2SOLV01"]["Status"] == (
+        "geometry_policy_frozen_for_NGC925_NGC3031"
+    )
+    assert gates["R2SOLV02"]["Status"] == "conversion_policy_frozen_not_implemented"
+    assert gates["R2SOLV03"]["Status"] == (
+        "velocity_solver_policy_frozen_requires_validation"
+    )
+    assert gates["R2SOLV04"]["Status"] == "component_arrays_still_absent"
+    assert all(row["CanScoreNow"] == "no" for row in gates.values())
+
+    text = (PACKET / "things_route2_geometry_solver_protocol_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "No component arrays are derived here" in text
+    assert "No `W_tau_eff` score is computed here" in text
+    assert "Validate the component-derivation solver on existing THINGS/SPARC overlap" in text
 
 
 def test_public_package_is_english_only():
