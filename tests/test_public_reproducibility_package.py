@@ -46,6 +46,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "packet_manifest.json",
         PACKET / "paper2_manuscript_skeleton.md",
         PACKET / "paper2_manuscript_draft.md",
+        PACKET / "paper2_manuscript_skeleton_v02.md",
+        PACKET / "paper2_manuscript_draft_v02.md",
+        PACKET / "paper2_abstract_v02.md",
+        PACKET / "paper2_section_plan_v02.csv",
+        PACKET / "paper2_manuscript_v02_gate.csv",
         PACKET / "paper2_final_metric_table.csv",
         PACKET / "paper2_readiness_table.csv",
         PACKET / "paper2_figure_plan.csv",
@@ -432,6 +437,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "audit_things_published_mass_model_recovery_v02.py",
         STUDY / "close_things_route2_expansion_v01.py",
         STUDY / "make_paper2_status_board_v02.py",
+        STUDY / "make_paper2_manuscript_v02.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -3407,6 +3413,40 @@ def test_paper2_status_board_v02_reflects_route2_closure_and_claim_boundary():
     )
     assert "Route2 is closed as not score-ready" in text
     assert "must not claim Tau Core validation" in text
+
+
+def test_paper2_manuscript_v02_is_diagnostic_and_route2_guardrailed():
+    skeleton = (PACKET / "paper2_manuscript_skeleton_v02.md").read_text(
+        encoding="utf-8"
+    )
+    draft = (PACKET / "paper2_manuscript_draft_v02.md").read_text(encoding="utf-8")
+    abstract = (PACKET / "paper2_abstract_v02.md").read_text(encoding="utf-8")
+    combined = "\n".join([skeleton, draft, abstract])
+
+    assert "diagnostic residual-inference and external-proxy audit" in combined
+    assert "not a Tau Core validation paper" in skeleton
+    assert "not a Tau Core validation claim" in abstract
+    assert "THINGS route2" in combined
+    assert "closed as not score-ready" in combined
+    assert "validates Tau Core" not in combined
+    assert "Tau Core validation result" not in combined
+
+    with (PACKET / "paper2_section_plan_v02.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        sections = {row["Section"]: row for row in csv.DictReader(handle)}
+    assert "6. Negative Audit: THINGS Route2" in sections
+    assert sections["6. Negative Audit: THINGS Route2"]["ForbiddenContent"] == (
+        "THINGS N>=15"
+    )
+
+    with (PACKET / "paper2_manuscript_v02_gate.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        gates = {row["GateID"]: row for row in csv.DictReader(handle)}
+    assert gates["P2MSV02G01"]["Status"] == "v02_skeleton_and_abstract_generated"
+    assert gates["P2MSV02G02"]["Status"] == "route2_demoted_to_negative_audit_appendix"
+    assert {row["CanClaimTauValidation"] for row in gates.values()} == {"no"}
 
 
 def test_public_package_is_english_only():
