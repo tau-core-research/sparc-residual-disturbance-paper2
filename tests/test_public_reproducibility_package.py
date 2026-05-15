@@ -63,6 +63,11 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "predictive_s_tau_velocity_point_readout.csv",
         PACKET / "predictive_s_tau_velocity_galaxy_summary.csv",
         PACKET / "predictive_s_tau_velocity_metric_summary.csv",
+        PACKET / "radial_s_tau_rule_v01.md",
+        PACKET / "radial_s_tau_rule_v01.csv",
+        PACKET / "radial_s_tau_velocity_point_readout.csv",
+        PACKET / "radial_s_tau_velocity_galaxy_summary.csv",
+        PACKET / "radial_s_tau_velocity_metric_summary.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -114,6 +119,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_s_tau_eff_pilot.py",
         STUDY / "make_predictive_s_tau_rule.py",
         STUDY / "evaluate_predictive_s_tau_velocity.py",
+        STUDY / "evaluate_radial_s_tau_rule.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -231,6 +237,36 @@ def test_predictive_s_tau_velocity_readout_is_no_refit_and_mixed():
     assert "No coefficients are refit" in text
     assert "weak or mixed result" in text
     assert "radial or kinematic source information" in text
+
+
+def test_radial_s_tau_rule_is_frozen_and_still_caveated_for_c_systems():
+    with (PACKET / "radial_s_tau_rule_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rules = list(csv.DictReader(handle))
+    assert len(rules) == 5
+    assert {row["AllowedInputs"] for row in rules} == {
+        "EvidenceType;Confidence;RadiusFraction;aN_over_a0"
+    }
+    assert {row["ForbiddenInputs"] for row in rules} == {
+        "Vobs;Vbar;Projection_RMS;residuals;S_tau_eff;Class"
+    }
+
+    with (PACKET / "radial_s_tau_velocity_metric_summary.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["Subset"]: row for row in csv.DictReader(handle)}
+    assert rows["all"]["MedianDeltaRMS_RadialMinusS1"] == "-0.010837261"
+    assert rows["all"]["FractionGalaxiesImproved"] == "0.555555556"
+    assert rows["A"]["MedianDeltaRMS_RadialMinusS1"] == "-0.010837261"
+    assert rows["C"]["MedianDeltaRMS_RadialMinusS1"] == "0.006546441"
+    assert {row["InterpretationGuardrail"] for row in rows.values()} == {
+        "radial_velocity_residual_readout_not_refit"
+    }
+
+    text = (PACKET / "radial_s_tau_rule_v01.md").read_text(encoding="utf-8")
+    assert "does not use `Vobs`, residuals, or `S_tau_eff`" in text
+    assert "leakage-controlled radial heuristic" in text
 
 
 def test_public_package_is_english_only():

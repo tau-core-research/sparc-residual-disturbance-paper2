@@ -95,6 +95,14 @@ python studies/sparc_residual_disturbance_inference_v01/evaluate_predictive_s_ta
 
 This readout is intentionally allowed to use the derived velocity-level table only after the source-side rule is frozen.
 
+The first frozen radial/source-side rule is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/evaluate_radial_s_tau_rule.py
+```
+
+It adds only `RadiusFraction` and `aN/a0` to the source metadata. It is still a heuristic readout, not a fitted physical law.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
