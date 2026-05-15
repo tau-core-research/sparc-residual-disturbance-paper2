@@ -1,0 +1,4 @@
+Subset,NGalaxies,MedianDeltaRMS_SourcePercentileMinusS1,MeanDeltaRMS_SourcePercentileMinusS1,FractionGalaxiesImprovedPercentile,MedianDeltaRMS_SourceLogMinusS1,MeanDeltaRMS_SourceLogMinusS1,FractionGalaxiesImprovedLog,MedianRMS_S_tau1,MedianRMS_SourcePercentile,MedianRMS_SourceLog,InterpretationGuardrail
+all,7,0.136344406,0.153903051,0.285714286,0.207599642,0.206205309,0.000000000,0.138812043,0.253284296,0.351588925,things_source_s_tau_velocity_readout_no_refit_not_validation
+A,4,0.145138879,0.233354835,0.250000000,0.237130558,0.299730983,0.000000000,0.118427336,0.265714942,0.357706621,things_source_s_tau_velocity_readout_no_refit_not_validation
+C,3,0.014173140,0.047967338,0.333333333,0.022111705,0.081504410,0.000000000,0.239111156,0.253284296,0.261222862,things_source_s_tau_velocity_readout_no_refit_not_validation

@@ -68,6 +68,12 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "radial_s_tau_velocity_point_readout.csv",
         PACKET / "radial_s_tau_velocity_galaxy_summary.csv",
         PACKET / "radial_s_tau_velocity_metric_summary.csv",
+        PACKET / "path_b_source_only_stau_readout.md",
+        PACKET / "path_b_source_only_stau_readout_joined_points.csv",
+        PACKET / "things_source_s_tau_velocity_readout.md",
+        PACKET / "things_source_s_tau_velocity_point_readout.csv",
+        PACKET / "things_source_s_tau_velocity_galaxy_summary.csv",
+        PACKET / "things_source_s_tau_velocity_metric_summary.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -120,6 +126,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "make_predictive_s_tau_rule.py",
         STUDY / "evaluate_predictive_s_tau_velocity.py",
         STUDY / "evaluate_radial_s_tau_rule.py",
+        STUDY / "evaluate_things_source_s_tau_velocity.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -267,6 +274,52 @@ def test_radial_s_tau_rule_is_frozen_and_still_caveated_for_c_systems():
     text = (PACKET / "radial_s_tau_rule_v01.md").read_text(encoding="utf-8")
     assert "does not use `Vobs`, residuals, or `S_tau_eff`" in text
     assert "leakage-controlled radial heuristic" in text
+
+
+def test_things_source_s_tau_velocity_gate_is_small_overlap_and_no_refit():
+    with (PACKET / "path_b_source_only_stau_readout_joined_points.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        source_rows = list(csv.DictReader(handle))
+    assert len(source_rows) == 245
+    assert {row["ReadoutStatus"] for row in source_rows} == {
+        "source_only_bounded_stau_sensitivity_not_model_selection"
+    }
+    assert {
+        row["GalaxyName"] for row in source_rows
+    } == {"DDO154", "NGC2366", "NGC2403", "NGC2976", "NGC3198", "NGC5055", "NGC7331"}
+
+    with (PACKET / "things_source_s_tau_velocity_point_readout.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        point_rows = list(csv.DictReader(handle))
+    assert len(point_rows) == 245
+    assert {row["InterpretationGuardrail"] for row in point_rows} == {
+        "things_source_s_tau_velocity_readout_no_refit_not_validation"
+    }
+    assert max(float(row["JoinRadiusDeltaKpc"]) for row in point_rows) == 0.0
+
+    with (PACKET / "things_source_s_tau_velocity_metric_summary.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        rows = {row["Subset"]: row for row in csv.DictReader(handle)}
+    assert set(rows) == {"all", "A", "C"}
+    assert rows["all"]["NGalaxies"] == "7"
+    assert rows["all"]["MedianDeltaRMS_SourcePercentileMinusS1"] == "0.136344406"
+    assert rows["all"]["FractionGalaxiesImprovedPercentile"] == "0.285714286"
+    assert rows["all"]["MedianDeltaRMS_SourceLogMinusS1"] == "0.207599642"
+    assert rows["all"]["FractionGalaxiesImprovedLog"] == "0.000000000"
+    assert rows["C"]["MedianDeltaRMS_SourcePercentileMinusS1"] == "0.014173140"
+    assert rows["C"]["MedianDeltaRMS_SourceLogMinusS1"] == "0.022111705"
+    assert {row["InterpretationGuardrail"] for row in rows.values()} == {
+        "things_source_s_tau_velocity_readout_no_refit_not_validation"
+    }
+
+    text = (PACKET / "things_source_s_tau_velocity_readout.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not select one by outcome" in text
+    assert "not external validation and not a Tau Core proof" in text
 
 
 def test_public_package_is_english_only():

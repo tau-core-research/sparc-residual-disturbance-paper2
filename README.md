@@ -103,6 +103,14 @@ python studies/sparc_residual_disturbance_inference_v01/evaluate_radial_s_tau_ru
 
 It adds only `RadiusFraction` and `aN/a0` to the source metadata. It is still a heuristic readout, not a fitted physical law.
 
+The THINGS source-side ring-level `S_tau(R)` velocity readout is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/evaluate_things_source_s_tau_velocity.py
+```
+
+This optional gate uses the copied THINGS overlap readout in `path_b_source_only_stau_readout_joined_points.csv`. It reports both frozen bounded mappings, does not refit any coefficient, and does not select a mapping by outcome.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
