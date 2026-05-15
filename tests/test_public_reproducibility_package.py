@@ -179,6 +179,12 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "things_table3_w_tau_eff_overlap_v01.csv",
         PACKET / "things_table3_w_tau_eff_metrics_v01.csv",
         PACKET / "things_table3_expansion_decision_v01.csv",
+        PACKET / "reynolds2020_asymmetry_crossmatch_v01.md",
+        PACKET / "reynolds2020_vizier_download_manifest_v01.csv",
+        PACKET / "reynolds2020_asymmetry_catalog_v01.csv",
+        PACKET / "reynolds2020_asymmetry_w_tau_eff_crossmatch_v01.csv",
+        PACKET / "reynolds2020_asymmetry_crossmatch_metrics_v01.csv",
+        PACKET / "reynolds2020_asymmetry_crossmatch_decision_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -260,6 +266,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "derive_halogas_moment_features_v01.py",
         STUDY / "evaluate_halogas_moment_proxy_v01.py",
         STUDY / "make_things_table3_expanded_overlap_v01.py",
+        STUDY / "make_reynolds2020_asymmetry_crossmatch_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -1607,6 +1614,69 @@ def test_things_table3_expanded_overlap_is_below_gate_and_not_positive():
     )
     assert "does not open a velocity endpoint" in text
     assert "Minimum N gate: not_met" in text
+
+
+def test_reynolds2020_asymmetry_crossmatch_ingests_vizier_but_below_gate():
+    with (PACKET / "reynolds2020_vizier_download_manifest_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        downloads = {row["FileName"]: row for row in csv.DictReader(handle)}
+    assert set(downloads) == {"ReadMe.txt", "tablea1.dat", "tablea2.dat", "tablea3.dat"}
+    assert {row["Status"] for row in downloads.values()} == {"downloaded"}
+    assert {row["PublicPacketUse"] for row in downloads.values()} == {
+        "derived_catalog_and_crossmatch_only"
+    }
+
+    with (PACKET / "reynolds2020_asymmetry_catalog_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        catalog = list(csv.DictReader(handle))
+    assert len(catalog) == 142
+    assert {row["Survey"] for row in catalog} == {"LVHIS", "VIVA", "HALOGAS"}
+    assert {row["AllowedUse"] for row in catalog} == {
+        "published_resolved_HI_asymmetry_proxy_only"
+    }
+
+    with (PACKET / "reynolds2020_asymmetry_w_tau_eff_crossmatch_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        cross = {row["ExternalName"]: row for row in csv.DictReader(handle)}
+    assert set(cross) == {"NGC3198", "NGC4559", "NGC5055", "NGC5585"}
+    assert {row["Survey"] for row in cross.values()} == {"HALOGAS"}
+    assert cross["NGC5055"]["Class"] == "C"
+    assert cross["NGC5055"]["Amap"] == "0.270000000"
+    assert {row["ReadoutUse"] for row in cross.values()} == {
+        "non_WHISP_resolved_HI_asymmetry_crossmatch_no_velocity_endpoint"
+    }
+
+    with (PACKET / "reynolds2020_asymmetry_crossmatch_metrics_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        metrics = {row["Metric"]: row for row in csv.DictReader(handle)}
+    assert metrics["reynolds2020_catalog_rows"]["Value"] == "142"
+    assert metrics["exact_w_tau_eff_crossmatch_rows"]["Value"] == "4"
+    assert metrics["exact_w_tau_eff_crossmatch_rows"]["SecondaryValue"] == "HALOGAS"
+    assert metrics["pearson_amap_vs_w_tau_score"]["Value"] == "0.514475616"
+    assert metrics["pearson_avel_vs_w_tau_score"]["Value"] == "0.063521995"
+    assert metrics["minimum_non_whisp_asymmetry_gate"]["Value"] == "not_met"
+
+    with (PACKET / "reynolds2020_asymmetry_crossmatch_decision_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        decisions = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert decisions["R20D01"]["Status"] == (
+        "catalog_ingested_but_exact_overlap_below_minimum_n"
+    )
+    assert decisions["R20D01"]["NextAction"] == (
+        "resolve_LVHIS_aliases_or_expand_W_tau_eff_seed_before_directional_claim"
+    )
+    assert decisions["R20D02"]["Status"] == "closed"
+
+    text = (PACKET / "reynolds2020_asymmetry_crossmatch_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "does not open a velocity endpoint" in text
+    assert "LVHIS alias resolution is the next step" in text
 
 
 def test_public_package_is_english_only():

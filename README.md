@@ -275,6 +275,14 @@ python studies/sparc_residual_disturbance_inference_v01/make_things_table3_expan
 
 This curates the published Trachternach et al. harmonic-decomposition summary values, joins them to `W_tau_eff`, and freezes the current THINGS expansion status.
 
+The Reynolds et al. 2020 resolved H I asymmetry VizieR crossmatch is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_reynolds2020_asymmetry_crossmatch_v01.py
+```
+
+This parses `J/MNRAS/493/5089`, joins exact-name overlaps to `W_tau_eff`, and records the remaining LVHIS alias-resolution blocker.
+
 ## Scope
 
 This repository is a reproducibility package for Paper 2 only. It is a diagnostic residual-shape inference packet. It is not a Tau Core theory repository, not a gravity proof, and not a replacement for external evidence labels.
