@@ -27,6 +27,7 @@ def test_slim_publication_files_exist():
         ROOT / "paper2_submission_source/main.tex",
         ROOT / "paper2_submission_source/references.bib",
         ROOT / "paper2_submission_source/main.pdf",
+        ROOT / "arxiv_submission_source.zip",
         ROOT / "paper2_submission_source/figures/paper2_projection_rms_distribution.pdf",
         ROOT / "paper2_submission_source/figures/paper2_baseline_auc_comparison.pdf",
         ROOT / "paper2_submission_source/figures/paper2_error_audit.pdf",
@@ -146,6 +147,27 @@ def test_appendix_tables_capture_outlier_and_stability_checks():
     assert {row["VectorExport"] for row in figures} == {"pdf"}
 
 
+def test_arxiv_source_zip_contains_only_tex_bib_and_figures():
+    import zipfile
+
+    with zipfile.ZipFile(ROOT / "arxiv_submission_source.zip") as archive:
+        names = sorted(name for name in archive.namelist() if not name.endswith("/"))
+
+    assert names == [
+        "figures/paper2_auc_stability_distributions.pdf",
+        "figures/paper2_baseline_auc_comparison.pdf",
+        "figures/paper2_confusion_matrix.pdf",
+        "figures/paper2_distance_stress.pdf",
+        "figures/paper2_error_audit.pdf",
+        "figures/paper2_projection_rms_distribution.pdf",
+        "figures/paper2_projection_roc.pdf",
+        "main.tex",
+        "references.bib",
+    ]
+    assert "main.pdf" not in names
+    assert not any(name.endswith(".log") for name in names)
+
+
 def test_repo_is_slim_and_raw_data_free():
     tracked = subprocess.run(
         ["git", "ls-files"],
@@ -155,7 +177,7 @@ def test_repo_is_slim_and_raw_data_free():
         text=True,
     ).stdout.splitlines()
 
-    assert len(tracked) <= 70
+    assert len(tracked) <= 71
     assert not any(path.startswith("data/raw/") for path in tracked)
     assert not any(path.startswith("data/sparc/Rotmod_LTG/") for path in tracked)
     assert not any("tau_core_signal_candidate" in path for path in tracked)

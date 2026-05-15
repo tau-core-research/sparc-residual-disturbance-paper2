@@ -19,6 +19,7 @@ paper2_submission_source/main.tex
 paper2_submission_source/references.bib
 paper2_submission_source/main.pdf
 paper2_submission_source/figures/
+arxiv_submission_source.zip
 figures/
 tests/test_public_reproducibility_package.py
 studies/sparc_residual_disturbance_inference_v01/make_paper2_submission_source_v01.py
@@ -90,6 +91,24 @@ python -m pytest -q
 ```
 
 The script requires `tectonic` to regenerate `paper2_submission_source/main.pdf`. If `tectonic` is unavailable, the source files still regenerate, but the PDF gate will report a compile blocker.
+
+## arXiv Source Package
+
+The repository includes:
+
+```text
+arxiv_submission_source.zip
+```
+
+This ZIP contains only the TeX submission source:
+
+```text
+main.tex
+references.bib
+figures/*.pdf
+```
+
+It intentionally excludes build logs, preview files, raw data, and the generated manuscript PDF.
 
 ## Data Boundary
 
