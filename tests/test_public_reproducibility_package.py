@@ -120,6 +120,14 @@ def test_paper2_packet_referenced_paths_exist():
         PACKET / "p07_whisp_w_tau_eff_holdout_v01.md",
         PACKET / "p07_whisp_w_tau_eff_holdout_join_v01.csv",
         PACKET / "p07_whisp_w_tau_eff_holdout_metric_summary_v01.csv",
+        PACKET / "w_env_obs_systematics_competition_v01.md",
+        PACKET / "w_env_obs_systematics_competition_matrix_v01.csv",
+        PACKET / "w_env_obs_systematics_competition_coverage_v01.csv",
+        PACKET / "w_env_obs_systematics_competition_readiness_v01.csv",
+        PACKET / "systematics_control_things_harmonic_summary_v01.csv",
+        PACKET / "systematics_control_littlethings_pressure_summary_v01.csv",
+        PACKET / "systematics_control_halogas_linewidth_summary_v01.csv",
+        PACKET / "systematics_control_inclination_summary_v01.csv",
         PACKET / "residual_feature_table.csv",
         PACKET / "residual_disturbance_score_v01.csv",
         PACKET / "residual_inference_loogo_metric_summary.csv",
@@ -185,6 +193,7 @@ def test_regeneration_scripts_exist_in_expected_order():
         STUDY / "freeze_w_env_obs_proxy_design_v01.py",
         STUDY / "evaluate_proxy_direction_vs_w_tau_eff_v01.py",
         STUDY / "evaluate_p07_whisp_holdout_v01.py",
+        STUDY / "make_w_env_obs_systematics_competition_v01.py",
     ]
     missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
     assert missing == []
@@ -850,6 +859,71 @@ def test_p07_whisp_holdout_is_positive_but_small_overlap():
     assert "does not evaluate velocity residuals" in text
     assert "AUC high-vs-low WHISP burden: 0.760000000" in text
     assert "source-family sanity check rather than a final validation" in text
+
+
+def test_w_env_obs_systematics_competition_blocks_attribution_until_controls():
+    with (PACKET / "w_env_obs_systematics_competition_matrix_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        matrix = {row["ControlID"]: row for row in csv.DictReader(handle)}
+    assert set(matrix) == {"S01", "S02", "S03", "S04", "S05", "S06"}
+    assert matrix["S01"]["ProxyID"] == "P05"
+    assert matrix["S01"]["Decision"] == "must_control_before_velocity_formula"
+    assert matrix["S04"]["ProxyID"] == "P09"
+    assert matrix["S04"]["CanCompeteNow"] == "summary_only"
+    assert matrix["S04"]["Decision"] == "blocks_attribution_until_galaxy_level_join"
+    assert matrix["S05"]["CurrentReadout"] == "AUC=0.774159664"
+    assert matrix["S06"]["CurrentReadout"] == "AUC=0.760000000;Pearson=0.441950994"
+    assert {row["InterpretationGuardrail"] for row in matrix.values()} == {
+        "systematics_competition_no_attribution_no_velocity_endpoint"
+    }
+
+    with (PACKET / "w_env_obs_systematics_competition_coverage_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        coverage = {row["Family"]: row for row in csv.DictReader(handle)}
+    assert coverage["P01_paper1_external_evidence"]["JoinedWithWTauEff"] == "45"
+    assert coverage["P07_WHISP_lopsidedness"]["JoinedWithWTauEff"] == "10"
+    assert coverage["P05_THINGS_harmonic_non_circular"]["JoinedWithWTauEff"] == "7"
+    assert coverage["P06_LITTLE_THINGS_pressure"]["JoinedWithWTauEff"] == "2"
+    assert coverage["P08_HALOGAS_linewidth"]["JoinedWithWTauEff"] == "5"
+    assert coverage["P09_inclination_systematics"]["JoinedWithWTauEff"] == "binned_summary"
+
+    with (PACKET / "systematics_control_things_harmonic_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        things = list(csv.DictReader(handle))
+    assert len(things) == 7
+    assert "MeanAbsResidualProjection" not in things[0]
+    assert "MeanAbsResidualMONDSimple" not in things[0]
+    assert {row["ControlUse"] for row in things} == {
+        "published_harmonic_non_circular_control_only"
+    }
+
+    with (PACKET / "systematics_control_halogas_linewidth_summary_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        halogas = list(csv.DictReader(handle))
+    assert len(halogas) == 5
+    assert "MeanAbsResidualProjection" not in halogas[0]
+    assert {row["ControlUse"] for row in halogas} == {
+        "external_linewidth_stress_control_only"
+    }
+
+    with (PACKET / "w_env_obs_systematics_competition_readiness_v01.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        readiness = {row["DecisionID"]: row for row in csv.DictReader(handle)}
+    assert readiness["D01"]["Status"] == "supported_but_not_attributed"
+    assert readiness["D02"]["Status"] == "open_blocker_for_formula"
+    assert readiness["D03"]["Status"] == "blocked"
+    assert readiness["D04"]["NextAction"] == "P05_non_circular_overlap_control_before_S_tau_formula"
+
+    text = (PACKET / "w_env_obs_systematics_competition_v01.md").read_text(
+        encoding="utf-8"
+    )
+    assert "The velocity endpoint remains closed" in text
+    assert "not a new positive endpoint" in text
 
 
 def test_public_package_is_english_only():

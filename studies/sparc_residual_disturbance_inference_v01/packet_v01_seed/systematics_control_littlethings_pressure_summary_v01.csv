@@ -1,0 +1,4 @@
+GalaxyName,ClassAuditOnly,NJoinedPoints,MedianSigmaOverVc,MedianInnerSigmaOverVc,P80SigmaOverVc,MedianPressureProxyKms,ReadoutStatus,ControlUse,InterpretationGuardrail
+DDO154,A,,,,,,,dwarf_pressure_support_control_only,systematics_competition_no_attribution_no_velocity_endpoint
+DDO168,B,,,,,,,dwarf_pressure_support_control_only,systematics_competition_no_attribution_no_velocity_endpoint
+NGC2366,C,,,,,,,dwarf_pressure_support_control_only,systematics_competition_no_attribution_no_velocity_endpoint

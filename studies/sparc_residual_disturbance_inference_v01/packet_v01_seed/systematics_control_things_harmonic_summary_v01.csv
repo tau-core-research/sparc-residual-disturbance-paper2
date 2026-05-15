@@ -1,0 +1,8 @@
+GalaxyName,PublishedName,ClassAuditOnly,NResidualPoints,MedianNonCircularAmplitudeKms,MedianNonCircularAmplitudeInner1KpcKms,NonCircularAmplitudeOverVmaxPercent,MedianAbsResidualVelocityAfterHarmonicKms,RmaxArcsec,SourceArxiv,ControlUse,InterpretationGuardrail
+NGC2366,NGC 2366,C,26,2.94,1.17,5.3,2.4,252,0810.2116,published_harmonic_non_circular_control_only,systematics_competition_no_attribution_no_velocity_endpoint
+NGC2403,NGC 2403,A,73,4.03,2.60,3.0,2.9,950,0810.2116,published_harmonic_non_circular_control_only,systematics_competition_no_attribution_no_velocity_endpoint
+NGC2976,NGC 2976,C,27,2.81,2.18,3.5,2.1,147,0810.2116,published_harmonic_non_circular_control_only,systematics_competition_no_attribution_no_velocity_endpoint
+NGC3198,NGC 3198,A,43,4.49,1.50,3.0,2.6,565,0810.2116,published_harmonic_non_circular_control_only,systematics_competition_no_attribution_no_velocity_endpoint
+DDO154,DDO 154,A,12,1.61,1.43,3.4,1.2,325,0810.2116,published_harmonic_non_circular_control_only,systematics_competition_no_attribution_no_velocity_endpoint
+NGC5055,NGC 5055,C,28,4.11,8.38,2.2,3.1,450,0810.2116,published_harmonic_non_circular_control_only,systematics_competition_no_attribution_no_velocity_endpoint
+NGC7331,NGC 7331,A,36,5.94,,2.6,4.2,297,0810.2116,published_harmonic_non_circular_control_only,systematics_competition_no_attribution_no_velocity_endpoint

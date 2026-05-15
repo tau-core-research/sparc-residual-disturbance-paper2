@@ -17,3 +17,17 @@ This is a prediction/diagnostic pilot, not a Tau Core proof and not an
 external-label validation replacement. Any classifier trained on the Paper 1
 labels must be treated as exploratory unless it is tested on held-out galaxies
 or an independent source family.
+
+## Regeneration
+
+The current packet is regenerated incrementally. The late-stage W_env_obs
+control gate is:
+
+```bash
+python studies/sparc_residual_disturbance_inference_v01/make_w_env_obs_systematics_competition_v01.py
+```
+
+This creates the systematics competition matrix and sanitized control summaries.
+It preserves the key guardrail: positive proxy-direction readouts do not open a
+velocity endpoint or a Tau Core attribution claim before non-circular-motion and
+observability controls compete.
