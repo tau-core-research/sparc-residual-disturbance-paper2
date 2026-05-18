@@ -145,7 +145,7 @@ def test_appendix_tables_capture_outlier_and_stability_checks():
     assert stability["auc_without_CamB"]["Value"] == "0.819196429"
 
     figures = read_csv(PACKET / "paper2_figure_typography_audit_v01.csv")
-    assert len(figures) == 7
+    assert len(figures) == 8
     assert {row["VectorExport"] for row in figures} == {"pdf"}
 
 
@@ -161,6 +161,7 @@ def test_arxiv_source_zip_contains_only_tex_bib_and_figures():
         "figures/paper2_confusion_matrix.pdf",
         "figures/paper2_distance_stress.pdf",
         "figures/paper2_error_audit.pdf",
+        "figures/paper2_illustrative_rotation_curves.pdf",
         "figures/paper2_projection_rms_distribution.pdf",
         "figures/paper2_projection_roc.pdf",
         "main.tex",
@@ -179,7 +180,7 @@ def test_repo_is_slim_and_raw_data_free():
         text=True,
     ).stdout.splitlines()
 
-    assert len(tracked) <= 71
+    assert len(tracked) <= 74
     assert not any(path.startswith("data/raw/") for path in tracked)
     assert not any(path.startswith("data/sparc/Rotmod_LTG/") for path in tracked)
     assert not any("tau_core_signal_candidate" in path for path in tracked)

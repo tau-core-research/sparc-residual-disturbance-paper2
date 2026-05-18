@@ -13,7 +13,7 @@ Closed blockers:
 - Manuscript identity: ready_as_diagnostic_audit_candidate (paper2_submission_source/main.tex).
 - Submission source: ready (main.tex;main.pdf).
 - Bibliography: ready (references.bib).
-- Figures: ready_as_publication_candidate (four vector PDF figures; figure typography audit).
+- Figures: ready_as_publication_candidate (vector PDF figures; figure typography audit).
 - Claim boundary: ready (main.tex claim-boundary section; source gate).
 
 ## Remaining Non-Blocking Work

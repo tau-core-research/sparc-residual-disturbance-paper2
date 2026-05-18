@@ -9,6 +9,7 @@ All submission-candidate figures are regenerated as vector PDF files under `pape
 - `paper2_confusion_matrix.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `residual_inference_loogo_predictions.csv`.
 - `paper2_projection_roc.pdf`: appendix_candidate; short_descriptive_caption_in_latex; source `residual_inference_loogo_predictions.csv`.
 - `paper2_auc_stability_distributions.pdf`: appendix_candidate; short_descriptive_caption_in_latex; source `residual_feature_table.csv;paper2_shuffled_label_null.csv`.
+- `paper2_illustrative_rotation_curves.pdf`: publication_candidate_illustrative; explicitly_not_primary_endpoint; source `studies/illustrative_rotation_curves/ddo126_points.csv;studies/illustrative_rotation_curves/ddo50_points.csv`.
 
 The figures remain reproducible from packet tables and do not introduce new data or endpoint tuning.
 

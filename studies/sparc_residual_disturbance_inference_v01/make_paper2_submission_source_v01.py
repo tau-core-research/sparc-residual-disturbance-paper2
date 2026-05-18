@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import csv
+import math
 import os
 import json
 import random
 import shutil
 import subprocess
+import zipfile
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -21,6 +23,7 @@ SOURCE_FIGURES = SOURCE / "figures"
 MAIN_TEX = SOURCE / "main.tex"
 REFERENCES = SOURCE / "references.bib"
 PDF = SOURCE / "main.pdf"
+ZIP_PATH = ROOT / "arxiv_submission_source.zip"
 FIGURE_AUDIT_MD = PACKET / "paper2_figure_typography_audit_v01.md"
 FIGURE_AUDIT_CSV = PACKET / "paper2_figure_typography_audit_v01.csv"
 SOURCE_GATE = PACKET / "paper2_submission_source_gate_v01.csv"
@@ -33,6 +36,7 @@ B_SENSITIVITY_TABLE = PACKET / "paper2_b_class_sensitivity_v01.csv"
 OBSERVABILITY_TABLE = PACKET / "paper2_observability_covariate_appendix_v01.csv"
 OUTLIER_TABLE = PACKET / "paper2_outlier_failure_case_appendix_v01.csv"
 STABILITY_TABLE = PACKET / "paper2_stability_effect_size_v01.csv"
+ILLUSTRATIVE_CURVES = ROOT / "studies/illustrative_rotation_curves"
 
 GUARDRAIL = "paper2_submission_source_ready_no_tau_validation_no_external_overclaim"
 
@@ -45,7 +49,7 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 def write_csv(path: Path, rows: list[dict[str, str]], fieldnames: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -727,6 +731,103 @@ def plot_distance_stress() -> None:
     save_pdf("paper2_distance_stress.pdf")
 
 
+def illustrative_rotation_rows() -> dict[str, list[dict[str, str]]]:
+    sources = {
+        "DDO126": ILLUSTRATIVE_CURVES / "ddo126_points.csv",
+        "DDO50": ILLUSTRATIVE_CURVES / "ddo50_points.csv",
+    }
+    return {galaxy: read_csv(path) for galaxy, path in sources.items() if path.exists()}
+
+
+def plot_illustrative_rotation_curves() -> None:
+    model_rows = illustrative_rotation_rows()
+    if not {"DDO126", "DDO50"} <= set(model_rows):
+        return
+
+    model_styles = {
+        "NewtonianBaryonic": ("Newtonian baryonic", "#6b7280", "--"),
+        "MONDSimpleMu": ("MOND simple-$\\mu$", "#2563eb", "-."),
+        "EmpiricalRARLike": ("RAR-like", "#0891b2", ":"),
+        "FixedTPG_S1": ("fixed projection", "#b91c1c", "-"),
+    }
+    fig, axes = plt.subplots(2, 2, figsize=(9.0, 6.5), sharex="col")
+    for col, galaxy in enumerate(["DDO126", "DDO50"]):
+        grouped: dict[float, dict[str, object]] = {}
+        for row in model_rows[galaxy]:
+            radius = float(row["RadiusKpc"])
+            grouped.setdefault(
+                radius,
+                {
+                    "RadiusKpc": radius,
+                    "VobsKms": float(row["VobsKms"]),
+                    "ErrVobsKms": float(row["ErrVobsKms"]),
+                    "RequiredS_tauDiagnostic": float(row["RequiredS_tauDiagnostic"]),
+                },
+            )
+            grouped[radius][row["Model"]] = float(row["VmodelKms"])
+
+        points = [grouped[key] for key in sorted(grouped)]
+        radii = [float(point["RadiusKpc"]) for point in points]
+        vobs = [float(point["VobsKms"]) for point in points]
+        verr = [float(point["ErrVobsKms"]) for point in points]
+        req_s = [float(point["RequiredS_tauDiagnostic"]) for point in points]
+
+        ax_curve = axes[0][col]
+        ax_curve.errorbar(
+            radii,
+            vobs,
+            yerr=verr,
+            fmt="o",
+            ms=3.3,
+            lw=0.8,
+            color="#111827",
+            ecolor="#9ca3af",
+            capsize=1.4,
+            label="$V_{\\rm obs}$",
+            zorder=5,
+        )
+        for model, (label, color, linestyle) in model_styles.items():
+            xs = [float(point["RadiusKpc"]) for point in points if model in point]
+            values = [float(point[model]) for point in points if model in point]
+            ax_curve.plot(xs, values, linestyle=linestyle, color=color, lw=1.35, label=label)
+        ax_curve.set_title(f"{galaxy} rotation curve", fontsize=11)
+        ax_curve.set_ylabel("velocity [km s$^{-1}$]")
+        ax_curve.grid(True, alpha=0.22)
+        if col == 1:
+            ax_curve.legend(frameon=False, fontsize=7.5, loc="best")
+
+        ax_diag = axes[1][col]
+        fixed_points = [point for point in points if "FixedTPG_S1" in point]
+        fixed_x = [float(point["RadiusKpc"]) for point in fixed_points]
+        fixed_residual = [
+            math.log(float(point["VobsKms"]) / float(point["FixedTPG_S1"]))
+            for point in fixed_points
+            if float(point["FixedTPG_S1"]) > 0
+        ]
+        ax_diag.axhline(0.0, color="#111827", lw=0.7, alpha=0.5)
+        ax_diag.plot(
+            fixed_x[: len(fixed_residual)],
+            fixed_residual,
+            color="#b91c1c",
+            lw=1.2,
+            label="fixed-projection log residual",
+        )
+        ax_diag.set_ylabel("log residual")
+        ax_diag.set_xlabel("radius [kpc]")
+        ax_diag.grid(True, alpha=0.22)
+        twin = ax_diag.twinx()
+        twin.plot(radii, req_s, color="#047857", lw=1.1, alpha=0.85, label="required $S_\\tau$")
+        twin.set_ylabel("required $S_\\tau$")
+        if col == 1:
+            lines, labels = ax_diag.get_legend_handles_labels()
+            lines2, labels2 = twin.get_legend_handles_labels()
+            ax_diag.legend(lines + lines2, labels + labels2, frameon=False, fontsize=7.5, loc="best")
+
+    fig.suptitle("Illustrative rotation-curve diagnostics", fontsize=12)
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
+    save_pdf("paper2_illustrative_rotation_curves.pdf")
+
+
 def generate_figures() -> None:
     style()
     plot_projection_rms_distribution()
@@ -736,6 +837,7 @@ def generate_figures() -> None:
     plot_projection_roc()
     plot_stability_distributions()
     plot_distance_stress()
+    plot_illustrative_rotation_curves()
 
 
 def bib_text() -> str:
@@ -980,6 +1082,12 @@ Score family & AUC & CI low & CI high\\
 \end{figure}
 
 The primary signal is positive, but the bootstrap interval is broad. The correct reading is promising but sample-limited class recovery from residual shape, not a physical detection of an underlying field.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\linewidth]{figures/paper2_illustrative_rotation_curves.pdf}
+\caption{Illustrative rotation-curve diagnostics for DDO126 as a positive anchor and DDO50 as a control object. The panels show how the residual-score families appear in actual rotation-curve space. This visualization is not a primary endpoint and is not used to tune the classifier.}
+\end{figure}
 
 \section{Baseline-family comparison}
 
@@ -1239,6 +1347,14 @@ def figure_audit_rows() -> list[dict[str, str]]:
             "VectorExport": "pdf",
             "Guardrail": GUARDRAIL,
         },
+        {
+            "Figure": "paper2_illustrative_rotation_curves.pdf",
+            "Source": "studies/illustrative_rotation_curves/ddo126_points.csv;studies/illustrative_rotation_curves/ddo50_points.csv",
+            "TypographyStatus": "publication_candidate_illustrative",
+            "CaptionStatus": "explicitly_not_primary_endpoint",
+            "VectorExport": "pdf",
+            "Guardrail": GUARDRAIL,
+        },
     ]
 
 
@@ -1305,7 +1421,7 @@ def readiness_rows(pdf_status: str) -> list[dict[str, str]]:
         {
             "Area": "Figures",
             "Status": "ready_as_publication_candidate",
-            "Evidence": "four vector PDF figures; figure typography audit",
+            "Evidence": "vector PDF figures; figure typography audit",
             "RemainingIssue": "final visual human review recommended",
             "Guardrail": GUARDRAIL,
         },
@@ -1400,6 +1516,22 @@ def compile_pdf() -> str:
     return "pdf_compile_failed"
 
 
+def build_arxiv_zip() -> None:
+    if ZIP_PATH.exists():
+        ZIP_PATH.unlink()
+    with zipfile.ZipFile(ZIP_PATH, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in [MAIN_TEX, REFERENCES]:
+            info = zipfile.ZipInfo(path.name)
+            info.date_time = (2026, 5, 18, 0, 0, 0)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, path.read_bytes())
+        for path in sorted(SOURCE_FIGURES.glob("*.pdf")):
+            info = zipfile.ZipInfo(f"figures/{path.name}")
+            info.date_time = (2026, 5, 18, 0, 0, 0)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, path.read_bytes())
+
+
 def update_manifest() -> None:
     manifest_path = PACKET / "packet_manifest.json"
     files = {path.name for path in PACKET.iterdir() if path.is_file()}
@@ -1435,6 +1567,7 @@ def main() -> None:
     MAIN_TEX.write_text(tex_text(), encoding="utf-8")
     REFERENCES.write_text(bib_text(), encoding="utf-8")
     pdf_status = compile_pdf()
+    build_arxiv_zip()
     FIGURE_AUDIT_MD.write_text(figure_audit_md(), encoding="utf-8")
     READINESS_MD.write_text(readiness_md(pdf_status), encoding="utf-8")
     write_csv(
