@@ -14,6 +14,16 @@ The repository contains only the files needed to inspect and regenerate the curr
 
 Raw survey products and raw SPARC rotmod files are not redistributed.
 
+## Theory Context
+
+The broader Tau Core / projection-theory background is maintained separately at:
+
+```text
+https://github.com/jolcsak/tau-core-theory
+```
+
+This Paper 2 repository is a standalone reproducibility package. It does not require accepting the Tau Core theory hub; the manuscript should be read as a residual-shape inference and external-proxy audit.
+
 ## Main Files
 
 ```text
