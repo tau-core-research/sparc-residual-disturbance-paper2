@@ -1004,7 +1004,7 @@ The scope is deliberately narrow. This paper does not use residuals to redefine 
 
 The working A/C sample contains 45 SPARC galaxies inherited from the Paper 1 reproducibility packet: 17 externally regular A systems and 28 externally disturbed C systems. SPARC rotation-curve and mass-model context follows \cite{Lelli2016SPARC,Lelli2016SPARCZenodo}. B-class systems remain excluded from the primary target labels because they encode uncertainty by construction. The residual features are computed from the fixed Paper 1 point map and are not retrained on the external-proxy catalogues.
 
-The full reproducibility package, including the frozen derived tables, baseline-score comparisons, control summaries, figures, arXiv source package, and regeneration script, is archived at doi:10.5281/zenodo.20210154. The analysis can be regenerated with the commands listed in the repository README. Raw survey products and raw SPARC rotmod files are not redistributed by this repository.
+The full reproducibility package, including the frozen derived tables, baseline-score comparisons, control summaries, figures, arXiv source package, and regeneration script, is archived at doi:10.5281/zenodo.20285862. The analysis can be regenerated with the commands listed in the repository README. Raw survey products and raw SPARC rotmod files are not redistributed by this repository.
 
 The projection-family score is treated operationally as a fixed residual map inherited from Paper 1, without requiring the physical correctness of the underlying projection ansatz. This convention is central to the audit: the paper tests residual information content, not the physical validity of the projection model.
 
@@ -1521,7 +1521,7 @@ def update_manifest() -> None:
     manifest = {
         "packet": "sparc_residual_disturbance_inference_v01/packet_v01_seed",
         "package_profile": "slim_publication_reproducibility_package",
-        "doi": "10.5281/zenodo.20210154",
+        "doi": "10.5281/zenodo.20285862",
         "status": "paper2_submission_source_ready",
         "source_point_map": (
             "studies/sparc_residual_coherence_test_v01/"

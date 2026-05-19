@@ -113,7 +113,7 @@ def test_submission_source_contains_final_claim_boundaries():
     assert "The projection-family score is treated operationally" in tex
     assert "The strongest remaining weakness is external validation" in tex
     assert "it is not yet externally established" in tex
-    assert "doi:10.5281/zenodo.20210154" in tex
+    assert "doi:10.5281/zenodo.20285862" in tex
     assert "The analysis can be regenerated with the commands listed in the repository README" in tex
     assert "\\section{Conclusion}" in tex
     assert "The next decisive test is a held-out external source-family replication" in tex
@@ -215,7 +215,7 @@ def test_public_package_text_is_english_only():
 
 
 def test_zenodo_doi_is_recorded_in_public_metadata():
-    doi = "10.5281/zenodo.20210154"
+    doi = "10.5281/zenodo.20285862"
     assert doi in (ROOT / "README.md").read_text(encoding="utf-8")
     assert doi in (ROOT / "CITATION.cff").read_text(encoding="utf-8")
     assert doi in (PACKET / "packet_manifest.json").read_text(encoding="utf-8")

@@ -6,7 +6,7 @@ authors:
   - family-names: "Olcsak"
     given-names: "Jozsef"
 repository-code: "https://github.com/tau-core-research/sparc-residual-disturbance-paper2"
-doi: "10.5281/zenodo.20210154"
+doi: "10.5281/zenodo.20285862"
 abstract: "Public reproducibility package for residual-shape inference of structural disturbance in SPARC rotation curves."
 keywords:
   - SPARC
@@ -15,8 +15,8 @@ keywords:
   - structural disturbance
   - reproducibility
 license: MIT
-version: "1.0.0-paper2-slim"
-date-released: "2026-05-15"
+version: "1.0.1"
+date-released: "2026-05-19"
 preferred-citation:
   type: article
   title: "Residual-shape inference of structural disturbance in SPARC rotation curves: a diagnostic audit"
@@ -24,4 +24,4 @@ preferred-citation:
     - family-names: "Olcsak"
       given-names: "Jozsef"
   year: 2026
-  notes: "Slim public reproducibility package archived at doi:10.5281/zenodo.20210154."
+  notes: "Slim public reproducibility package archived at doi:10.5281/zenodo.20285862."

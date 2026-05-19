@@ -7,7 +7,7 @@ This is the slim public reproducibility package for:
 Archived release DOI:
 
 ```text
-10.5281/zenodo.20210154
+10.5281/zenodo.20285862
 ```
 
 The repository contains only the files needed to inspect and regenerate the current Paper 2 submission candidate: LaTeX source, bibliography, generated PDF, publication figures, final derived tables, the final regeneration script, and tests.
