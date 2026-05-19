@@ -1,6 +1,6 @@
 # Paper 2 Figure Typography Audit v0.1
 
-All submission-candidate figures are regenerated as vector PDF files under `paper2_submission_source/figures/`.
+All submission-candidate figures are regenerated as vector PDF files under `paper2_submission_source/figures/` and mirrored under root `figures/`.
 
 - `paper2_projection_rms_distribution.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `residual_feature_table.csv;paper2_calibration_uncertainty.csv`.
 - `paper2_baseline_auc_comparison.pdf`: publication_candidate; short_descriptive_caption_in_latex; source `paper2_baseline_family_loogo.csv;paper2_newtonian_scope.csv`.

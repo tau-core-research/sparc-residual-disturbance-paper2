@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PACKET = ROOT / "studies/sparc_residual_disturbance_inference_v01/packet_v01_seed"
 SOURCE = ROOT / "paper2_submission_source"
 SOURCE_FIGURES = SOURCE / "figures"
+PUBLIC_FIGURES = ROOT / "figures"
 MAIN_TEX = SOURCE / "main.tex"
 REFERENCES = SOURCE / "references.bib"
 PDF = SOURCE / "main.pdf"
@@ -485,6 +486,7 @@ def effect_latex_rows() -> str:
 
 def save_pdf(name: str) -> None:
     SOURCE_FIGURES.mkdir(parents=True, exist_ok=True)
+    PUBLIC_FIGURES.mkdir(parents=True, exist_ok=True)
     metadata = {
         "Creator": "sparc-residual-disturbance-paper2",
         "Producer": "matplotlib",
@@ -492,6 +494,7 @@ def save_pdf(name: str) -> None:
         "ModDate": None,
     }
     plt.savefig(SOURCE_FIGURES / name, format="pdf", bbox_inches="tight", metadata=metadata)
+    plt.savefig(PUBLIC_FIGURES / name, format="pdf", bbox_inches="tight", metadata=metadata)
     plt.close()
 
 
@@ -1457,7 +1460,7 @@ def figure_audit_md() -> str:
     lines = [
         "# Paper 2 Figure Typography Audit v0.1",
         "",
-        "All submission-candidate figures are regenerated as vector PDF files under `paper2_submission_source/figures/`.",
+        "All submission-candidate figures are regenerated as vector PDF files under `paper2_submission_source/figures/` and mirrored under root `figures/`.",
         "",
     ]
     for row in figure_audit_rows():
