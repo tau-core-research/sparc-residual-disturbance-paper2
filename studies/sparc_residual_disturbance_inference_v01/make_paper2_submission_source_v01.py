@@ -732,45 +732,35 @@ def plot_distance_stress() -> None:
 
 
 def illustrative_rotation_rows() -> dict[str, list[dict[str, str]]]:
-    sources = {
-        "DDO126": ILLUSTRATIVE_CURVES / "ddo126_points.csv",
-        "DDO50": ILLUSTRATIVE_CURVES / "ddo50_points.csv",
-    }
-    return {galaxy: read_csv(path) for galaxy, path in sources.items() if path.exists()}
+    path = ILLUSTRATIVE_CURVES / "paper2_context_rotation_points.csv"
+    if not path.exists():
+        return {}
+    rows: dict[str, list[dict[str, str]]] = {}
+    for row in read_csv(path):
+        rows.setdefault(row["GalaxyName"], []).append(row)
+    return rows
 
 
 def plot_illustrative_rotation_curves() -> None:
     model_rows = illustrative_rotation_rows()
-    if not {"DDO126", "DDO50"} <= set(model_rows):
+    galaxies = ["DDO154", "CamB"]
+    if not set(galaxies) <= set(model_rows):
         return
 
-    model_styles = {
-        "NewtonianBaryonic": ("Newtonian baryonic", "#6b7280", "--"),
-        "MONDSimpleMu": ("MOND simple-$\\mu$", "#2563eb", "-."),
-        "EmpiricalRARLike": ("RAR-like", "#0891b2", ":"),
-        "FixedTPG_S1": ("fixed projection", "#b91c1c", "-"),
-    }
     fig, axes = plt.subplots(2, 2, figsize=(9.0, 6.5), sharex="col")
-    for col, galaxy in enumerate(["DDO126", "DDO50"]):
-        grouped: dict[float, dict[str, object]] = {}
-        for row in model_rows[galaxy]:
-            radius = float(row["RadiusKpc"])
-            grouped.setdefault(
-                radius,
-                {
-                    "RadiusKpc": radius,
-                    "VobsKms": float(row["VobsKms"]),
-                    "ErrVobsKms": float(row["ErrVobsKms"]),
-                    "RequiredS_tauDiagnostic": float(row["RequiredS_tauDiagnostic"]),
-                },
-            )
-            grouped[radius][row["Model"]] = float(row["VmodelKms"])
-
-        points = [grouped[key] for key in sorted(grouped)]
+    for col, galaxy in enumerate(galaxies):
+        points = sorted(model_rows[galaxy], key=lambda row: float(row["RadiusKpc"]))
         radii = [float(point["RadiusKpc"]) for point in points]
         vobs = [float(point["VobsKms"]) for point in points]
         verr = [float(point["ErrVobsKms"]) for point in points]
-        req_s = [float(point["RequiredS_tauDiagnostic"]) for point in points]
+        vbar = [float(point["VbarKms"]) for point in points]
+        projection = [float(point["AbsResidualProjection"]) for point in points]
+        mond = [float(point["AbsResidualMONDSimple"]) for point in points]
+        rar = [float(point["AbsResidualRAR"]) for point in points]
+        score = float(points[0]["ProjectionRMS"])
+        threshold = float(points[0]["LOOGOThreshold"])
+        role = points[0]["Role"]
+        pred = points[0]["PredictedClass"]
 
         ax_curve = axes[0][col]
         ax_curve.errorbar(
@@ -786,44 +776,34 @@ def plot_illustrative_rotation_curves() -> None:
             label="$V_{\\rm obs}$",
             zorder=5,
         )
-        for model, (label, color, linestyle) in model_styles.items():
-            xs = [float(point["RadiusKpc"]) for point in points if model in point]
-            values = [float(point[model]) for point in points if model in point]
-            ax_curve.plot(xs, values, linestyle=linestyle, color=color, lw=1.35, label=label)
-        ax_curve.set_title(f"{galaxy} rotation curve", fontsize=11)
+        ax_curve.plot(radii, vbar, color="#6b7280", lw=1.35, linestyle="--", label="$V_{\\rm bar}$ baseline")
+        ax_curve.set_title(f"{galaxy}: {role}", fontsize=11)
         ax_curve.set_ylabel("velocity [km s$^{-1}$]")
         ax_curve.grid(True, alpha=0.22)
         if col == 1:
             ax_curve.legend(frameon=False, fontsize=7.5, loc="best")
 
         ax_diag = axes[1][col]
-        fixed_points = [point for point in points if "FixedTPG_S1" in point]
-        fixed_x = [float(point["RadiusKpc"]) for point in fixed_points]
-        fixed_residual = [
-            math.log(float(point["VobsKms"]) / float(point["FixedTPG_S1"]))
-            for point in fixed_points
-            if float(point["FixedTPG_S1"]) > 0
-        ]
-        ax_diag.axhline(0.0, color="#111827", lw=0.7, alpha=0.5)
-        ax_diag.plot(
-            fixed_x[: len(fixed_residual)],
-            fixed_residual,
-            color="#b91c1c",
-            lw=1.2,
-            label="fixed-projection log residual",
+        ax_diag.axhline(threshold, color="#111827", lw=0.9, alpha=0.65, linestyle="--", label="LOOGO threshold")
+        ax_diag.plot(radii, projection, color="#b91c1c", lw=1.25, label="projection")
+        ax_diag.plot(radii, mond, color="#2563eb", lw=1.0, linestyle="-.", label="MOND")
+        ax_diag.plot(radii, rar, color="#0891b2", lw=1.0, linestyle=":", label="RAR")
+        ax_diag.text(
+            0.03,
+            0.93,
+            f"RMS={score:.3f}; predicted {pred}",
+            transform=ax_diag.transAxes,
+            fontsize=8.2,
+            va="top",
+            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.7, "pad": 1.5},
         )
-        ax_diag.set_ylabel("log residual")
+        ax_diag.set_ylabel("absolute log residual")
         ax_diag.set_xlabel("radius [kpc]")
         ax_diag.grid(True, alpha=0.22)
-        twin = ax_diag.twinx()
-        twin.plot(radii, req_s, color="#047857", lw=1.1, alpha=0.85, label="required $S_\\tau$")
-        twin.set_ylabel("required $S_\\tau$")
         if col == 1:
-            lines, labels = ax_diag.get_legend_handles_labels()
-            lines2, labels2 = twin.get_legend_handles_labels()
-            ax_diag.legend(lines + lines2, labels + labels2, frameon=False, fontsize=7.5, loc="best")
+            ax_diag.legend(frameon=False, fontsize=7.5, loc="best")
 
-    fig.suptitle("Illustrative rotation-curve diagnostics", fontsize=12)
+    fig.suptitle("Classifier success/failure rotation-curve context", fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     save_pdf("paper2_illustrative_rotation_curves.pdf")
 
@@ -1086,7 +1066,7 @@ The primary signal is positive, but the bootstrap interval is broad. The correct
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.94\linewidth]{figures/paper2_illustrative_rotation_curves.pdf}
-\caption{Illustrative rotation-curve diagnostics for DDO126 as a positive anchor and DDO50 as a control object. The panels show how the residual-score families appear in actual rotation-curve space. This visualization is not a primary endpoint and is not used to tune the classifier.}
+\caption{Classifier-context rotation-curve diagnostics for DDO154, a correctly recovered regular A system, and CamB, the named false-positive A outlier. The upper panels show observed rotation curves against the baryonic baseline; the lower panels show per-radius absolute residual profiles and the corresponding leave-one-galaxy-out threshold. This visualization is not a primary endpoint and is not used to tune the classifier.}
 \end{figure}
 
 \section{Baseline-family comparison}
@@ -1349,7 +1329,7 @@ def figure_audit_rows() -> list[dict[str, str]]:
         },
         {
             "Figure": "paper2_illustrative_rotation_curves.pdf",
-            "Source": "studies/illustrative_rotation_curves/ddo126_points.csv;studies/illustrative_rotation_curves/ddo50_points.csv",
+            "Source": "studies/illustrative_rotation_curves/paper2_context_rotation_points.csv",
             "TypographyStatus": "publication_candidate_illustrative",
             "CaptionStatus": "explicitly_not_primary_endpoint",
             "VectorExport": "pdf",
