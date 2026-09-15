@@ -4,13 +4,15 @@ This board supersedes the route2-era working status. Route2 is closed as not sco
 
 ## Family Status
 
-- `CORE`: paper_candidate_with_caveats (primary_internal_diagnostic); metric=Projection_RMS_LOOGO_AUC=0.771008403;shuffle_null_p=0.002000000.
+- `CORE`: unconditional_association_preserved (primary_internal_diagnostic); metric=Projection_RMS_LOOGO_AUC=0.771008403;shuffle_null_p=0.002000000.
 - `WHISP_RESOLVED`: directional_support_but_small_overlap (supporting_external_readout); metric=Pearson=0.391218683;AUC=0.714285714.
 - `WHISP_MORPH`: mixed_directional_support (supporting_morphology_readout); metric=AsymmetryA_AUC=0.644230769;MorphologyBurden_AUC=0.506410256.
 - `REYNOLDS_LVH`: promising_below_minimum_n (non_WHISP_candidate_support); metric=AvelPearson=0.375346400;AvelAUC=0.777777778.
 - `ALFALFA`: weak_or_non_directional (broad_profile_asymmetry_control); metric=Pearson_Af=0.145935541;AUC_high_low=0.472222222.
 - `HALOGAS`: weak_control_only (small_overlap_control); metric=Pearson=0.216413317;AUC=0.500000000.
 - `THINGS_ROUTE2`: closed_not_score_ready (negative_audit_appendix); metric=closed_not_score_ready;THINGS_N15_not_reached.
+- `PAPER3_CONDITIONAL`: no_stable_projection_contrast_increment (conditional_predictive_increment_audit); metric=primary delta AUC=-0.01890756; delta log-loss improvement=-0.03994321; delta Brier improvement=-0.01188683.
+- `EDGE_CALIFA_PROXY`: failed_directional_prevalidation (external_morphology_proxy_stress_test); metric=mean D=-0.058679293503004035; exact one-sided p=0.6015625; median D=+0.11020194395988532; 4/7 positive.
 
 ## Claim Boundary
 
@@ -18,6 +20,8 @@ This board supersedes the route2-era working status. Route2 is closed as not sco
 - `P2V02_C02`: allowed_with_caveat - The strongest positive external context is WHISP resolved-HI, with small-overlap caveats.
 - `P2V02_C03`: required - Non-WHISP sources are mixed or underpowered and motivate future validation.
 - `P2V02_C04`: required - THINGS route2 is closed as a negative audit, not used as positive evidence.
+- `P2V02_C05`: required_negative_boundary - The later conditional predictive-increment audit detected no stable projection-contrast increment in the frozen packet.
+- `P2V02_C06`: required_negative_boundary - EDGE-CALIFA failed as an external morphology-proxy stress test and is not an independent Tau-specific test.
 
 ## Decisions
 
@@ -26,6 +30,6 @@ This board supersedes the route2-era working status. Route2 is closed as not sco
 
 ## Bottom Line
 
-Paper 2 remains meaningful as a reproducible residual-inference audit with cautious external-proxy readouts. It is not yet an independent external-validation paper and must not claim Tau Core validation.
+Paper 2 remains meaningful as a reproducible marginal or unconditional residual-inference audit with cautious external-proxy readouts. The later conditional projection-contrast and EDGE-CALIFA proxy gates are negative. It is not an independent external-validation paper and must not claim conditional projection specificity or Tau Core validation.
 
 Guardrail: `paper2_v02_route2_closed_no_tau_validation_no_velocity_endpoint`

@@ -10,6 +10,8 @@ It retains only:
 
 Exploratory scripts and branch packets used during development were removed from the public repository to keep the publication package focused.
 
+The current claim boundary preserves the original marginal SPARC A/C separation while recording two downstream negative results: the Paper 3 conditional projection-contrast predictive-increment audit and the seven-galaxy EDGE-CALIFA external morphology-proxy stress test. Neither is treated as an independent Tau-specific validation.
+
 Regenerate the submission source with:
 
 ```bash

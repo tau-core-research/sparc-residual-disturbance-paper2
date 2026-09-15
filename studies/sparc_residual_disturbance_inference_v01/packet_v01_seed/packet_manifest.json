@@ -2,7 +2,7 @@
   "packet": "sparc_residual_disturbance_inference_v01/packet_v01_seed",
   "package_profile": "slim_publication_reproducibility_package",
   "doi": "10.5281/zenodo.20285862",
-  "status": "paper2_submission_source_ready",
+  "status": "paper2_submission_source_ready_claim_boundary_updated",
   "source_point_map": "studies/sparc_residual_coherence_test_v01/paper_packet_v06_distance_balanced/taucore_specificity_point_map.csv",
   "files": [
     "README.md",
@@ -40,7 +40,7 @@
   ],
   "guardrail": "paper2_submission_source_ready_no_tau_validation_no_external_overclaim",
   "paper2_submission_source_v01_status": "latex_bibliography_pdf_and_figure_audit_generated",
-  "paper2_next_gate": "human_pdf_review_and_journal_specific_polish",
+  "paper2_next_gate": "source_frozen_independent_matched_tracer_replication",
   "excluded_from_slim_repo": [
     "raw survey products",
     "raw SPARC rotmod files",

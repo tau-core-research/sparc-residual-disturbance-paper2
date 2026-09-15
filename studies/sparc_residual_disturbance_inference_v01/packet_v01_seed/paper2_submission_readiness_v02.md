@@ -14,7 +14,7 @@ Closed blockers:
 - Submission source: ready (main.tex;main.pdf).
 - Bibliography: ready (references.bib).
 - Figures: ready_as_publication_candidate (vector PDF figures; figure typography audit).
-- Claim boundary: ready (main.tex claim-boundary section; source gate).
+- Claim boundary: ready_with_downstream_negative_audits (main.tex claim-boundary section; paper2_claim_boundary_v02.csv; source gate).
 
 ## Remaining Non-Blocking Work
 
@@ -24,6 +24,6 @@ Closed blockers:
 
 ## Claim Boundary
 
-The source remains a diagnostic SPARC residual-shape audit. It does not claim Tau Core validation, gravity-model selection, or independent paper-grade external validation.
+The source remains a diagnostic SPARC residual-shape audit. The AUC and shuffle result are marginal or unconditional within-SPARC evidence. The later Paper 3 conditional projection-contrast gate and the seven-galaxy EDGE--CALIFA morphology-proxy gate are negative. The source does not claim Tau Core validation, gravity-model selection, conditional projection specificity, or independent paper-grade external validation.
 
 Guardrail: `paper2_submission_source_ready_no_tau_validation_no_external_overclaim`

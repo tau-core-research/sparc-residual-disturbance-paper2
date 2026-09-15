@@ -116,10 +116,15 @@ def test_submission_source_contains_final_claim_boundaries():
     assert "doi:10.5281/zenodo.20285862" in tex
     assert "The analysis can be regenerated with the commands listed in the repository README" in tex
     assert "\\section{Conclusion}" in tex
-    assert "The next decisive test is a held-out external source-family replication" in tex
+    assert "The next decisive test is a new source-frozen independent matched-tracer" in tex
     assert "Stability and effect-size appendix" in tex
     assert "CamB is the most important failure case" in tex
     assert "Working submission candidate" not in tex
+
+    assert "conditional predictive-increment audit" in tex
+    assert "0.6015625" in tex
+    assert "not an independent Tau-specific test" in tex
+    assert "marginal or unconditional association" in tex
 
     assert "Lelli2016SPARC" in bib
     assert "Trachternach2008THINGS" in bib
@@ -140,6 +145,7 @@ def test_final_metrics_are_reproducible_and_guardrailed():
     assert gates["P2SRC04"]["Status"] == "pdf_compiled_with_tectonic"
     assert {row["BlocksSubmission"] for row in gates.values()} == {"no"}
     assert {row["CanClaimTauValidation"] for row in gates.values()} == {"no"}
+    assert gates["P2SRC05"]["Status"] == "downstream_negative_claim_boundary_recorded"
 
 
 def test_appendix_tables_capture_outlier_and_stability_checks():

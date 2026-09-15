@@ -14,6 +14,8 @@ The retained files support:
 - stability and effect-size appendix,
 - source-gate and figure-audit records.
 
+The packet's claim-boundary tables also record that the original AUC is marginal or unconditional within SPARC, the later Paper 3 conditional projection-contrast gate is negative, and the seven-galaxy EDGE-CALIFA result is a failed external morphology-proxy stress test rather than an independent Tau-specific test.
+
 Regenerate the derived appendix tables and submission source with:
 
 ```bash

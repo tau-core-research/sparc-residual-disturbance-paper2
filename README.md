@@ -35,6 +35,34 @@ AUC or null test. The residual classifier remains a terminal information
 diagnostic, not a reconstruction of lapse, shift, spatial geometry, photon
 transfer, or a physical Tau metric.
 
+Negative downstream proxy tests constrain the frozen finite morphology maps,
+not a source-complete parent body. They also cannot be repaired after endpoint
+access: a richer morphology representation must be source-only, frozen before
+scoring, and tested on a new untouched packet.
+
+## Current Claim Status
+
+The original LOOGO AUC `0.771008403`, shuffled-label `p=0.002000000`, and
+bootstrap interval are preserved as marginal or unconditional within-SPARC
+class separation. They do not show that the projection feature adds
+conditional information beyond observability, baryonic structure, or
+MOND/RAR-common residual structure.
+
+A later Paper 3 repeated-cross-fitting audit found no stable projection-
+contrast predictive increment. A separate source-frozen seven-galaxy
+EDGE-CALIFA morphology-proxy stress test also failed its directional gate:
+mean `D=-0.058679293503004035`, exact one-sided `p=0.6015625`, median
+`D=+0.11020194395988532`, and `4/7` positive values. The latter is an external
+morphology-proxy stress test, not an independent Tau-specific test or a direct
+replication of Paper 2. Conditional projection specificity and independent
+matched-tracer replication remain open.
+
+Later Paper 8 public-data routes do not raise that claim. LITTLE THINGS gives
+mixed one-family transfer in `N=14`; the PHANGS low-order routes either retain
+the morphology-orthogonal null or fail wrong-family/source-label specificity;
+and the higher-dimensional PHANGS confirmatory packet fails its frozen
+spatial-support gate without releasing a score.
+
 ## Main Files
 
 ```text
@@ -162,3 +190,14 @@ Those materials were useful during development but are not required to reproduce
 ```
 
 That local archive is not part of the public publication repository.
+
+<!-- BEGIN OBSERVER UPDATE 20260914 -->
+## Observer realization update (2026-09-14)
+
+For galactic inference, these observer constructions do not derive a rotation-curve correction or identify a measured residual as a parent effect. Existing endpoint freezes and scores are unchanged.
+
+The manuscript distinguishes inherited BRAC contact, conditional coherent-state
+selection and interacting local covariance from physical observer identification,
+preparation and stable resolution. Those physical claims remain open. No
+empirical score was changed. The [dependency and source-result ledger](data/derived/observer_update_2026_09_14.json) records the assumptions and controls.
+<!-- END OBSERVER UPDATE 20260914 -->

@@ -930,6 +930,36 @@ def bib_text() -> str:
   pages = {21},
   year = {2022}
 }
+
+@article{Oh2015LITTLETHINGS,
+  author = {Oh, Se-Heon and Hunter, Deidre A. and Brinks, Elias and others},
+  title = {High-resolution Mass Models of Dwarf Galaxies from {LITTLE THINGS}},
+  journal = {The Astronomical Journal},
+  volume = {149},
+  pages = {180},
+  year = {2015},
+  doi = {10.1088/0004-6256/149/6/180}
+}
+
+@article{Lang2020PHANGSKinematics,
+  author = {Lang, Philipp and Meidt, Sharon E. and Rosolowsky, Erik and others},
+  title = {{PHANGS} {CO} Kinematics: Disk Orientations and Rotation Curves at 150 pc Resolution},
+  journal = {The Astrophysical Journal},
+  volume = {897},
+  pages = {122},
+  year = {2020},
+  doi = {10.3847/1538-4357/ab9953}
+}
+
+@article{Emsellem2022PHANGSMUSE,
+  author = {Emsellem, Eric and Schinnerer, Eva and Santoro, Francesco and others},
+  title = {The {PHANGS-MUSE} Survey: Probing the Chemo-dynamical Evolution of Disc Galaxies},
+  journal = {Astronomy and Astrophysics},
+  volume = {659},
+  pages = {A191},
+  year = {2022},
+  doi = {10.1051/0004-6361/202141727}
+}
 """
 
 
@@ -985,20 +1015,20 @@ def tex_text() -> str:
 
 \title{Residual-shape inference and external-proxy audit of structural disturbance in SPARC rotation curves}
 \author{Jozsef Olcsak}
-\date{2026\\Last revised: 26 August 2026}
+\date{2026\\Last revised: 30 August 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We ask whether fixed rotation-curve residual-shape features can recover externally reviewed structural-disturbance labels in SPARC galaxies, and whether independent H\,I disturbance proxies support the same diagnostic direction. The study reverses the Paper 1 audit: the A/C labels are treated as frozen external targets, while residual features are evaluated as predictors under leave-one-galaxy-out thresholding, shuffled-label null tests, bootstrap uncertainty, baseline-family controls, and observability stress checks. The primary internal feature, Projection RMS, reaches LOOGO AUC=0.771008403 with shuffled-label $p=0.002000000$ and bootstrap 95\% AUC interval $[0.600802469,0.909100262]$. MOND-simple and empirical RAR-like residual scores also separate A/C systems, whereas a Newtonian baryonic RMS control is near chance, indicating a low-acceleration residual-family effect rather than projection-formula uniqueness. External proxy readouts are supportive but not decisive. The result is a reproducible residual-inference finding: fixed low-acceleration residual-shape features recover externally reviewed structural-disturbance classes well above chance in the current SPARC packet. The claim remains sample-limited and SPARC-internal, but it should not be reduced to a negative validation statement; it is a positive diagnostic result with explicit limits, not a Tau Core validation claim, not gravity-model selection, and not independent paper-grade external validation.
+We ask whether fixed rotation-curve residual-shape features separate externally reviewed structural-disturbance labels in SPARC galaxies, and whether external H\,I disturbance proxies support the same diagnostic direction. The study reverses the Paper 1 audit: the A/C labels are treated as frozen external targets, while residual features are evaluated under leave-one-galaxy-out thresholding, shuffled-label null tests, bootstrap uncertainty, baseline-family controls, and observability stress checks. The primary internal feature, Projection RMS, reaches LOOGO AUC=0.771008403 with shuffled-label $p=0.002000000$ and bootstrap 95\% AUC interval $[0.600802469,0.909100262]$. MOND-simple and empirical RAR-like residual scores also separate A/C systems, whereas a Newtonian baryonic RMS control is near chance. These numbers establish marginal or unconditional class separation under the fixed rule, not projection-formula uniqueness or conditional information beyond shared covariates and residual structure. A later cross-fitted Paper 3 audit found no stable projection-contrast predictive increment, and a source-frozen seven-galaxy EDGE--CALIFA morphology-proxy stress test failed its directional endpoint. The original internal statistics remain unchanged, but the current claim is an unconditional within-SPARC association with mixed external context, not a Tau Core validation claim, gravity-model selection, projection-specific conditional information, or independent paper-grade external validation.
 \end{abstract}
 
 \section{Introduction}
 
-Rotation-curve residuals are usually discussed as model error, but their radial structure can also carry information about non-equilibrium dynamics, non-circular motions, pressure support, beam smearing, inclination, and source-dependent observability \cite{Trachternach2008THINGS,Oman2019NonCircular}. Paper 1 established a residual-blind association between externally assigned structural-disturbance labels and low-acceleration residual scatter in SPARC. Here we ask the inverse diagnostic question: can fixed residual-shape features recover those external labels better than chance?
+Rotation-curve residuals are usually discussed as model error, but their radial structure can also be associated with non-equilibrium dynamics, non-circular motions, pressure support, beam smearing, inclination, and source-dependent observability \cite{Trachternach2008THINGS,Oman2019NonCircular}. Paper 1 established a residual-blind marginal association between externally assigned structural-disturbance labels and low-acceleration residual scatter in SPARC. Here we ask the inverse diagnostic question: do fixed residual-shape features separate those external labels better than chance in the same frozen packet?
 
-The scope is deliberately narrow. This paper does not use residuals to redefine the labels, does not validate Tau Core, and does not select a unique gravity law. It tests whether a frozen residual feature map contains recoverable information about externally reviewed A/C disturbance classes, then checks whether independent H\,I disturbance proxies point in the same direction.
+The scope is deliberately narrow. This paper does not use residuals to redefine the labels, does not validate Tau Core, and does not select a unique gravity law. It quantifies marginal discrimination by a frozen residual feature map and then checks whether external H\,I disturbance proxies point in the same direction. The original design does not by itself test conditional predictive increment beyond observability, baryonic structure, or low-acceleration residual structure shared with MOND/RAR-like baselines.
 
 \section{Data and frozen inputs}
 
@@ -1006,7 +1036,7 @@ The working A/C sample contains 45 SPARC galaxies inherited from the Paper 1 rep
 
 The full reproducibility package, including the frozen derived tables, baseline-score comparisons, control summaries, figures, arXiv source package, and regeneration script, is archived at doi:10.5281/zenodo.20285862. The analysis can be regenerated with the commands listed in the repository README. Raw survey products and raw SPARC rotmod files are not redistributed by this repository.
 
-The projection-family score is treated operationally as a fixed residual map inherited from Paper 1, without requiring the physical correctness of the underlying projection ansatz. This convention is central to the audit: the paper tests residual information content, not the physical validity of the projection model.
+The projection-family score is treated operationally as a fixed residual map inherited from Paper 1, without requiring the physical correctness of the underlying projection ansatz. This convention is central to the audit: the paper tests marginal residual-label discrimination, not the physical validity of the projection model or a projection-specific conditional-information claim.
 
 \section{Residual-shape endpoint and validation design}
 
@@ -1064,7 +1094,7 @@ Score family & AUC & CI low & CI high\\
 \caption{Distribution of the fixed Projection RMS residual score for externally regular A and disturbed C systems.}
 \end{figure}
 
-The primary signal is positive and operationally useful. Projection RMS separates the frozen A/C labels well above chance, and the shuffled-label null places the observed AUC in the extreme tail of the internal null distribution. The bootstrap interval is broad because the sample is small, so the correct reading is strong SPARC-internal class recovery from residual shape with sample-limited uncertainty, not a physical detection of an underlying field.
+The primary historical signal is positive as a univariate/rank-discrimination result. Projection RMS separates the frozen A/C labels above chance, and the shuffled-label null places the observed AUC in the extreme tail of the internal null distribution. The bootstrap interval is broad because the sample is small. The correct reading is therefore sample-limited marginal SPARC-internal class separation under this feature, not evidence that the feature adds conditional information beyond nuisance covariates or common low-acceleration residual structure, and not a physical detection of an underlying field.
 
 \begin{figure}[H]
 \centering
@@ -1074,7 +1104,7 @@ The primary signal is positive and operationally useful. Projection RMS separate
 
 \section{Baseline-family comparison}
 
-The baseline comparison weakens any projection-specific claim but strengthens the broader phenomenological result. MOND-simple \cite{Milgrom1983MOND} and empirical RAR-like \cite{McGaugh2016RAR} residual scores also separate A/C systems, while the Newtonian baryonic RMS score is near chance. The defensible conclusion is that A/C separation is concentrated in low-acceleration residual-family scores.
+The baseline comparison weakens any projection-specific claim and shows that the marginal association is shared across low-acceleration residual families. MOND-simple \cite{Milgrom1983MOND} and empirical RAR-like \cite{McGaugh2016RAR} residual scores also separate A/C systems, while the Newtonian baryonic RMS score is near chance. The defensible conclusion is that A/C separation is concentrated in low-acceleration residual-family scores, not that the projection family owns unique information.
 
 \begin{figure}[H]
 \centering
@@ -1152,9 +1182,21 @@ Source & Overlap & Direction/status & Effect size & Gate\\
 
 \section{External-validation status}
 
-The present manuscript should not be read as a completed external-validation study. It contains three ingredients at different strengths: a positive internal SPARC residual-inference result, small-overlap external-proxy consistency checks, and a negative THINGS expansion audit. Together these establish a reproducible diagnostic association and define the next test, but they do not replace that test.
+The present manuscript should not be read as a completed external-validation study. It contains a positive marginal SPARC discrimination result, small-overlap external-proxy consistency checks, a negative THINGS expansion audit, and the downstream negative conditional/proxy results recorded below. Together these establish a reproducible unconditional association and define the next test, but they do not establish projection-specific conditional information or replace an independent matched-tracer replication.
 
 A paper-grade Phase II replication must be a source-family holdout. The evidence rule, disturbance labels, observability covariates, minimum overlap, and pass/fail thresholds must be frozen before any endpoint readout. The minimum acceptable target remains $N\geq15$ score-ready galaxies in a non-SPARC source family or in a demonstrably independent kinematic-proxy family. If the effect disappears, reverses, or becomes dominated by distance, inclination, point count, or beam-size proxies, the correct conclusion is that the current result is SPARC-specific, proxy-specific, or observability-driven.
+
+\section{Downstream conditional and morphology-proxy audits}
+
+A later Paper 3 fixed-model audit tested predictive increment on the same frozen 45-galaxy A/C sample using repeated stratified five-fold cross-fitting with 20 repetitions, endpoint-residual-free observability/baryonic baselines, and residual structure common to MOND/RAR-like comparators. The unique projection contrast failed to improve held-out proper scores under either declared baseline and any of the three declared regularization values. At the primary O7B7, $C=0.3$ setting, the AUC change was $-0.01890756$, the log-loss improvement was $-0.03994321$, and the Brier-score improvement was $-0.01188683$; negative improvement means worse performance. This is a fixed-model conditional predictive-increment audit, not a literal conditional-mutual-information estimate and not proof that every possible additional rotation signal is absent.
+
+A separate source-frozen seven-galaxy EDGE--CALIFA rotation-morphology proxy endpoint returned mean $D=-0.058679293503004035$, exact one-sided $p=0.6015625$, median $D=+0.11020194395988532$, and 4/7 positive galaxy-level values. It failed its directional prevalidation gate. This is an external morphology-proxy stress test, not an independent Tau-specific test and not a direct replication of the Paper 2 A/C classifier.
+
+Further Paper 8 public-data routes also remain non-promotable. A prospective LITTLE THINGS transfer test contains 14 galaxies and 313 points but only one frozen morphology family; it improves mean RMSE over TPG/v6 by $0.101\,{\rm km\,s^{-1}}$ and is worse than MOND by $0.649\,{\rm km\,s^{-1}}$ \cite{Oh2015LITTLETHINGS}. In PHANGS \cite{Lang2020PHANGSKinematics,Emsellem2022PHANGSMUSE}, a three-galaxy low-order morphology-orthogonal statistic is null ($p=0.8082$). A separate two-galaxy $m=2$ statistic is numerically non-null, but the $m=1$ control is also non-null and the source-label integrity audit fails. A higher-dimensional four-galaxy confirmatory packet stops at its predeclared sector-occupancy gate without releasing a score. These are distinct proxy and transfer tests, not direct repeats of the Paper 2 classifier.
+
+None of these downstream audits changes the original AUC, shuffle, or bootstrap calculations. They change the interpretation: the internal result is a marginal or unconditional association, while conditional projection specificity and independent external replication remain unestablished.
+
+They also constrain only the finite morphology representations that were actually frozen. If a representation $\Phi_k$ maps two possible body states to the same source record while their complete terminal images differ, no terminal rule can factor through $\Phi_k$; failure then rejects or limits that representation rather than every possible richer body. The converse leakage guard is essential: after endpoint $y$ is inspected, augmenting the source span by $y$ makes its projected residual vanish identically. A refined representation must therefore be source-only, frozen in advance, and evaluated on a new untouched packet.
 
 \section{THINGS route2 negative audit}
 
@@ -1172,7 +1214,7 @@ Observability remains the main scientific caveat. Nearby galaxies can reveal asy
 \caption{Distance-matched stress checks for the primary residual score. These checks reduce but do not eliminate observability concerns.}
 \end{figure}
 
-Accordingly, the result should be read as a reproducible SPARC diagnostic association with external-proxy context, not as a selection-function-proof physical inference.
+Accordingly, the result should be read as a reproducible marginal SPARC diagnostic association with mixed external-proxy context, not as a selection-function-proof physical inference.
 
 The distance-stress labels are operational. Greedy unique matching pairs each A galaxy with one nearby C galaxy without reusing controls. Optimal ordered matching sorts both classes by distance and pairs by rank. The Mpc-caliper check keeps only pairs within the frozen maximum distance separation. These checks are not a full selection-function model.
 
@@ -1193,22 +1235,22 @@ This appendix-style stress table is not a full hierarchical model or a claim of 
 
 \section{Claim boundary and Phase II}
 
-Allowed claim: fixed residual-shape features recover externally reviewed A/C disturbance class substantially better than chance in the current SPARC packet, the separation is concentrated in low-acceleration residual families rather than Newtonian baryonic RMS, and several external proxy readouts provide mixed but informative context.
+Allowed claim: fixed residual-shape features show marginal or unconditional separation of externally reviewed A/C disturbance classes in the current SPARC packet; the separation is concentrated in low-acceleration residual families rather than Newtonian baryonic RMS, while external proxy readouts are mixed. The later conditional projection-contrast and EDGE--CALIFA proxy gates are negative; LITTLE THINGS is a caveated one-family transfer, and the current PHANGS routes fail null, specificity, label-integrity, or support gates.
 
-Forbidden claims: Tau Core validation, gravity-model selection, projection-formula uniqueness, replacement of external labels by residual-only labels, broad independent external validation, or THINGS route2 positive evidence.
+Forbidden claims: Tau Core validation, gravity-model selection, projection-formula uniqueness, stable conditional projection-specific information, replacement of external labels by residual-only labels, broad independent external validation, EDGE--CALIFA as an independent Tau-specific test, or THINGS route2 positive evidence.
 
 The later Tau Core full-4D descent changes neither the frozen feature map nor any AUC, permutation, or bootstrap result in this paper.  It shows only that a terminal velocity residual can in principle have body, lapse, shift, spatial-metric, photon-transfer, astrophysical, and observational contributions.  The present classifier does not reconstruct those contributions, and no nonzero radial Tau coframe may be selected from its labels or residuals.  The later exact compiler also proves that $C\neq0$ in a parent Hessian need not produce any Tau-over-standard excess: the scoreable quantity would be $E_K=(K_{HH}-K_{\rm std})-CK_{VV}^{-1}C^\dagger$.  It is not reconstructed by the residual-shape classifier.
 
-The next paper-grade step is a held-out external source-family test with $N\geq15$, a frozen evidence rule, no velocity-endpoint refit, explicit observability covariates, and predefined failure conditions. A negative Phase II result should be treated as evidence that the present association is SPARC-specific, proxy-specific, or observability-driven.
+The next paper-grade step is a new source-frozen independent matched-tracer or external source-family test with $N\geq15$, no velocity-endpoint refit, explicit observability and baryonic covariates, declared standard/common residual comparators, and predefined failure conditions. A negative Phase II result should be treated as evidence that the present association is SPARC-specific, proxy-specific, or observability-driven.
 
 \clearpage
 \section{Conclusion}
 
-This paper finds that fixed residual-shape features recover externally reviewed A/C disturbance classes substantially better than chance within the current SPARC packet. The strongest internal endpoint is Projection RMS, with LOOGO AUC=0.771008403, shuffled-label $p=0.002000000$, and a bootstrap distribution centered near the observed value. MOND-simple and empirical RAR-like residual scores also separate the classes, while the Newtonian baryonic RMS control is near chance. The result is therefore a positive low-acceleration residual-family association with structural disturbance, not merely a null or bookkeeping audit, and not a projection-formula-specific detection.
+This paper finds marginal separation of externally reviewed A/C disturbance classes by fixed residual-shape features within the current SPARC packet. The strongest internal endpoint is Projection RMS, with LOOGO AUC=0.771008403, shuffled-label $p=0.002000000$, and a bootstrap distribution centered near the observed value. MOND-simple and empirical RAR-like residual scores also separate the classes, while the Newtonian baryonic RMS control is near chance. The result is therefore an unconditional low-acceleration residual-family association with structural disturbance, not a projection-formula-specific detection.
 
-The paper does not establish a new gravity model, does not validate Tau Core, and does not replace external disturbance labels with residual-only labels. It also does not provide completed external validation. CamB and the other named failure cases show that residual burden can be high in externally regular systems, and the observability checks show that distance, radial coverage, inclination, point count, and H\,I data quality remain live alternative explanations.
+The paper does not establish a new gravity model, does not validate Tau Core, and does not replace external disturbance labels with residual-only labels. The later Paper 3 conditional projection-contrast audit and the seven-galaxy EDGE--CALIFA morphology-proxy stress test are negative; the LITTLE THINGS and PHANGS continuations likewise do not pass a claim-raising external gate. The paper therefore does not establish conditional projection-specific information or completed external validation. CamB and the other named failure cases show that residual burden can be high in externally regular systems, and the observability checks show that distance, radial coverage, inclination, point count, and H\,I data quality remain live alternative explanations.
 
-The next decisive test is a held-out external source-family replication with a frozen evidence rule, at least $N\geq15$ score-ready galaxies, observability covariates, and predefined failure conditions. If that test supports the same residual-disturbance direction, the present result becomes a stronger phenomenological claim. If it fails, the appropriate interpretation is that the association is SPARC-specific, proxy-specific, or observability-driven.
+The next decisive test is a new source-frozen independent matched-tracer or external source-family replication with at least $N\geq15$ score-ready galaxies, observability and baryonic covariates, common residual comparators, and predefined failure conditions. If that test supplies held-out proper-score increment in the same direction, the present result becomes a stronger phenomenological claim. If it fails, the appropriate interpretation is that the association is SPARC-specific, proxy-specific, or observability-driven.
 
 \clearpage
 \section{ROC appendix}
@@ -1377,6 +1419,14 @@ def source_gate_rows(pdf_status: str) -> list[dict[str, str]]:
             "CanClaimTauValidation": "no",
             "Guardrail": GUARDRAIL,
         },
+        {
+            "GateID": "P2SRC05",
+            "Status": "downstream_negative_claim_boundary_recorded",
+            "Evidence": "main.tex;paper2_claim_boundary_v02.csv",
+            "BlocksSubmission": "no",
+            "CanClaimTauValidation": "no",
+            "Guardrail": GUARDRAIL,
+        },
     ]
 
 
@@ -1412,9 +1462,9 @@ def readiness_rows(pdf_status: str) -> list[dict[str, str]]:
         },
         {
             "Area": "Claim boundary",
-            "Status": "ready",
-            "Evidence": "main.tex claim-boundary section; source gate",
-            "RemainingIssue": "do not strengthen to Tau Core validation",
+            "Status": "ready_with_downstream_negative_audits",
+            "Evidence": "main.tex claim-boundary section; paper2_claim_boundary_v02.csv; source gate",
+            "RemainingIssue": "marginal association only; conditional specificity and independent replication remain open",
             "Guardrail": GUARDRAIL,
         },
     ]
@@ -1449,7 +1499,7 @@ def readiness_md(pdf_status: str) -> str:
             "",
             "## Claim Boundary",
             "",
-            "The source remains a diagnostic SPARC residual-shape audit. It does not claim Tau Core validation, gravity-model selection, or independent paper-grade external validation.",
+            "The source remains a diagnostic SPARC residual-shape audit. The AUC and shuffle result are marginal or unconditional within-SPARC evidence. The later Paper 3 conditional projection-contrast gate and the seven-galaxy EDGE--CALIFA morphology-proxy gate are negative. The source does not claim Tau Core validation, gravity-model selection, conditional projection specificity, or independent paper-grade external validation.",
             "",
             f"Guardrail: `{GUARDRAIL}`",
             "",
@@ -1524,7 +1574,7 @@ def update_manifest() -> None:
         "packet": "sparc_residual_disturbance_inference_v01/packet_v01_seed",
         "package_profile": "slim_publication_reproducibility_package",
         "doi": "10.5281/zenodo.20285862",
-        "status": "paper2_submission_source_ready",
+        "status": "paper2_submission_source_ready_claim_boundary_updated",
         "source_point_map": (
             "studies/sparc_residual_coherence_test_v01/"
             "paper_packet_v06_distance_balanced/taucore_specificity_point_map.csv"
@@ -1534,7 +1584,7 @@ def update_manifest() -> None:
         "paper2_submission_source_v01_status": (
             "latex_bibliography_pdf_and_figure_audit_generated"
         ),
-        "paper2_next_gate": "human_pdf_review_and_journal_specific_polish",
+        "paper2_next_gate": "source_frozen_independent_matched_tracer_replication",
         "excluded_from_slim_repo": [
             "raw survey products",
             "raw SPARC rotmod files",
