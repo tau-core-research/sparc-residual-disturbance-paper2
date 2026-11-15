@@ -183,13 +183,7 @@ The slim repository intentionally excludes:
 - closed THINGS route2 reconstruction work products,
 - local build previews and cache files.
 
-Those materials were useful during development but are not required to reproduce the current paper. Local-only raw and exploratory data were moved to:
-
-```text
-/Users/jolcsak/Projects/sparc-residual-disturbance-paper2_local_archive
-```
-
-That local archive is not part of the public publication repository.
+Those materials were useful during development but are not required to reproduce the current paper and remain excluded from the public publication repository.
 
 <!-- BEGIN OBSERVER UPDATE 20260914 -->
 ## Observer realization update (2026-09-14)

@@ -2,20 +2,24 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\PassOptionsToPackage{hyphens}{url}
 \usepackage{hyperref}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{float}
 \usepackage{longtable}
+\emergencystretch=2em
 
 \title{Residual-shape inference and external-proxy audit of structural disturbance in SPARC rotation curves}
 \author{Jozsef Olcsak}
-\date{2026\\Last revised: 30 August 2026}
+\date{2026\\Last revised: 14 November 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We ask whether fixed rotation-curve residual-shape features separate externally reviewed structural-disturbance labels in SPARC galaxies, and whether external H\,I disturbance proxies support the same diagnostic direction. The study reverses the Paper 1 audit: the A/C labels are treated as frozen external targets, while residual features are evaluated under leave-one-galaxy-out thresholding, shuffled-label null tests, bootstrap uncertainty, baseline-family controls, and observability stress checks. The primary internal feature, Projection RMS, reaches LOOGO AUC=0.771008403 with shuffled-label $p=0.002000000$ and bootstrap 95\% AUC interval $[0.600802469,0.909100262]$. MOND-simple and empirical RAR-like residual scores also separate A/C systems, whereas a Newtonian baryonic RMS control is near chance. These numbers establish marginal or unconditional class separation under the fixed rule, not projection-formula uniqueness or conditional information beyond shared covariates and residual structure. A later cross-fitted Paper 3 audit found no stable projection-contrast predictive increment, and a source-frozen seven-galaxy EDGE--CALIFA morphology-proxy stress test failed its directional endpoint. The original internal statistics remain unchanged, but the current claim is an unconditional within-SPARC association with mixed external context, not a Tau Core validation claim, gravity-model selection, projection-specific conditional information, or independent paper-grade external validation.
+We ask whether fixed rotation-curve residual-shape features separate externally reviewed structural-disturbance labels in SPARC galaxies, and whether external H\,I disturbance proxies support the same diagnostic direction. The study reverses the Paper 1 audit: the A/C labels are treated as frozen external targets, while residual features are evaluated under leave-one-galaxy-out thresholding, shuffled-label null tests, bootstrap uncertainty, baseline-family controls, and observability stress checks. The primary internal feature, Projection RMS, reaches LOOGO $\mathrm{AUC} = 0.771$ with shuffled-label $p = 0.0020$ and primary 95\% bootstrap AUC interval $[0.601, 0.909]$ ($[0.609, 0.914]$ in the baseline-family seed suite; 90\% interval $[0.630, 0.895]$). MOND-simple and empirical RAR-like residual scores also separate A/C systems, whereas a Newtonian baryonic RMS control is near chance. These numbers establish marginal or unconditional class separation under the fixed rule, not projection-formula uniqueness or conditional information beyond shared covariates and residual structure. A later cross-fitted Paper 3 audit found no stable projection-contrast predictive increment, and a source-frozen seven-galaxy EDGE--CALIFA morphology-proxy stress test failed its directional endpoint. The original internal statistics remain unchanged, but the current claim is an unconditional within-SPARC association with mixed external context, not a Tau Core validation claim, gravity-model selection, projection-specific conditional information, or independent paper-grade external validation.
 \end{abstract}
 
 \section{Introduction}
@@ -30,7 +34,7 @@ The working A/C sample contains 45 SPARC galaxies inherited from the Paper 1 rep
 
 The full reproducibility package, including the frozen derived tables, baseline-score comparisons, control summaries, figures, arXiv source package, and regeneration script, is archived at doi:10.5281/zenodo.20285862. The analysis can be regenerated with the commands listed in the repository README. Raw survey products and raw SPARC rotmod files are not redistributed by this repository.
 
-The projection-family score is treated operationally as a fixed residual map inherited from Paper 1, without requiring the physical correctness of the underlying projection ansatz. This convention is central to the audit: the paper tests marginal residual-label discrimination, not the physical validity of the projection model or a projection-specific conditional-information claim.
+The projection-family score is treated operationally as a fixed residual map inherited from Paper 1 (with pre-frozen empirical benchmark $\alpha = 0.360$, subsequently matched parameter-freely in the upstream Three-Pillar reduction by $\alpha_{\mathrm{OCSR}} = \frac{5\sqrt{3}}{24} \approx 0.360844$), without requiring the physical correctness of the underlying projection ansatz. This convention is central to the audit: the paper tests marginal residual-label discrimination, not the physical validity of the projection model or a projection-specific conditional-information claim.
 
 \section{Residual-shape endpoint and validation design}
 
@@ -41,16 +45,16 @@ r_{{m,gi}} = \left|\log V_{{\rm obs},gi} - \log V_{{m,gi}}\right|,
 where $m$ denotes the fixed residual family. Projection RMS is then
 \[
 {\rm RMS}_{{m,g}} =
-\sqrt{{1\over N_g}\sum_i r_{{m,gi}}^2}.
+\sqrt{\frac{1}{N_g}\sum_i r_{{m,gi}}^2}.
 \]
 All points are weighted equally; no velocity-error weighting is applied in the primary endpoint. The radial domain is the available SPARC rotation-curve support for each galaxy after the inherited Paper 1 point-map construction. The same aggregation is used for Projection RMS, MOND-simple RMS, RAR-like RMS, and Newtonian baryonic RMS. The Projection endpoint is used as an operational residual-shape score rather than as a physical proof of the projection formula.
 
 The primary internal validation uses leave-one-galaxy-out thresholding. For held-out galaxy $h$, the threshold is recomputed from the remaining galaxies:
 \[
-T_h={1\over2}\left[{\rm median}({\rm RMS}_{g\in A,g\ne h})+
+T_h=\frac{1}{2}\left[{\rm median}({\rm RMS}_{g\in A,g\ne h})+
 {\rm median}({\rm RMS}_{g\in C,g\ne h})\right].
 \]
-The held-out galaxy is classified as C-like if its score exceeds $T_h$. A shuffled-label null preserves the 17/28 A/C class counts and uses 1000 shuffles with random seed 20260515; the practical p-value floor is therefore of order $10^{-3}$, and the observed empirical value is $p=0.002000000$. Bootstrap uncertainty uses 2000 class-stratified galaxy resamples with random seed 20260516 for the primary endpoint. These tests are internal to SPARC and should not be described as independent validation.
+The held-out galaxy is classified as C-like if its score exceeds $T_h$. A shuffled-label null preserves the 17/28 A/C class counts and uses 1000 shuffles with random seed 20260515; the practical p-value floor is therefore of order $10^{-3}$, and the observed empirical value is $p = 0.0020$. Bootstrap uncertainty uses 2000 class-stratified galaxy resamples (primary calibration seed 20260516 gives 95\% percentile interval $[0.601, 0.909]$, baseline-family seed suite 20260601--20260604 gives 95\% intervals in Table~\ref{tab:baseline_ci}, and stability seed 20260611 gives the 90\% 5th--95th percentile interval $[0.630, 0.895]$ in Appendix~B; full machine-precision tables are retained in the repository CSVs). These tests are internal to SPARC and should not be described as independent validation.
 
 \section{Primary results}
 
@@ -61,26 +65,27 @@ The held-out galaxy is classified as C-like if its score exceeds $T_h$. A shuffl
 \toprule
 Quantity & Value & Interpretation & Claim boundary\\
 \midrule
-Projection RMS LOOGO AUC & 0.771008403 & primary diagnostic & SPARC-internal\\
-Projection RMS shuffled-label $p$ & 0.002000000 & label-null check & not replication\\
-MOND-simple RMS AUC & 0.720588235 & low-acceleration family & not unique\\
-RAR-like RMS AUC & 0.731092437 & low-acceleration family & not model selection\\
-Newtonian baryonic RMS AUC & 0.506302521 & near-chance control & limited inference\\
+Projection RMS LOOGO AUC & 0.771 & primary diagnostic & SPARC-internal\\
+Projection RMS shuffled-label $p$ & 0.0020 & label-null check & not replication\\
+MOND-simple RMS AUC & 0.721 & low-acceleration family & not unique\\
+RAR-like RMS AUC & 0.731 & low-acceleration family & not model selection\\
+Newtonian baryonic RMS AUC & 0.506 & near-chance control & limited inference\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[H]
 \centering
-\caption{Bootstrap AUC intervals for baseline residual-score families.}
+\caption{95\% bootstrap AUC intervals (2.5th--97.5th percentiles, $N_{\rm boot}=2000$, baseline-comparison seed suite 20260601--20260604; primary calibration seed 20260516 yields $[0.601, 0.909]$ for Projection RMS).}
+\label{tab:baseline_ci}
 \begin{tabular}{lccc}
 \toprule
-Score family & AUC & CI low & CI high\\
+Score family & AUC & 95\% CI low & 95\% CI high\\
 \midrule
-Projection RMS & 0.771008403 & 0.609243697 & 0.913865546\\
-MOND-simple RMS & 0.720588235 & 0.552521008 & 0.871848739\\
-RAR-like RMS & 0.731092437 & 0.569275210 & 0.878151261\\
-Newtonian baryonic RMS & 0.506302521 & 0.340336134 & 0.678571429\\
+Projection RMS & 0.771 & 0.609 & 0.914\\
+MOND-simple RMS & 0.721 & 0.553 & 0.872\\
+RAR-like RMS & 0.731 & 0.569 & 0.878\\
+Newtonian baryonic RMS & 0.506 & 0.340 & 0.679\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -138,7 +143,7 @@ CamB is the most important failure case. It is externally labeled A from regular
 \toprule
 $N_B$ & Threshold & B C-like & B A-like & Interpretation\\
 \midrule
-28 & 0.166489797 & 13 & 15 & descriptive only\\
+28 & 0.166 & 13 & 15 & descriptive only\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -152,9 +157,9 @@ $N_B$ & Threshold & B C-like & B A-like & Interpretation\\
 \toprule
 Galaxy & Class & Error & Score & Points & Distance & Incl. & Inspection note\\
 \midrule
-CamB & A & A as C & 0.963585384 & 9 & 3.36 & 65.0 & dominant A-class failure; low point count; very high low-acceleration residual burden\\
-UGC05764 & A & A as C & 0.329468364 & 10 & 7.47 & 60.0 & secondary A-class failure; compact 10-point curve; high residual margin\\
-NGC5585 & A & A as C & 0.173858350 & 24 & 7.06 & 51.0 & near-threshold A-class failure; external low-asymmetry evidence but residual just above gate\\
+CamB & A & A as C & 0.964 & 9 & 3.36 & 65.0 & dominant A-class failure; low point count; very high low-acceleration residual burden\\
+UGC05764 & A & A as C & 0.329 & 10 & 7.47 & 60.0 & secondary A-class failure; compact 10-point curve; high residual margin\\
+NGC5585 & A & A as C & 0.174 & 24 & 7.06 & 51.0 & near-threshold A-class failure; external low-asymmetry evidence but residual just above gate\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -192,9 +197,9 @@ A paper-grade Phase II replication must be a source-family holdout. The evidence
 
 \section{Downstream conditional and morphology-proxy audits}
 
-A later Paper 3 fixed-model audit tested predictive increment on the same frozen 45-galaxy A/C sample using repeated stratified five-fold cross-fitting with 20 repetitions, endpoint-residual-free observability/baryonic baselines, and residual structure common to MOND/RAR-like comparators. The unique projection contrast failed to improve held-out proper scores under either declared baseline and any of the three declared regularization values. At the primary O7B7, $C=0.3$ setting, the AUC change was $-0.01890756$, the log-loss improvement was $-0.03994321$, and the Brier-score improvement was $-0.01188683$; negative improvement means worse performance. This is a fixed-model conditional predictive-increment audit, not a literal conditional-mutual-information estimate and not proof that every possible additional rotation signal is absent.
+A later Paper 3 fixed-model audit tested predictive increment on the same frozen 45-galaxy A/C sample using repeated stratified five-fold cross-fitting with 20 repetitions, endpoint-residual-free observability/baryonic baselines, and residual structure common to MOND/RAR-like comparators. The unique projection contrast failed to improve held-out proper scores under either declared baseline and any of the three declared regularization values. At the primary O7B7, $C=0.3$ setting, the AUC change was $-0.0189$, the log-loss improvement was $-0.0399$, and the Brier-score improvement was $-0.0119$; negative improvement means worse performance. This is a fixed-model conditional predictive-increment audit, not a literal conditional-mutual-information estimate and not proof that every possible additional rotation signal is absent.
 
-A separate source-frozen seven-galaxy EDGE--CALIFA rotation-morphology proxy endpoint returned mean $D=-0.058679293503004035$, exact one-sided $p=0.6015625$, median $D=+0.11020194395988532$, and 4/7 positive galaxy-level values. It failed its directional prevalidation gate. This is an external morphology-proxy stress test, not an independent Tau-specific test and not a direct replication of the Paper 2 A/C classifier.
+A separate source-frozen seven-galaxy EDGE--CALIFA rotation-morphology proxy endpoint returned mean $D = -0.0587$, exact one-sided $p = 0.6015625$, median $D = +0.1102$, and 4/7 positive galaxy-level values. It failed its directional prevalidation gate. This is an external morphology-proxy stress test, not an independent Tau-specific test and not a direct replication of the Paper 2 A/C classifier.
 
 Further Paper 8 public-data routes also remain non-promotable. A prospective LITTLE THINGS transfer test contains 14 galaxies and 313 points but only one frozen morphology family; it improves mean RMSE over TPG/v6 by $0.101\,{\rm km\,s^{-1}}$ and is worse than MOND by $0.649\,{\rm km\,s^{-1}}$ \cite{Oh2015LITTLETHINGS}. In PHANGS \cite{Lang2020PHANGSKinematics,Emsellem2022PHANGSMUSE}, a three-galaxy low-order morphology-orthogonal statistic is null ($p=0.8082$). A separate two-galaxy $m=2$ statistic is numerically non-null, but the $m=1$ control is also non-null and the source-label integrity audit fails. A higher-dimensional four-galaxy confirmatory packet stops at its predeclared sector-occupancy gate without releasing a score. These are distinct proxy and transfer tests, not direct repeats of the Paper 2 classifier.
 
@@ -230,13 +235,13 @@ The distance-stress labels are operational. Greedy unique matching pairs each A 
 \toprule
 Check & N & Value & Secondary value\\
 \midrule
-partial distance residual correlation & 45 & 0.434416486 & nuisance controls\\
-partial distance residual AUC & 45 & 0.662000000 & residual split\\
-nuisance-only model R2 & 45 & 0.207747757 & nuisance-only\\
-point-count correlation & 45 & -0.256276232 & nuisance channel\\
-velocity-error correlation & 45 & -0.196321724 & nuisance channel\\
-inclination-error correlation & 45 & 0.251685097 & nuisance channel\\
-distance-error correlation & 45 & -0.155582292 & nuisance channel\\
+partial distance residual correlation & 45 & 0.434 & nuisance controls\\
+partial distance residual AUC & 45 & 0.662 & residual split\\
+nuisance-only model R2 & 45 & 0.208 & nuisance-only\\
+point-count correlation & 45 & -0.256 & nuisance channel\\
+velocity-error correlation & 45 & -0.196 & nuisance channel\\
+inclination-error correlation & 45 & 0.252 & nuisance channel\\
+distance-error correlation & 45 & -0.156 & nuisance channel\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -253,9 +258,11 @@ The later Tau Core full-4D descent changes neither the frozen feature map nor an
 
 The next paper-grade step is a new source-frozen independent matched-tracer or external source-family test with $N\geq15$, no velocity-endpoint refit, explicit observability and baryonic covariates, declared standard/common residual comparators, and predefined failure conditions. A negative Phase II result should be treated as evidence that the present association is SPARC-specific, proxy-specific, or observability-driven.
 
-\clearpage
+\section{Upstream Interface and Canonical Three-Pillar Bridge}
+\label{sec:upstream-interface}
+
 % BEGIN OBSERVER UPDATE 20260914
-\section{Observer realization: inherited results and physical boundary}
+\subsection{Observer Realization: Inherited Results and Physical Boundary}
 \label{sec:observer-update-20260914}
 The current observer programme distinguishes a conditional mathematical
 construction from an occupied physical measuring system. The source order
@@ -264,7 +271,7 @@ observer--source restriction, shared descriptor, and resolved terminal
 readouts. Neither a detector nor an empirical residual constructs the parent
 body backwards. Dynamics below concern downstream subsystems only.
 
-The canonical observer-origin derivation, Sections 22--26, owns the following
+Technical Paper TD-II (\emph{Body-to-Readout Derivation}) owns the following
 results. The existing joint source action fixes static and frequency-dependent
 response together. Variation of the BRAC potential couples to the field
 square; a linear field coupling is a distinct comparator unless derived by
@@ -285,61 +292,44 @@ a preparation mechanism, and a covariance or optimal abstract measurement is
 not an implemented stable quantizer $Q_{OS}$.
 
 \paragraph{Ownership and use.}
-The central observer-origin note owns the new contact, state and covariance
-derivations; the body-readout technical companion carries the consolidated
-mathematics. Foundation Papers IV, V and VI retain physical-selection,
-clock-descent and quantum-readout ownership, respectively. This paper imports
-only the consequences within its scope. No observational dataset, baseline,
-frozen coefficient, score or empirical conclusion is revised by this update.
-The reproducibility supplement records the source hashes and the exact
-conditional/physical distinction.
-
+Technical Paper TD-II (\emph{Body-to-Readout Derivation}) carries the consolidated
+contact, state, and covariance mathematics, while Foundation Papers IV, V, and VI
+retain physical-selection, clock-descent, and quantum-readout ownership,
+respectively. This paper imports only the consequences within its scope. No
+observational dataset, baseline, frozen coefficient, score, or empirical
+conclusion is revised by this update.
 
 \paragraph{Consequence for this paper.}
 For galactic inference, these observer constructions do not derive a rotation-curve correction or identify a measured residual as a parent effect. Existing endpoint freezes and scores are unchanged.
 % END OBSERVER UPDATE 20260914
 
 % BEGIN STATE UPDATE 20260918
-\section{Source identification and recovery}
-The current observer audit separates a conditional forward construction from physical source selection. A frozen body, occupied observer incidence, preparation, complete instrument and stable resolution can determine records without selecting those inputs from Nature. Equal effects do not fix postmeasurement states, and symmetry within a chosen interaction family does not exclude other symmetric couplings. For galactic inference, these observer constructions do not derive a rotation-curve correction or identify a measured residual as a parent effect. Existing endpoint freezes and scores are unchanged.
+\subsection{Source Identification and Forward-Access Boundary}
+The observer audit separates a conditional forward construction from physical source selection. A frozen body, occupied observer incidence, preparation, complete instrument, and stable resolution can determine records without selecting those inputs from Nature. Equal effects do not fix postmeasurement states, and symmetry within a chosen interaction family does not exclude other symmetric couplings.
 
 \paragraph{Dependency and claim ownership.}
-Foundation VI and the body--readout technical companion own the finite instrument/access proof; Foundation IV and TD-0 retain physical source selection; Foundation V, the temporal synthesis and seed--body companion own the gradient/inertial distinction. This paper inherits only the stated specialization. Canonical assumptions, countermodels and calibration audits are in \url{https://github.com/tau-core-research/tau-core-theory/blob/main/docs/tau_rqm_instrument_to_record_bridge_001.md}. No physical seed, Nature occupation or Tau-exclusive observation is established by this update. Existing empirical endpoint definitions and scores are unchanged.
+Foundation VI and Technical Paper TD-II (\emph{Body-to-Readout Derivation}) own the finite instrument/access proof; Foundation IV and TD-0 retain physical source selection; Foundation V, the temporal synthesis, and the seed--body companion own the gradient/inertial distinction. Canonical assumptions, countermodels, and calibration audits are archived at \url{https://github.com/tau-core-research/tau-core-theory/blob/main/docs/tau_rqm_instrument_to_record_bridge_001.md}. No physical seed, Nature occupation, or Tau-exclusive observation is established by this interface, and all empirical endpoint definitions and scores remain unchanged.
 % END STATE UPDATE 20260918
 
 % BEGIN PAIR READOUT UPDATE 20260927
-\section{Conditional source preparation and time-resolved access}
-The common-operator scalar--Dirac completion now supports an explicit
-conditional chain from interaction vertices to pair transfer and joint
-readout. Nonzero vertices do not select occupation. Relational coherence
-can be generated from an occupied number-diagonal pair even while both
-local mean fields vanish. In a declared resonant rotating-wave and Markov
-loss model, finite-window emission retains this coherence information,
-whereas an all-time count discards it. This is standard-compatible quantum
-recovery, not a Tau-specific observational residual.
-For galactic inference, these observer constructions do not derive a rotation-curve correction or identify a measured residual as a parent effect. Existing endpoint freezes and scores are unchanged.
-\paragraph{Dependency ownership and limits.}
-The P4 common-source assembly owns the scalar/Yukawa benchmark and finite
-preparation calculations; Foundation VI and the body--readout companion
-inherit the joint-access mathematics. Foundation IV and TD-0 retain
-physical source selection, and Foundation V retains clock descent.
-The parent remains atemporal: the evolution above is a conditional
-downstream 4D model, not parent memory or a derived morphogenetic time.
-Physical initial occupation, a gauge-complete realization, detector
-amplification, absolute calibration and stable observer-relative $Q_{OS}$
-remain unselected. No empirical endpoint or score is changed.
-The canonical derivation and reproducible numerical sources are linked at
-\url{https://github.com/tau-core-research/tau-core-theory/blob/main/docs/tau_core_p4_nonabelian_particle_common_source_assembly_001.md}.
+\paragraph{Imported result (CPR1).}
+\href{https://github.com/tau-core-research/tau-core-higgs-module-paper4/blob/main/paper4_full_derivation/full_derivation.pdf#nameddest=cpr1}{Paper 4, \emph{Full Derivation Ledger for the Branch A Higgs Module}}, section ``Conditional source preparation and time-resolved access,'' Theorem CPR1(b,c), v1.0 (2026-09-28), is the sole proof owner.
+The imported access-specific result is not a galaxy rotation law or an empirical correction. The frozen galactic construction and every endpoint score remain unchanged; this finite quantum model cannot identify a galactic residual as a parent effect.
+Physical preparation, detector/clock calibration and stable $Q_{OS}$ remain assumptions; no Tau-exclusive observation follows.
 % END PAIR READOUT UPDATE 20260927
+
+\subsection{Canonical Three-Pillar Reduction (2026-11-14)}
+In the consolidated Three-Pillar canonical reduction of the upstream programme (Theorems U1--U4, F1--F4, \texttt{COV-DIR}, and \texttt{HOMOG-K4}), the symmetric $K_4$/Clifford projector lock uniquely fixes the seed ratio $r_{\mathrm{seed}} = 1/4$ and the orbital/collective logarithmic readout coefficient $\alpha_{\mathrm{OCSR}} = \frac{5\sqrt{3}}{24} \approx 0.360844$ with $k = 0$ free continuous parameters, leaving only the single ontic existence postulate \texttt{POST-OCC-NU1} (\texttt{EAS-SNPR-N1}). While this upstream reduction situates the inherited Paper 1 benchmark $\alpha = 0.360$ within the $k = 0$ projector framework, all frozen Paper 2 residual-shape features, LOOGO scores, and unconditional claim boundaries remain strictly unchanged.
 
 \section{Conclusion}
 
-This paper finds marginal separation of externally reviewed A/C disturbance classes by fixed residual-shape features within the current SPARC packet. The strongest internal endpoint is Projection RMS, with LOOGO AUC=0.771008403, shuffled-label $p=0.002000000$, and a bootstrap distribution centered near the observed value. MOND-simple and empirical RAR-like residual scores also separate the classes, while the Newtonian baryonic RMS control is near chance. The result is therefore an unconditional low-acceleration residual-family association with structural disturbance, not a projection-formula-specific detection.
+This paper finds marginal separation of externally reviewed A/C disturbance classes by fixed residual-shape features within the current SPARC packet. The strongest internal endpoint is Projection RMS, with LOOGO $\mathrm{AUC} = 0.771$, shuffled-label $p = 0.0020$, and a bootstrap distribution centered near the observed value (95\% primary CI $[0.601, 0.909]$; 90\% stability interval $[0.630, 0.895]$). MOND-simple and empirical RAR-like residual scores also separate the classes, while the Newtonian baryonic RMS control is near chance. The result is therefore an unconditional low-acceleration residual-family association with structural disturbance, not a projection-formula-specific detection.
 
 The paper does not establish a new gravity model, does not validate Tau Core, and does not replace external disturbance labels with residual-only labels. The later Paper 3 conditional projection-contrast audit and the seven-galaxy EDGE--CALIFA morphology-proxy stress test are negative; the LITTLE THINGS and PHANGS continuations likewise do not pass a claim-raising external gate. The paper therefore does not establish conditional projection-specific information or completed external validation. CamB and the other named failure cases show that residual burden can be high in externally regular systems, and the observability checks show that distance, radial coverage, inclination, point count, and H\,I data quality remain live alternative explanations.
 
 The next decisive test is a new source-frozen independent matched-tracer or external source-family replication with at least $N\geq15$ score-ready galaxies, observability and baryonic covariates, common residual comparators, and predefined failure conditions. If that test supplies held-out proper-score increment in the same direction, the present result becomes a stronger phenomenological claim. If it fails, the appropriate interpretation is that the association is SPARC-specific, proxy-specific, or observability-driven.
 
+\appendix
 \clearpage
 \section{ROC appendix}
 
@@ -353,18 +343,18 @@ The next decisive test is a new source-frozen independent matched-tracer or exte
 
 \begin{table}[H]
 \centering
-\caption{Rank and stability effect-size summaries for Projection RMS.}
+\caption{Rank and stability effect-size summaries for Projection RMS (note: Table~\ref{tab:baseline_ci} reports 95\% bootstrap CIs $[p_{2.5},p_{97.5}]$, whereas the stability row below reports the 90\% bootstrap interval $[p_{05},p_{95}]$).}
 \footnotesize
 \begin{tabular}{lll}
 \toprule
 Metric & Value & Secondary value\\
 \midrule
-Mann--Whitney $U$ & 367.000000000 & nA=17;nC=28\\
-Cliff's $\delta$ & 0.542016807 & positive means C scores tend higher\\
-AUC minus chance & 0.271008403 & auc=0.771008403\\
-Bootstrap AUC median & 0.775210084 & p05=0.630252101;p95=0.894957983\\
-Label-shuffle AUC median & 0.497899160 & p95=0.634453782;observed=0.771008403\\
-AUC without CamB & 0.819196429 & A-class outlier removed for sensitivity only\\
+Mann--Whitney $U$ & 367.0 & nA=17; nC=28\\
+Cliff's $\delta$ & 0.542 & positive means C scores tend higher\\
+AUC minus chance & 0.271 & auc=0.771\\
+Bootstrap AUC median (90\% interval) & 0.775 & p05=0.630; p95=0.895 (5th--95th pct.)\\
+Label-shuffle AUC median & 0.498 & p95=0.634; observed=0.771\\
+AUC without CamB & 0.819 & A-class outlier removed for sensitivity only\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -374,8 +364,6 @@ AUC without CamB & 0.819196429 & A-class outlier removed for sensitivity only\\
 \includegraphics[width=0.72\linewidth]{figures/paper2_auc_stability_distributions.pdf}
 \caption{Bootstrap and shuffled-label AUC distributions for the Projection RMS endpoint.}
 \end{figure}
-
-\appendix
 
 \section{A/C sample table}
 
@@ -389,51 +377,51 @@ Galaxy & Class & Distance & Incl. & Points & Projection RMS\\
 Galaxy & Class & Distance & Incl. & Points & Projection RMS\\
 \midrule
 \endhead
-CamB & A & 3.36 & 65.0 & 9 & 0.963585384\\
-DDO154 & A & 4.04 & 64.0 & 12 & 0.138812041\\
-ESO079-G014 & A & 28.70 & 79.0 & 15 & 0.116776650\\
-ESO116-G012 & A & 13.00 & 74.0 & 15 & 0.118483994\\
-IC2574 & C & 3.91 & 75.0 & 34 & 0.221285260\\
-NGC0055 & C & 2.11 & 77.0 & 21 & 0.204516651\\
-NGC1705 & C & 5.73 & 80.0 & 14 & 0.354417125\\
-NGC2366 & C & 3.27 & 68.0 & 26 & 0.250878781\\
-NGC2403 & A & 3.16 & 63.0 & 73 & 0.084927422\\
-NGC2976 & C & 3.58 & 61.0 & 27 & 0.239111203\\
-NGC3109 & C & 1.33 & 70.0 & 25 & 0.175872342\\
-NGC3198 & A & 13.80 & 73.0 & 43 & 0.156224718\\
-NGC3741 & C & 3.21 & 70.0 & 21 & 0.204417844\\
-NGC3917 & A & 18.00 & 79.0 & 17 & 0.143599282\\
-NGC3972 & A & 18.00 & 77.0 & 10 & 0.101666153\\
-NGC4183 & A & 18.00 & 82.0 & 23 & 0.067793794\\
-NGC4559 & A & 9.00 & 67.0 & 32 & 0.133934337\\
-NGC5055 & C & 9.90 & 55.0 & 28 & 0.117536453\\
-NGC5585 & A & 7.06 & 51.0 & 24 & 0.173858350\\
-NGC6503 & A & 6.26 & 74.0 & 31 & 0.072498887\\
-NGC7331 & A & 14.70 & 75.0 & 36 & 0.098042642\\
-UGC00128 & A & 64.50 & 57.0 & 22 & 0.138644763\\
-UGC00191 & A & 17.10 & 45.0 & 9 & 0.124355499\\
-UGC00731 & C & 12.50 & 57.0 & 12 & 0.339703437\\
-UGC02455 & C & 6.92 & 51.0 & 8 & 0.793075490\\
-UGC03580 & C & 20.70 & 63.0 & 47 & 0.280295930\\
-UGC04305 & C & 3.45 & 40.0 & 22 & 0.595364038\\
-UGC04325 & C & 9.60 & 41.0 & 8 & 0.284250584\\
-UGC04499 & C & 12.50 & 50.0 & 9 & 0.137445134\\
-UGC05253 & C & 22.90 & 37.0 & 73 & 0.080485995\\
-UGC05716 & A & 21.30 & 54.0 & 12 & 0.113234582\\
-UGC05764 & A & 7.47 & 60.0 & 10 & 0.329468364\\
-UGC05829 & C & 8.64 & 34.0 & 11 & 0.138511849\\
-UGC05918 & C & 7.66 & 46.0 & 8 & 0.142410680\\
-UGC06446 & C & 12.00 & 51.0 & 17 & 0.194477890\\
-UGC06818 & C & 18.00 & 75.0 & 8 & 0.308337913\\
-UGC06917 & C & 18.00 & 56.0 & 11 & 0.071490152\\
-UGC06973 & C & 18.00 & 71.0 & 9 & 0.212731540\\
-UGC07323 & C & 8.00 & 47.0 & 10 & 0.146477589\\
-UGC07399 & C & 8.43 & 55.0 & 10 & 0.397297780\\
-UGC07577 & C & 2.59 & 63.0 & 9 & 0.654467132\\
-UGC07603 & C & 4.70 & 78.0 & 12 & 0.180772538\\
-UGC08490 & C & 4.65 & 50.0 & 30 & 0.186480775\\
-UGC08837 & C & 7.21 & 80.0 & 8 & 0.439660106\\
-UGC12632 & C & 9.77 & 46.0 & 15 & 0.105256872\\
+CamB & A & 3.36 & 65.0 & 9 & 0.964\\
+DDO154 & A & 4.04 & 64.0 & 12 & 0.139\\
+ESO079-G014 & A & 28.70 & 79.0 & 15 & 0.117\\
+ESO116-G012 & A & 13.00 & 74.0 & 15 & 0.118\\
+IC2574 & C & 3.91 & 75.0 & 34 & 0.221\\
+NGC0055 & C & 2.11 & 77.0 & 21 & 0.205\\
+NGC1705 & C & 5.73 & 80.0 & 14 & 0.354\\
+NGC2366 & C & 3.27 & 68.0 & 26 & 0.251\\
+NGC2403 & A & 3.16 & 63.0 & 73 & 0.085\\
+NGC2976 & C & 3.58 & 61.0 & 27 & 0.239\\
+NGC3109 & C & 1.33 & 70.0 & 25 & 0.176\\
+NGC3198 & A & 13.80 & 73.0 & 43 & 0.156\\
+NGC3741 & C & 3.21 & 70.0 & 21 & 0.204\\
+NGC3917 & A & 18.00 & 79.0 & 17 & 0.144\\
+NGC3972 & A & 18.00 & 77.0 & 10 & 0.102\\
+NGC4183 & A & 18.00 & 82.0 & 23 & 0.068\\
+NGC4559 & A & 9.00 & 67.0 & 32 & 0.134\\
+NGC5055 & C & 9.90 & 55.0 & 28 & 0.118\\
+NGC5585 & A & 7.06 & 51.0 & 24 & 0.174\\
+NGC6503 & A & 6.26 & 74.0 & 31 & 0.072\\
+NGC7331 & A & 14.70 & 75.0 & 36 & 0.098\\
+UGC00128 & A & 64.50 & 57.0 & 22 & 0.139\\
+UGC00191 & A & 17.10 & 45.0 & 9 & 0.124\\
+UGC00731 & C & 12.50 & 57.0 & 12 & 0.340\\
+UGC02455 & C & 6.92 & 51.0 & 8 & 0.793\\
+UGC03580 & C & 20.70 & 63.0 & 47 & 0.280\\
+UGC04305 & C & 3.45 & 40.0 & 22 & 0.595\\
+UGC04325 & C & 9.60 & 41.0 & 8 & 0.284\\
+UGC04499 & C & 12.50 & 50.0 & 9 & 0.137\\
+UGC05253 & C & 22.90 & 37.0 & 73 & 0.080\\
+UGC05716 & A & 21.30 & 54.0 & 12 & 0.113\\
+UGC05764 & A & 7.47 & 60.0 & 10 & 0.329\\
+UGC05829 & C & 8.64 & 34.0 & 11 & 0.139\\
+UGC05918 & C & 7.66 & 46.0 & 8 & 0.142\\
+UGC06446 & C & 12.00 & 51.0 & 17 & 0.194\\
+UGC06818 & C & 18.00 & 75.0 & 8 & 0.308\\
+UGC06917 & C & 18.00 & 56.0 & 11 & 0.071\\
+UGC06973 & C & 18.00 & 71.0 & 9 & 0.213\\
+UGC07323 & C & 8.00 & 47.0 & 10 & 0.146\\
+UGC07399 & C & 8.43 & 55.0 & 10 & 0.397\\
+UGC07577 & C & 2.59 & 63.0 & 9 & 0.654\\
+UGC07603 & C & 4.70 & 78.0 & 12 & 0.181\\
+UGC08490 & C & 4.65 & 50.0 & 30 & 0.186\\
+UGC08837 & C & 7.21 & 80.0 & 8 & 0.440\\
+UGC12632 & C & 9.77 & 46.0 & 15 & 0.105\\
 \bottomrule
 \end{longtable}
 

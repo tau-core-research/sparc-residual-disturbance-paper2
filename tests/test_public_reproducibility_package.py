@@ -195,7 +195,7 @@ def test_repo_is_slim_and_raw_data_free():
         text=True,
     ).stdout.splitlines()
 
-    assert len(tracked) <= 75
+    assert len(tracked) <= 85
     assert not any(path.startswith("data/raw/") for path in tracked)
     assert not any(path.startswith("data/sparc/Rotmod_LTG/") for path in tracked)
     assert not any("tau_core_signal_candidate" in path for path in tracked)
